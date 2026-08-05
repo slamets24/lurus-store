@@ -1,15 +1,13 @@
 <?php
 
 /**
- * Vercel serverless entry — forwards all requests to Laravel's public/index.php.
- *
- * The Vercel filesystem is read-only except /tmp, so writable Laravel paths
- * are redirected there before the framework boots.
+ * Vercel serverless entry — same pattern as sweing-pay.
+ * Writable Laravel paths live under /tmp (read-only FS except /tmp).
  */
 
 $tmpRoot = '/tmp/lurus-store';
 
-$writableDirs = [
+foreach ([
     $tmpRoot.'/storage/app/public',
     $tmpRoot.'/storage/app/private',
     $tmpRoot.'/storage/framework/cache/data',
@@ -17,9 +15,7 @@ $writableDirs = [
     $tmpRoot.'/storage/framework/views',
     $tmpRoot.'/storage/logs',
     $tmpRoot.'/bootstrap/cache',
-];
-
-foreach ($writableDirs as $dir) {
+] as $dir) {
     if (! is_dir($dir)) {
         mkdir($dir, 0755, true);
     }
