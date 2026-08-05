@@ -1,0 +1,350 @@
+{
+    "version": 1,
+    "users": [
+        {
+            "name": "Super Admin",
+            "email": "superadmin@lurusstore.com",
+            "role": "super-admin"
+        },
+        {
+            "name": "Admin",
+            "email": "admin@lurusstore.com",
+            "role": "admin",
+            "created_by": "superadmin@lurusstore.com"
+        }
+    ],
+    "categories": [
+        {
+            "name": "Blouse",
+            "slug": "blouse",
+            "description": "Blouse modest dengan potongan nyaman untuk aktivitas harian.",
+            "sort_order": 1
+        },
+        {
+            "name": "Dress",
+            "slug": "dress",
+            "description": "Dress elegan untuk acara formal maupun kasual.",
+            "sort_order": 2
+        },
+        {
+            "name": "Skirt",
+            "slug": "skirt",
+            "description": "Rok panjang dan midi dengan siluet feminin.",
+            "sort_order": 3
+        },
+        {
+            "name": "Pants",
+            "slug": "pants",
+            "description": "Celana panjang modest dengan bahan adem.",
+            "sort_order": 4
+        },
+        {
+            "name": "Outer",
+            "slug": "outer",
+            "description": "Outerwear ringan untuk melengkapi outfit.",
+            "sort_order": 5
+        },
+        {
+            "name": "Scarves",
+            "slug": "scarves",
+            "description": "Scarf dan hijab segi empat premium.",
+            "sort_order": 6
+        },
+        {
+            "name": "Shoes",
+            "slug": "shoes",
+            "description": "Sepatu dan sandal modest untuk wanita.",
+            "sort_order": 7
+        },
+        {
+            "name": "Bag",
+            "slug": "bag",
+            "description": "Tas selempang dan tote untuk daily wear.",
+            "sort_order": 8
+        },
+        {
+            "name": "Accessories",
+            "slug": "accessories",
+            "description": "Aksesori pelengkap outfit modest.",
+            "sort_order": 9
+        },
+        {
+            "name": "Prayer Set",
+            "slug": "prayer-set",
+            "description": "Mukena dan perlengkapan ibadah.",
+            "sort_order": 10
+        }
+    ],
+    "collections": [
+        {
+            "name": "New Collection",
+            "slug": "new-collection",
+            "description": "Latest arrivals for this season",
+            "subtitle": "Fresh styles curated just for you",
+            "sort_order": 0
+        },
+        {
+            "name": "Best Sellers",
+            "slug": "best-sellers",
+            "description": "Most popular items",
+            "subtitle": "Loved by our customers",
+            "sort_order": 1
+        },
+        {
+            "name": "Premium Line",
+            "slug": "premium",
+            "description": "Exclusive premium quality",
+            "subtitle": "The finest craftsmanship",
+            "sort_order": 2
+        },
+        {
+            "name": "Special Offers",
+            "slug": "special-offers",
+            "description": "Limited-time modest fashion deals",
+            "subtitle": "Save on selected pieces",
+            "sort_order": 3
+        }
+    ],
+    "products": [
+        {
+            "category_slug": "blouse",
+            "name": "Calla Blouse",
+            "sku": "LUR-BLS-001",
+            "price": 379000,
+            "discount_percent": 0,
+            "stock": 24,
+            "colors": ["Dusty Blue", "Ivory"],
+            "sizes": ["S", "M", "L", "XL"],
+            "material": "Premium cotton denim",
+            "description": "Blouse dengan bordir bunga di bagian bawah, puff sleeve, dan bahan denim lembut untuk tampilan modest yang elegan.",
+            "is_featured": true,
+            "collection_slugs": ["new-collection", "best-sellers"]
+        },
+        {
+            "category_slug": "blouse",
+            "name": "Serene Linen Blouse",
+            "sku": "LUR-BLS-002",
+            "price": 329000,
+            "discount_percent": 10,
+            "stock": 18,
+            "colors": ["Sand", "Olive"],
+            "sizes": ["S", "M", "L"],
+            "material": "Linen cotton blend",
+            "description": "Blouse linen dengan potongan longgar dan breathable, cocok untuk cuaca tropis.",
+            "is_featured": true,
+            "collection_slugs": ["new-collection"]
+        },
+        {
+            "category_slug": "dress",
+            "name": "Aurelia Midi Dress",
+            "sku": "LUR-DRS-001",
+            "price": 459000,
+            "discount_percent": 0,
+            "stock": 12,
+            "colors": ["Mocha", "Black"],
+            "sizes": ["S", "M", "L", "XL"],
+            "material": "Poly viscose",
+            "description": "Dress midi dengan detail plisket halus dan siluet flowy untuk acara semi-formal.",
+            "is_featured": true,
+            "collection_slugs": ["premium"]
+        },
+        {
+            "category_slug": "dress",
+            "name": "Bloom Wrap Dress",
+            "sku": "LUR-DRS-002",
+            "price": 399000,
+            "discount_percent": 15,
+            "stock": 10,
+            "colors": ["Rose", "Navy"],
+            "sizes": ["S", "M", "L"],
+            "material": "Rayon premium",
+            "description": "Wrap dress dengan ikat pinggang adjustable dan lengan panjang nyaman.",
+            "is_featured": false,
+            "collection_slugs": ["special-offers"]
+        },
+        {
+            "category_slug": "skirt",
+            "name": "Milanka Skirt",
+            "sku": "LUR-SKT-001",
+            "price": 299000,
+            "discount_percent": 0,
+            "stock": 20,
+            "colors": ["Taupe", "Black"],
+            "sizes": ["S", "M", "L", "XL"],
+            "material": "Woven polyester",
+            "description": "Rok panjang A-line dengan pinggang elastis dan draperi halus.",
+            "is_featured": true,
+            "collection_slugs": ["best-sellers", "new-collection"]
+        },
+        {
+            "category_slug": "skirt",
+            "name": "Pleated Modest Skirt",
+            "sku": "LUR-SKT-002",
+            "price": 279000,
+            "discount_percent": 0,
+            "stock": 16,
+            "colors": ["Grey", "Cream"],
+            "sizes": ["S", "M", "L"],
+            "material": "Crepe fabric",
+            "description": "Rok plisket full length dengan movement ringan dan tidak menerawang.",
+            "is_featured": false,
+            "collection_slugs": ["new-collection"]
+        },
+        {
+            "category_slug": "pants",
+            "name": "Wide Leg Palazzo",
+            "sku": "LUR-PNT-001",
+            "price": 319000,
+            "discount_percent": 0,
+            "stock": 14,
+            "colors": ["Black", "Khaki"],
+            "sizes": ["S", "M", "L", "XL"],
+            "material": "Cotton twill",
+            "description": "Celana palazzo dengan potongan wide leg dan karet pinggang nyaman.",
+            "is_featured": false,
+            "collection_slugs": ["new-collection"]
+        },
+        {
+            "category_slug": "outer",
+            "name": "Soft Knit Cardigan",
+            "sku": "LUR-OUT-001",
+            "price": 349000,
+            "discount_percent": 0,
+            "stock": 11,
+            "colors": ["Beige", "Brown"],
+            "sizes": ["M", "L", "XL"],
+            "material": "Soft knit",
+            "description": "Cardigan panjang dengan kancing depan dan bahan hangat namun ringan.",
+            "is_featured": true,
+            "collection_slugs": ["premium"]
+        },
+        {
+            "category_slug": "scarves",
+            "name": "Silk Touch Hijab",
+            "sku": "LUR-SCF-001",
+            "price": 89000,
+            "discount_percent": 0,
+            "stock": 40,
+            "colors": ["Blush", "Sage", "Ivory"],
+            "sizes": ["One Size"],
+            "material": "Silk touch chiffon",
+            "description": "Hijab segi empat dengan fall lembut dan tidak mudah kusut.",
+            "is_featured": true,
+            "collection_slugs": ["best-sellers"]
+        },
+        {
+            "category_slug": "scarves",
+            "name": "Pashmina Essential",
+            "sku": "LUR-SCF-002",
+            "price": 129000,
+            "discount_percent": 0,
+            "stock": 0,
+            "colors": ["Mocha", "Grey"],
+            "sizes": ["One Size"],
+            "material": "Pashmina blend",
+            "description": "Pashmina daily dengan dimensi generous dan warna netral.",
+            "is_featured": false,
+            "collection_slugs": ["new-collection"]
+        },
+        {
+            "category_slug": "bag",
+            "name": "Canvas Tote Bag",
+            "sku": "LUR-BAG-001",
+            "price": 199000,
+            "discount_percent": 0,
+            "stock": 15,
+            "colors": ["Natural", "Black"],
+            "sizes": ["One Size"],
+            "material": "Canvas",
+            "description": "Tote bag minimal dengan inner pocket dan strap adjustable.",
+            "is_featured": false,
+            "collection_slugs": ["new-collection"]
+        },
+        {
+            "category_slug": "accessories",
+            "name": "Minimal Gold Earrings",
+            "sku": "LUR-ACC-001",
+            "price": 79000,
+            "discount_percent": 0,
+            "stock": 30,
+            "colors": ["Gold"],
+            "sizes": ["One Size"],
+            "material": "Stainless steel gold plated",
+            "description": "Anting hoop kecil dengan finishing gold tone elegan.",
+            "is_featured": false,
+            "collection_slugs": ["special-offers"]
+        },
+        {
+            "category_slug": "prayer-set",
+            "name": "Luna Prayer Set",
+            "sku": "LUR-PRY-001",
+            "price": 249000,
+            "discount_percent": 0,
+            "stock": 8,
+            "colors": ["Dusty Pink", "Grey Blue"],
+            "sizes": ["One Size"],
+            "material": "Cool rayon",
+            "description": "Set mukena travel-friendly dengan pouch matching dan bahan adem.",
+            "is_featured": true,
+            "collection_slugs": ["premium"]
+        },
+        {
+            "category_slug": "shoes",
+            "name": "Comfort Flat Loafers",
+            "sku": "LUR-SHO-001",
+            "price": 269000,
+            "discount_percent": 20,
+            "stock": 9,
+            "colors": ["Black", "Nude"],
+            "sizes": ["36", "37", "38", "39", "40"],
+            "material": "Synthetic leather",
+            "description": "Loafers flat dengan insole empuk untuk aktivitas harian.",
+            "is_featured": false,
+            "collection_slugs": ["special-offers"]
+        }
+    ],
+    "store_settings": {
+        "announcement_bar": {
+            "enabled": true,
+            "text": "Don't wait — shop now",
+            "link": "/products"
+        },
+        "home_sections": [
+            {
+                "key": "apparels",
+                "label": "Apparels",
+                "category_slugs": ["blouse", "dress", "skirt", "pants", "outer"]
+            },
+            {
+                "key": "essentials",
+                "label": "Essentials",
+                "category_slugs": ["scarves", "shoes", "bag", "accessories", "prayer-set"]
+            }
+        ],
+        "social_links": [
+            { "name": "Instagram", "url": "https://instagram.com" },
+            { "name": "TikTok", "url": "https://tiktok.com" },
+            { "name": "YouTube", "url": "https://youtube.com" }
+        ],
+        "whatsapp_number": "6281234567890",
+        "featured_product_skus": ["LUR-BLS-001", "LUR-SKT-001", "LUR-DRS-001", "LUR-SCF-001"],
+        "promo_popup": {
+            "enabled": false,
+            "title": "Welcome to Lurus Store",
+            "body": "Discover our latest modest collection.",
+            "cta_label": "Shop Now",
+            "cta_url": "/products"
+        },
+        "payment_settings": {
+            "enabled": true,
+            "methods": ["bank_transfer", "midtrans"],
+            "midtrans_channels": ["bca_va", "gopay", "shopeepay", "other_qris"]
+        },
+        "shipping_settings": {
+            "biteship_enabled": true,
+            "flat_shipping_cost": 25000,
+            "free_shipping_enabled": true,
+            "free_shipping_threshold": 500000
+        }
+    }
+}
