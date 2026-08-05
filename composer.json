@@ -52,8 +52,7 @@
             "@php artisan test"
         ],
         "vercel": [
-            "npm install --ignore-scripts",
-            "npm run build"
+            "@php artisan wayfinder:generate --with-form"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
