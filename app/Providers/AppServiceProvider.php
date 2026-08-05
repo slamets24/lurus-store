@@ -17,6 +17,15 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $storagePath = $_ENV['LARAVEL_STORAGE_PATH']
+            ?? $_SERVER['LARAVEL_STORAGE_PATH']
+            ?? getenv('LARAVEL_STORAGE_PATH')
+            ?: null;
+
+        if (is_string($storagePath) && $storagePath !== '') {
+            $this->app->useStoragePath($storagePath);
+        }
+
         $this->app->instance('sqlite-vec.available', false);
         $this->app->singleton('sqlite-vec.connection', fn () => null);
     }
