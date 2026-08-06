@@ -4,7 +4,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
  * @see app/Http/Controllers/Admin/AdminTestimonialController.php:11
  * @route '/admin/testimonials/{testimonial}/approve'
  */
-export const approve = (args: { testimonial: string | number | { id: string | number } } | [testimonial: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+export const approve = (args: { testimonial: number | { id: number } } | [testimonial: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: approve.url(args, options),
     method: 'patch',
 })
@@ -19,7 +19,7 @@ approve.definition = {
  * @see app/Http/Controllers/Admin/AdminTestimonialController.php:11
  * @route '/admin/testimonials/{testimonial}/approve'
  */
-approve.url = (args: { testimonial: string | number | { id: string | number } } | [testimonial: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+approve.url = (args: { testimonial: number | { id: number } } | [testimonial: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { testimonial: args }
     }
@@ -52,7 +52,7 @@ approve.url = (args: { testimonial: string | number | { id: string | number } } 
  * @see app/Http/Controllers/Admin/AdminTestimonialController.php:11
  * @route '/admin/testimonials/{testimonial}/approve'
  */
-approve.patch = (args: { testimonial: string | number | { id: string | number } } | [testimonial: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+approve.patch = (args: { testimonial: number | { id: number } } | [testimonial: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: approve.url(args, options),
     method: 'patch',
 })
@@ -62,7 +62,7 @@ approve.patch = (args: { testimonial: string | number | { id: string | number } 
  * @see app/Http/Controllers/Admin/AdminTestimonialController.php:11
  * @route '/admin/testimonials/{testimonial}/approve'
  */
-    const approveForm = (args: { testimonial: string | number | { id: string | number } } | [testimonial: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const approveForm = (args: { testimonial: number | { id: number } } | [testimonial: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: approve.url(args, {
                     [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                         _method: 'PATCH',
@@ -77,7 +77,7 @@ approve.patch = (args: { testimonial: string | number | { id: string | number } 
  * @see app/Http/Controllers/Admin/AdminTestimonialController.php:11
  * @route '/admin/testimonials/{testimonial}/approve'
  */
-        approveForm.patch = (args: { testimonial: string | number | { id: string | number } } | [testimonial: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        approveForm.patch = (args: { testimonial: number | { id: number } } | [testimonial: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: approve.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'PATCH',
@@ -93,7 +93,7 @@ approve.patch = (args: { testimonial: string | number | { id: string | number } 
  * @see app/Http/Controllers/Admin/AdminTestimonialController.php:18
  * @route '/admin/testimonials/{testimonial}'
  */
-export const reject = (args: { testimonial: string | number | { id: string | number } } | [testimonial: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+export const reject = (args: { testimonial: number | { id: number } } | [testimonial: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: reject.url(args, options),
     method: 'delete',
 })
@@ -108,7 +108,7 @@ reject.definition = {
  * @see app/Http/Controllers/Admin/AdminTestimonialController.php:18
  * @route '/admin/testimonials/{testimonial}'
  */
-reject.url = (args: { testimonial: string | number | { id: string | number } } | [testimonial: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+reject.url = (args: { testimonial: number | { id: number } } | [testimonial: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { testimonial: args }
     }
@@ -141,7 +141,7 @@ reject.url = (args: { testimonial: string | number | { id: string | number } } |
  * @see app/Http/Controllers/Admin/AdminTestimonialController.php:18
  * @route '/admin/testimonials/{testimonial}'
  */
-reject.delete = (args: { testimonial: string | number | { id: string | number } } | [testimonial: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+reject.delete = (args: { testimonial: number | { id: number } } | [testimonial: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: reject.url(args, options),
     method: 'delete',
 })
@@ -151,7 +151,7 @@ reject.delete = (args: { testimonial: string | number | { id: string | number } 
  * @see app/Http/Controllers/Admin/AdminTestimonialController.php:18
  * @route '/admin/testimonials/{testimonial}'
  */
-    const rejectForm = (args: { testimonial: string | number | { id: string | number } } | [testimonial: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const rejectForm = (args: { testimonial: number | { id: number } } | [testimonial: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: reject.url(args, {
                     [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                         _method: 'DELETE',
@@ -166,7 +166,7 @@ reject.delete = (args: { testimonial: string | number | { id: string | number } 
  * @see app/Http/Controllers/Admin/AdminTestimonialController.php:18
  * @route '/admin/testimonials/{testimonial}'
  */
-        rejectForm.delete = (args: { testimonial: string | number | { id: string | number } } | [testimonial: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        rejectForm.delete = (args: { testimonial: number | { id: number } } | [testimonial: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: reject.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'DELETE',

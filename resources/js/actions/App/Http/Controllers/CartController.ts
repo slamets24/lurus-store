@@ -137,7 +137,7 @@ add.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
  * @see app/Http/Controllers/CartController.php:95
  * @route '/cart/{cartItem}'
  */
-export const update = (args: { cartItem: string | number | { id: string | number } } | [cartItem: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+export const update = (args: { cartItem: number | { id: number } } | [cartItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: update.url(args, options),
     method: 'patch',
 })
@@ -152,7 +152,7 @@ update.definition = {
  * @see app/Http/Controllers/CartController.php:95
  * @route '/cart/{cartItem}'
  */
-update.url = (args: { cartItem: string | number | { id: string | number } } | [cartItem: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+update.url = (args: { cartItem: number | { id: number } } | [cartItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { cartItem: args }
     }
@@ -185,7 +185,7 @@ update.url = (args: { cartItem: string | number | { id: string | number } } | [c
  * @see app/Http/Controllers/CartController.php:95
  * @route '/cart/{cartItem}'
  */
-update.patch = (args: { cartItem: string | number | { id: string | number } } | [cartItem: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+update.patch = (args: { cartItem: number | { id: number } } | [cartItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: update.url(args, options),
     method: 'patch',
 })
@@ -195,7 +195,7 @@ update.patch = (args: { cartItem: string | number | { id: string | number } } | 
  * @see app/Http/Controllers/CartController.php:95
  * @route '/cart/{cartItem}'
  */
-    const updateForm = (args: { cartItem: string | number | { id: string | number } } | [cartItem: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const updateForm = (args: { cartItem: number | { id: number } } | [cartItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: update.url(args, {
                     [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                         _method: 'PATCH',
@@ -210,7 +210,7 @@ update.patch = (args: { cartItem: string | number | { id: string | number } } | 
  * @see app/Http/Controllers/CartController.php:95
  * @route '/cart/{cartItem}'
  */
-        updateForm.patch = (args: { cartItem: string | number | { id: string | number } } | [cartItem: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        updateForm.patch = (args: { cartItem: number | { id: number } } | [cartItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: update.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'PATCH',
@@ -226,7 +226,7 @@ update.patch = (args: { cartItem: string | number | { id: string | number } } | 
  * @see app/Http/Controllers/CartController.php:111
  * @route '/cart/{cartItem}'
  */
-export const remove = (args: { cartItem: string | number | { id: string | number } } | [cartItem: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+export const remove = (args: { cartItem: number | { id: number } } | [cartItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: remove.url(args, options),
     method: 'delete',
 })
@@ -241,7 +241,7 @@ remove.definition = {
  * @see app/Http/Controllers/CartController.php:111
  * @route '/cart/{cartItem}'
  */
-remove.url = (args: { cartItem: string | number | { id: string | number } } | [cartItem: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+remove.url = (args: { cartItem: number | { id: number } } | [cartItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { cartItem: args }
     }
@@ -274,7 +274,7 @@ remove.url = (args: { cartItem: string | number | { id: string | number } } | [c
  * @see app/Http/Controllers/CartController.php:111
  * @route '/cart/{cartItem}'
  */
-remove.delete = (args: { cartItem: string | number | { id: string | number } } | [cartItem: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+remove.delete = (args: { cartItem: number | { id: number } } | [cartItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: remove.url(args, options),
     method: 'delete',
 })
@@ -284,7 +284,7 @@ remove.delete = (args: { cartItem: string | number | { id: string | number } } |
  * @see app/Http/Controllers/CartController.php:111
  * @route '/cart/{cartItem}'
  */
-    const removeForm = (args: { cartItem: string | number | { id: string | number } } | [cartItem: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const removeForm = (args: { cartItem: number | { id: number } } | [cartItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: remove.url(args, {
                     [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                         _method: 'DELETE',
@@ -299,7 +299,7 @@ remove.delete = (args: { cartItem: string | number | { id: string | number } } |
  * @see app/Http/Controllers/CartController.php:111
  * @route '/cart/{cartItem}'
  */
-        removeForm.delete = (args: { cartItem: string | number | { id: string | number } } | [cartItem: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        removeForm.delete = (args: { cartItem: number | { id: number } } | [cartItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: remove.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'DELETE',

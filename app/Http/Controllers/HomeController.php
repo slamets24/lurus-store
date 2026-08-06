@@ -19,14 +19,17 @@ class HomeController extends Controller
     {
         $featuredProductIds = StoreContentSetting::value('featured_product_ids', []);
         $categories = Category::withCount('products')
-            ->orderBy('created_at', 'desc')
-            ->take(3)
+            ->with(['products' => fn ($q) => $q->where('is_active', true)->latest()->limit(1)->with('images')])
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->take(6)
             ->get()
             ->map(fn ($category) => [
                 'id' => $category->id,
                 'name' => $category->name,
                 'slug' => $category->slug,
-                'image' => $category->image,
+                'image' => $category->image
+                    ?? $category->products->first()?->images->first()?->image_path,
                 'products_count' => $category->products_count,
             ]);
 
@@ -41,6 +44,9 @@ class HomeController extends Controller
                     'desktopImage' => ! empty($banner['desktop_image']) ? Storage::url($banner['desktop_image']) : null,
                     'mobileImage' => ! empty($banner['mobile_image']) ? Storage::url($banner['mobile_image']) : null,
                     'link' => $banner['link'] ?? null,
+                    'title' => $banner['title'] ?? null,
+                    'subtitle' => $banner['subtitle'] ?? null,
+                    'ctaLabel' => $banner['cta_label'] ?? $banner['ctaLabel'] ?? null,
                 ])
                 ->values()
                 ->all(),
@@ -70,7 +76,7 @@ class HomeController extends Controller
                 ->latest()
                 ->limit(8)
                 ->get()
-                ->map(fn ($product) => $this->productCard($product));
+                ->map(fn ($product) => $this->homePage->productCard($product));
         }
 
         $products = Product::with(['images', 'publishedVariants'])
@@ -82,7 +88,7 @@ class HomeController extends Controller
         return collect($ids)
             ->map(fn ($id) => $products->get($id))
             ->filter()
-            ->map(fn ($product) => $this->productCard($product))
+            ->map(fn ($product) => $this->homePage->productCard($product))
             ->values();
     }
 
@@ -111,24 +117,8 @@ class HomeController extends Controller
                 'title' => $card['title'],
                 'slug' => $card['slug'],
                 'subtitle' => $card['subtitle'],
-                'product' => $this->productCard($card['product']),
+                'product' => $this->homePage->productCard($card['product']),
             ])
             ->values();
-    }
-
-    private function productCard(Product $product): array
-    {
-        return [
-            'id' => $product->id,
-            'name' => $product->name,
-            'slug' => $product->slug,
-            'price' => (float) $product->price,
-            'discount_percent' => (float) ($product->discount_percent ?? 0),
-            'effective_price' => $product->effectiveUnitPrice(),
-            'image' => $product->images->first()?->image_path,
-            'stock' => $product->publishedVariants->isNotEmpty()
-                ? $product->publishedVariants->sum('stock')
-                : $product->stock,
-        ];
     }
 }

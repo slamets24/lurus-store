@@ -4,7 +4,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
  * @see app/Http/Controllers/PaymentController.php:16
  * @route '/orders/{order}/midtrans'
  */
-export const midtrans = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const midtrans = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: midtrans.url(args, options),
     method: 'post',
 })
@@ -19,7 +19,7 @@ midtrans.definition = {
  * @see app/Http/Controllers/PaymentController.php:16
  * @route '/orders/{order}/midtrans'
  */
-midtrans.url = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions) => {
+midtrans.url = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { order: args }
     }
@@ -52,7 +52,7 @@ midtrans.url = (args: { order: string | number | { order_number: string | number
  * @see app/Http/Controllers/PaymentController.php:16
  * @route '/orders/{order}/midtrans'
  */
-midtrans.post = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+midtrans.post = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: midtrans.url(args, options),
     method: 'post',
 })
@@ -62,7 +62,7 @@ midtrans.post = (args: { order: string | number | { order_number: string | numbe
  * @see app/Http/Controllers/PaymentController.php:16
  * @route '/orders/{order}/midtrans'
  */
-    const midtransForm = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const midtransForm = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: midtrans.url(args, options),
         method: 'post',
     })
@@ -72,7 +72,7 @@ midtrans.post = (args: { order: string | number | { order_number: string | numbe
  * @see app/Http/Controllers/PaymentController.php:16
  * @route '/orders/{order}/midtrans'
  */
-        midtransForm.post = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        midtransForm.post = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: midtrans.url(args, options),
             method: 'post',
         })
@@ -83,7 +83,7 @@ midtrans.post = (args: { order: string | number | { order_number: string | numbe
  * @see app/Http/Controllers/PaymentController.php:49
  * @route '/orders/{order}/payment-proof'
  */
-export const proof = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const proof = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: proof.url(args, options),
     method: 'post',
 })
@@ -98,7 +98,7 @@ proof.definition = {
  * @see app/Http/Controllers/PaymentController.php:49
  * @route '/orders/{order}/payment-proof'
  */
-proof.url = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions) => {
+proof.url = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { order: args }
     }
@@ -131,7 +131,7 @@ proof.url = (args: { order: string | number | { order_number: string | number } 
  * @see app/Http/Controllers/PaymentController.php:49
  * @route '/orders/{order}/payment-proof'
  */
-proof.post = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+proof.post = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: proof.url(args, options),
     method: 'post',
 })
@@ -141,7 +141,7 @@ proof.post = (args: { order: string | number | { order_number: string | number }
  * @see app/Http/Controllers/PaymentController.php:49
  * @route '/orders/{order}/payment-proof'
  */
-    const proofForm = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const proofForm = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: proof.url(args, options),
         method: 'post',
     })
@@ -151,7 +151,7 @@ proof.post = (args: { order: string | number | { order_number: string | number }
  * @see app/Http/Controllers/PaymentController.php:49
  * @route '/orders/{order}/payment-proof'
  */
-        proofForm.post = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        proofForm.post = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: proof.url(args, options),
             method: 'post',
         })

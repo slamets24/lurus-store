@@ -67,6 +67,8 @@ export interface ProductCard {
     discount_percent?: number;
     effective_price?: number;
     image?: string | null;
+    hover_image?: string | null;
+    is_new?: boolean;
     stock?: number;
 }
 
@@ -95,6 +97,7 @@ export interface HomeSection {
     label: string;
     categories: Array<{ name: string; slug: string }>;
     products: ProductCard[];
+    productsByCategory: Record<string, ProductCard[]>;
 }
 
 export interface HeroBanner {

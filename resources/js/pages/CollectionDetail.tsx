@@ -18,6 +18,8 @@ function toCard(product: CollectionDetailProps['products']['data'][0]): ProductC
         discount_percent: product.discount_percent,
         effective_price: product.effective_price,
         image: product.image ?? product.images?.[0]?.image_path,
+        hover_image: product.hover_image ?? product.images?.[1]?.image_path,
+        is_new: product.is_new,
         stock: product.stock,
     };
 }

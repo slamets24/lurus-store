@@ -4,7 +4,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
  * @see app/Http/Controllers/Admin/AdminProductController.php:578
  * @route '/admin/products/images/{image}'
  */
-export const destroy = (args: { image: string | number | { id: string | number } } | [image: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+export const destroy = (args: { image: number | { id: number } } | [image: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -19,7 +19,7 @@ destroy.definition = {
  * @see app/Http/Controllers/Admin/AdminProductController.php:578
  * @route '/admin/products/images/{image}'
  */
-destroy.url = (args: { image: string | number | { id: string | number } } | [image: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+destroy.url = (args: { image: number | { id: number } } | [image: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { image: args }
     }
@@ -52,7 +52,7 @@ destroy.url = (args: { image: string | number | { id: string | number } } | [ima
  * @see app/Http/Controllers/Admin/AdminProductController.php:578
  * @route '/admin/products/images/{image}'
  */
-destroy.delete = (args: { image: string | number | { id: string | number } } | [image: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+destroy.delete = (args: { image: number | { id: number } } | [image: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -62,7 +62,7 @@ destroy.delete = (args: { image: string | number | { id: string | number } } | [
  * @see app/Http/Controllers/Admin/AdminProductController.php:578
  * @route '/admin/products/images/{image}'
  */
-    const destroyForm = (args: { image: string | number | { id: string | number } } | [image: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const destroyForm = (args: { image: number | { id: number } } | [image: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: destroy.url(args, {
                     [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                         _method: 'DELETE',
@@ -77,7 +77,7 @@ destroy.delete = (args: { image: string | number | { id: string | number } } | [
  * @see app/Http/Controllers/Admin/AdminProductController.php:578
  * @route '/admin/products/images/{image}'
  */
-        destroyForm.delete = (args: { image: string | number | { id: string | number } } | [image: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        destroyForm.delete = (args: { image: number | { id: number } } | [image: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: destroy.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'DELETE',

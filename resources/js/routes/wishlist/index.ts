@@ -137,7 +137,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
  * @see app/Http/Controllers/WishlistController.php:38
  * @route '/wishlist/{wishlistItem}'
  */
-export const destroy = (args: { wishlistItem: string | number | { id: string | number } } | [wishlistItem: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+export const destroy = (args: { wishlistItem: number | { id: number } } | [wishlistItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -152,7 +152,7 @@ destroy.definition = {
  * @see app/Http/Controllers/WishlistController.php:38
  * @route '/wishlist/{wishlistItem}'
  */
-destroy.url = (args: { wishlistItem: string | number | { id: string | number } } | [wishlistItem: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+destroy.url = (args: { wishlistItem: number | { id: number } } | [wishlistItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { wishlistItem: args }
     }
@@ -185,7 +185,7 @@ destroy.url = (args: { wishlistItem: string | number | { id: string | number } }
  * @see app/Http/Controllers/WishlistController.php:38
  * @route '/wishlist/{wishlistItem}'
  */
-destroy.delete = (args: { wishlistItem: string | number | { id: string | number } } | [wishlistItem: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+destroy.delete = (args: { wishlistItem: number | { id: number } } | [wishlistItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -195,7 +195,7 @@ destroy.delete = (args: { wishlistItem: string | number | { id: string | number 
  * @see app/Http/Controllers/WishlistController.php:38
  * @route '/wishlist/{wishlistItem}'
  */
-    const destroyForm = (args: { wishlistItem: string | number | { id: string | number } } | [wishlistItem: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const destroyForm = (args: { wishlistItem: number | { id: number } } | [wishlistItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: destroy.url(args, {
                     [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                         _method: 'DELETE',
@@ -210,7 +210,7 @@ destroy.delete = (args: { wishlistItem: string | number | { id: string | number 
  * @see app/Http/Controllers/WishlistController.php:38
  * @route '/wishlist/{wishlistItem}'
  */
-        destroyForm.delete = (args: { wishlistItem: string | number | { id: string | number } } | [wishlistItem: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        destroyForm.delete = (args: { wishlistItem: number | { id: number } } | [wishlistItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: destroy.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'DELETE',

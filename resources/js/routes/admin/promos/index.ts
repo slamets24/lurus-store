@@ -215,7 +215,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
  * @see app/Http/Controllers/Admin/AdminPromoController.php:63
  * @route '/admin/promos/{promo}/edit'
  */
-export const edit = (args: { promo: string | number | { id: string | number } } | [promo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const edit = (args: { promo: number | { id: number } } | [promo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: edit.url(args, options),
     method: 'get',
 })
@@ -230,7 +230,7 @@ edit.definition = {
  * @see app/Http/Controllers/Admin/AdminPromoController.php:63
  * @route '/admin/promos/{promo}/edit'
  */
-edit.url = (args: { promo: string | number | { id: string | number } } | [promo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+edit.url = (args: { promo: number | { id: number } } | [promo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { promo: args }
     }
@@ -263,7 +263,7 @@ edit.url = (args: { promo: string | number | { id: string | number } } | [promo:
  * @see app/Http/Controllers/Admin/AdminPromoController.php:63
  * @route '/admin/promos/{promo}/edit'
  */
-edit.get = (args: { promo: string | number | { id: string | number } } | [promo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+edit.get = (args: { promo: number | { id: number } } | [promo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: edit.url(args, options),
     method: 'get',
 })
@@ -272,7 +272,7 @@ edit.get = (args: { promo: string | number | { id: string | number } } | [promo:
  * @see app/Http/Controllers/Admin/AdminPromoController.php:63
  * @route '/admin/promos/{promo}/edit'
  */
-edit.head = (args: { promo: string | number | { id: string | number } } | [promo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+edit.head = (args: { promo: number | { id: number } } | [promo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: edit.url(args, options),
     method: 'head',
 })
@@ -282,7 +282,7 @@ edit.head = (args: { promo: string | number | { id: string | number } } | [promo
  * @see app/Http/Controllers/Admin/AdminPromoController.php:63
  * @route '/admin/promos/{promo}/edit'
  */
-    const editForm = (args: { promo: string | number | { id: string | number } } | [promo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    const editForm = (args: { promo: number | { id: number } } | [promo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
         action: edit.url(args, options),
         method: 'get',
     })
@@ -292,7 +292,7 @@ edit.head = (args: { promo: string | number | { id: string | number } } | [promo
  * @see app/Http/Controllers/Admin/AdminPromoController.php:63
  * @route '/admin/promos/{promo}/edit'
  */
-        editForm.get = (args: { promo: string | number | { id: string | number } } | [promo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        editForm.get = (args: { promo: number | { id: number } } | [promo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: edit.url(args, options),
             method: 'get',
         })
@@ -301,7 +301,7 @@ edit.head = (args: { promo: string | number | { id: string | number } } | [promo
  * @see app/Http/Controllers/Admin/AdminPromoController.php:63
  * @route '/admin/promos/{promo}/edit'
  */
-        editForm.head = (args: { promo: string | number | { id: string | number } } | [promo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        editForm.head = (args: { promo: number | { id: number } } | [promo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: edit.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',
@@ -317,7 +317,7 @@ edit.head = (args: { promo: string | number | { id: string | number } } | [promo
  * @see app/Http/Controllers/Admin/AdminPromoController.php:89
  * @route '/admin/promos/{promo}'
  */
-export const update = (args: { promo: string | number | { id: string | number } } | [promo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+export const update = (args: { promo: number | { id: number } } | [promo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(args, options),
     method: 'put',
 })
@@ -332,7 +332,7 @@ update.definition = {
  * @see app/Http/Controllers/Admin/AdminPromoController.php:89
  * @route '/admin/promos/{promo}'
  */
-update.url = (args: { promo: string | number | { id: string | number } } | [promo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+update.url = (args: { promo: number | { id: number } } | [promo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { promo: args }
     }
@@ -365,7 +365,7 @@ update.url = (args: { promo: string | number | { id: string | number } } | [prom
  * @see app/Http/Controllers/Admin/AdminPromoController.php:89
  * @route '/admin/promos/{promo}'
  */
-update.put = (args: { promo: string | number | { id: string | number } } | [promo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+update.put = (args: { promo: number | { id: number } } | [promo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(args, options),
     method: 'put',
 })
@@ -375,7 +375,7 @@ update.put = (args: { promo: string | number | { id: string | number } } | [prom
  * @see app/Http/Controllers/Admin/AdminPromoController.php:89
  * @route '/admin/promos/{promo}'
  */
-    const updateForm = (args: { promo: string | number | { id: string | number } } | [promo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const updateForm = (args: { promo: number | { id: number } } | [promo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: update.url(args, {
                     [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                         _method: 'PUT',
@@ -390,7 +390,7 @@ update.put = (args: { promo: string | number | { id: string | number } } | [prom
  * @see app/Http/Controllers/Admin/AdminPromoController.php:89
  * @route '/admin/promos/{promo}'
  */
-        updateForm.put = (args: { promo: string | number | { id: string | number } } | [promo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        updateForm.put = (args: { promo: number | { id: number } } | [promo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: update.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'PUT',
@@ -406,7 +406,7 @@ update.put = (args: { promo: string | number | { id: string | number } } | [prom
  * @see app/Http/Controllers/Admin/AdminPromoController.php:101
  * @route '/admin/promos/{promo}'
  */
-export const destroy = (args: { promo: string | number | { id: string | number } } | [promo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+export const destroy = (args: { promo: number | { id: number } } | [promo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -421,7 +421,7 @@ destroy.definition = {
  * @see app/Http/Controllers/Admin/AdminPromoController.php:101
  * @route '/admin/promos/{promo}'
  */
-destroy.url = (args: { promo: string | number | { id: string | number } } | [promo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+destroy.url = (args: { promo: number | { id: number } } | [promo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { promo: args }
     }
@@ -454,7 +454,7 @@ destroy.url = (args: { promo: string | number | { id: string | number } } | [pro
  * @see app/Http/Controllers/Admin/AdminPromoController.php:101
  * @route '/admin/promos/{promo}'
  */
-destroy.delete = (args: { promo: string | number | { id: string | number } } | [promo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+destroy.delete = (args: { promo: number | { id: number } } | [promo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -464,7 +464,7 @@ destroy.delete = (args: { promo: string | number | { id: string | number } } | [
  * @see app/Http/Controllers/Admin/AdminPromoController.php:101
  * @route '/admin/promos/{promo}'
  */
-    const destroyForm = (args: { promo: string | number | { id: string | number } } | [promo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const destroyForm = (args: { promo: number | { id: number } } | [promo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: destroy.url(args, {
                     [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                         _method: 'DELETE',
@@ -479,7 +479,7 @@ destroy.delete = (args: { promo: string | number | { id: string | number } } | [
  * @see app/Http/Controllers/Admin/AdminPromoController.php:101
  * @route '/admin/promos/{promo}'
  */
-        destroyForm.delete = (args: { promo: string | number | { id: string | number } } | [promo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        destroyForm.delete = (args: { promo: number | { id: number } } | [promo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: destroy.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'DELETE',

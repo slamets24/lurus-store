@@ -5,11 +5,10 @@ namespace App\Services;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\StoreContentSetting;
-use Illuminate\Support\Facades\Storage;
 
 class HomePageService
 {
-    /** @return list<array{key: string, label: string, categories: list<array{name: string, slug: string}>, products: list<array<string, mixed>>}> */
+    /** @return list<array{key: string, label: string, categories: list<array{name: string, slug: string}>, products: list<array<string, mixed>>, productsByCategory: array<string, list<array<string, mixed>>>}> */
     public function sections(): array
     {
         $config = StoreContentSetting::value('home_sections', $this->defaultSections());
@@ -17,7 +16,6 @@ class HomePageService
 
         foreach ($config as $section) {
             $categorySlugs = $section['category_slugs'] ?? [];
-            $activeSlug = $categorySlugs[0] ?? null;
             $categories = Category::query()
                 ->whereIn('slug', $categorySlugs)
                 ->where('is_active', true)
@@ -30,15 +28,19 @@ class HomePageService
                 ->values()
                 ->all();
 
-            $products = $activeSlug
-                ? $this->productsForCategorySlug($activeSlug)
-                : [];
+            $productsByCategory = [];
+            foreach ($categories as $category) {
+                $productsByCategory[$category['slug']] = $this->productsForCategorySlug($category['slug']);
+            }
+
+            $firstSlug = $categories[0]['slug'] ?? null;
 
             $sections[] = [
                 'key' => (string) ($section['key'] ?? 'section'),
                 'label' => (string) ($section['label'] ?? 'Collection'),
                 'categories' => $categories,
-                'products' => $products,
+                'products' => $firstSlug ? ($productsByCategory[$firstSlug] ?? []) : [],
+                'productsByCategory' => $productsByCategory,
             ];
         }
 
@@ -78,8 +80,10 @@ class HomePageService
     }
 
     /** @return array<string, mixed> */
-    private function productCard(Product $product): array
+    public function productCard(Product $product): array
     {
+        $images = $product->images;
+
         return [
             'id' => $product->id,
             'name' => $product->name,
@@ -87,7 +91,9 @@ class HomePageService
             'price' => (float) $product->price,
             'discount_percent' => (float) ($product->discount_percent ?? 0),
             'effective_price' => $product->effectiveUnitPrice(),
-            'image' => $product->images->first()?->image_path,
+            'image' => $images->first()?->image_path,
+            'hover_image' => $images->skip(1)->first()?->image_path,
+            'is_new' => $product->created_at?->gt(now()->subDays(30)) ?? false,
             'stock' => $product->publishedVariants->isNotEmpty()
                 ? $product->publishedVariants->sum(fn ($variant) => max(0, $variant->stock - $variant->stock_reserved))
                 : max(0, $product->stock - $product->stock_reserved),

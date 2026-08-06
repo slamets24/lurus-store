@@ -4,7 +4,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
  * @see app/Http/Controllers/Admin/AdminOrderController.php:179
  * @route '/admin/orders/{order}/payment/approve'
  */
-export const approve = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+export const approve = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: approve.url(args, options),
     method: 'patch',
 })
@@ -19,7 +19,7 @@ approve.definition = {
  * @see app/Http/Controllers/Admin/AdminOrderController.php:179
  * @route '/admin/orders/{order}/payment/approve'
  */
-approve.url = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions) => {
+approve.url = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { order: args }
     }
@@ -52,7 +52,7 @@ approve.url = (args: { order: string | number | { order_number: string | number 
  * @see app/Http/Controllers/Admin/AdminOrderController.php:179
  * @route '/admin/orders/{order}/payment/approve'
  */
-approve.patch = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+approve.patch = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: approve.url(args, options),
     method: 'patch',
 })
@@ -62,7 +62,7 @@ approve.patch = (args: { order: string | number | { order_number: string | numbe
  * @see app/Http/Controllers/Admin/AdminOrderController.php:179
  * @route '/admin/orders/{order}/payment/approve'
  */
-    const approveForm = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const approveForm = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: approve.url(args, {
                     [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                         _method: 'PATCH',
@@ -77,7 +77,7 @@ approve.patch = (args: { order: string | number | { order_number: string | numbe
  * @see app/Http/Controllers/Admin/AdminOrderController.php:179
  * @route '/admin/orders/{order}/payment/approve'
  */
-        approveForm.patch = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        approveForm.patch = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: approve.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'PATCH',
@@ -93,7 +93,7 @@ approve.patch = (args: { order: string | number | { order_number: string | numbe
  * @see app/Http/Controllers/Admin/AdminOrderController.php:197
  * @route '/admin/orders/{order}/payment/reject'
  */
-export const reject = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+export const reject = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: reject.url(args, options),
     method: 'patch',
 })
@@ -108,7 +108,7 @@ reject.definition = {
  * @see app/Http/Controllers/Admin/AdminOrderController.php:197
  * @route '/admin/orders/{order}/payment/reject'
  */
-reject.url = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions) => {
+reject.url = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { order: args }
     }
@@ -141,7 +141,7 @@ reject.url = (args: { order: string | number | { order_number: string | number }
  * @see app/Http/Controllers/Admin/AdminOrderController.php:197
  * @route '/admin/orders/{order}/payment/reject'
  */
-reject.patch = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+reject.patch = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: reject.url(args, options),
     method: 'patch',
 })
@@ -151,7 +151,7 @@ reject.patch = (args: { order: string | number | { order_number: string | number
  * @see app/Http/Controllers/Admin/AdminOrderController.php:197
  * @route '/admin/orders/{order}/payment/reject'
  */
-    const rejectForm = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const rejectForm = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: reject.url(args, {
                     [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                         _method: 'PATCH',
@@ -166,7 +166,7 @@ reject.patch = (args: { order: string | number | { order_number: string | number
  * @see app/Http/Controllers/Admin/AdminOrderController.php:197
  * @route '/admin/orders/{order}/payment/reject'
  */
-        rejectForm.patch = (args: { order: string | number | { order_number: string | number } } | [order: string | number | { order_number: string | number } ] | string | number | { order_number: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        rejectForm.patch = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: reject.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'PATCH',

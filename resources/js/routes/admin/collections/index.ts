@@ -215,7 +215,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
  * @see app/Http/Controllers/Admin/AdminCollectionController.php:82
  * @route '/admin/collections/{collection}/edit'
  */
-export const edit = (args: { collection: string | number | { id: string | number } } | [collection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const edit = (args: { collection: number | { id: number } } | [collection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: edit.url(args, options),
     method: 'get',
 })
@@ -230,7 +230,7 @@ edit.definition = {
  * @see app/Http/Controllers/Admin/AdminCollectionController.php:82
  * @route '/admin/collections/{collection}/edit'
  */
-edit.url = (args: { collection: string | number | { id: string | number } } | [collection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+edit.url = (args: { collection: number | { id: number } } | [collection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { collection: args }
     }
@@ -263,7 +263,7 @@ edit.url = (args: { collection: string | number | { id: string | number } } | [c
  * @see app/Http/Controllers/Admin/AdminCollectionController.php:82
  * @route '/admin/collections/{collection}/edit'
  */
-edit.get = (args: { collection: string | number | { id: string | number } } | [collection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+edit.get = (args: { collection: number | { id: number } } | [collection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: edit.url(args, options),
     method: 'get',
 })
@@ -272,7 +272,7 @@ edit.get = (args: { collection: string | number | { id: string | number } } | [c
  * @see app/Http/Controllers/Admin/AdminCollectionController.php:82
  * @route '/admin/collections/{collection}/edit'
  */
-edit.head = (args: { collection: string | number | { id: string | number } } | [collection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+edit.head = (args: { collection: number | { id: number } } | [collection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: edit.url(args, options),
     method: 'head',
 })
@@ -282,7 +282,7 @@ edit.head = (args: { collection: string | number | { id: string | number } } | [
  * @see app/Http/Controllers/Admin/AdminCollectionController.php:82
  * @route '/admin/collections/{collection}/edit'
  */
-    const editForm = (args: { collection: string | number | { id: string | number } } | [collection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    const editForm = (args: { collection: number | { id: number } } | [collection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
         action: edit.url(args, options),
         method: 'get',
     })
@@ -292,7 +292,7 @@ edit.head = (args: { collection: string | number | { id: string | number } } | [
  * @see app/Http/Controllers/Admin/AdminCollectionController.php:82
  * @route '/admin/collections/{collection}/edit'
  */
-        editForm.get = (args: { collection: string | number | { id: string | number } } | [collection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        editForm.get = (args: { collection: number | { id: number } } | [collection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: edit.url(args, options),
             method: 'get',
         })
@@ -301,7 +301,7 @@ edit.head = (args: { collection: string | number | { id: string | number } } | [
  * @see app/Http/Controllers/Admin/AdminCollectionController.php:82
  * @route '/admin/collections/{collection}/edit'
  */
-        editForm.head = (args: { collection: string | number | { id: string | number } } | [collection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        editForm.head = (args: { collection: number | { id: number } } | [collection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: edit.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',
@@ -317,7 +317,7 @@ edit.head = (args: { collection: string | number | { id: string | number } } | [
  * @see app/Http/Controllers/Admin/AdminCollectionController.php:108
  * @route '/admin/collections/{collection}'
  */
-export const update = (args: { collection: string | number | { id: string | number } } | [collection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+export const update = (args: { collection: number | { id: number } } | [collection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(args, options),
     method: 'put',
 })
@@ -332,7 +332,7 @@ update.definition = {
  * @see app/Http/Controllers/Admin/AdminCollectionController.php:108
  * @route '/admin/collections/{collection}'
  */
-update.url = (args: { collection: string | number | { id: string | number } } | [collection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+update.url = (args: { collection: number | { id: number } } | [collection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { collection: args }
     }
@@ -365,7 +365,7 @@ update.url = (args: { collection: string | number | { id: string | number } } | 
  * @see app/Http/Controllers/Admin/AdminCollectionController.php:108
  * @route '/admin/collections/{collection}'
  */
-update.put = (args: { collection: string | number | { id: string | number } } | [collection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+update.put = (args: { collection: number | { id: number } } | [collection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(args, options),
     method: 'put',
 })
@@ -375,7 +375,7 @@ update.put = (args: { collection: string | number | { id: string | number } } | 
  * @see app/Http/Controllers/Admin/AdminCollectionController.php:108
  * @route '/admin/collections/{collection}'
  */
-    const updateForm = (args: { collection: string | number | { id: string | number } } | [collection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const updateForm = (args: { collection: number | { id: number } } | [collection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: update.url(args, {
                     [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                         _method: 'PUT',
@@ -390,7 +390,7 @@ update.put = (args: { collection: string | number | { id: string | number } } | 
  * @see app/Http/Controllers/Admin/AdminCollectionController.php:108
  * @route '/admin/collections/{collection}'
  */
-        updateForm.put = (args: { collection: string | number | { id: string | number } } | [collection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        updateForm.put = (args: { collection: number | { id: number } } | [collection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: update.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'PUT',
@@ -406,7 +406,7 @@ update.put = (args: { collection: string | number | { id: string | number } } | 
  * @see app/Http/Controllers/Admin/AdminCollectionController.php:144
  * @route '/admin/collections/{collection}'
  */
-export const destroy = (args: { collection: string | number | { id: string | number } } | [collection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+export const destroy = (args: { collection: number | { id: number } } | [collection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -421,7 +421,7 @@ destroy.definition = {
  * @see app/Http/Controllers/Admin/AdminCollectionController.php:144
  * @route '/admin/collections/{collection}'
  */
-destroy.url = (args: { collection: string | number | { id: string | number } } | [collection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+destroy.url = (args: { collection: number | { id: number } } | [collection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { collection: args }
     }
@@ -454,7 +454,7 @@ destroy.url = (args: { collection: string | number | { id: string | number } } |
  * @see app/Http/Controllers/Admin/AdminCollectionController.php:144
  * @route '/admin/collections/{collection}'
  */
-destroy.delete = (args: { collection: string | number | { id: string | number } } | [collection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+destroy.delete = (args: { collection: number | { id: number } } | [collection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -464,7 +464,7 @@ destroy.delete = (args: { collection: string | number | { id: string | number } 
  * @see app/Http/Controllers/Admin/AdminCollectionController.php:144
  * @route '/admin/collections/{collection}'
  */
-    const destroyForm = (args: { collection: string | number | { id: string | number } } | [collection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const destroyForm = (args: { collection: number | { id: number } } | [collection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: destroy.url(args, {
                     [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                         _method: 'DELETE',
@@ -479,7 +479,7 @@ destroy.delete = (args: { collection: string | number | { id: string | number } 
  * @see app/Http/Controllers/Admin/AdminCollectionController.php:144
  * @route '/admin/collections/{collection}'
  */
-        destroyForm.delete = (args: { collection: string | number | { id: string | number } } | [collection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        destroyForm.delete = (args: { collection: number | { id: number } } | [collection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: destroy.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'DELETE',
