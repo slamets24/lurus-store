@@ -48,7 +48,7 @@ return Application::configure(basePath: dirname(__DIR__))
         );
 
         $exceptions->render(function (Throwable $e, Request $request) {
-            if (app()->isProduction() || ! env('VERCEL_DEBUG_ERRORS', false)) {
+            if (! filter_var(env('VERCEL_DEBUG_ERRORS', false), FILTER_VALIDATE_BOOL)) {
                 return null;
             }
 
