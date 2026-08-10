@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\ProductPlaceholderImages;
 use App\Support\WebpImage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,6 +35,15 @@ class ProductImage extends Model
 
     public function getImagePathAttribute(string $value): string
     {
+        // ponytail: remap old placehold.co seed URLs until production DB is migrated
+        if (str_contains($value, 'placehold.co')) {
+            $paths = ProductPlaceholderImages::paths();
+            if ($paths !== []) {
+                $offset = max(0, ((int) $this->product_id - 1) + max(0, (int) $this->sort_order - 1));
+                $value = $paths[$offset % count($paths)];
+            }
+        }
+
         return Str::startsWith($value, ['http://', 'https://', '/'])
             ? $value
             : Storage::url($value);
@@ -48,7 +58,7 @@ class ProductImage extends Model
     {
         $raw = $this->getRawOriginal('image_path');
 
-        if (! is_string($raw) || $raw === '' || Str::startsWith($raw, ['http://', 'https://', '/'])) {
+        if (! is_string($raw) || $raw === '' || Str::startsWith($raw, ['http://', 'https://', '/']) || str_contains((string) $raw, 'placehold.co')) {
             return $this->image_path;
         }
 
