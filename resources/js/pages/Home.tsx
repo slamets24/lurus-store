@@ -76,25 +76,28 @@ export default function Home({
                     </Link>
                 </section>
             ) : (
-                <section className="relative overflow-hidden bg-surface-container">
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#e8e0d4_0%,_transparent_55%)]" />
-                    <div className="relative mx-auto flex min-h-[70vh] max-w-[var(--container-max)] flex-col justify-end px-4 py-16 md:min-h-[60vh] md:justify-center md:px-[var(--spacing-margin-desktop)] md:py-24">
-                        <p className="text-xs tracking-[0.35em] text-warm-brown uppercase">Modest Fashion</p>
-                        <h1 className="mt-4 max-w-2xl font-serif text-5xl tracking-tight text-on-surface md:text-7xl">
-                            Lurus
-                        </h1>
-                        <p className="mt-4 max-w-md text-sm leading-relaxed text-secondary md:text-base">
-                            Refined silhouettes for everyday elegance — intentional modest wear, made to move with you.
-                        </p>
-                        <div className="mt-8 flex flex-wrap gap-3">
-                            <Button variant="accent" asChild>
-                                <Link href="/products">Shop Now</Link>
-                            </Button>
-                            <Button variant="outline" asChild>
-                                <Link href="/collections/new-collection">New Arrivals</Link>
-                            </Button>
+                <section className="relative">
+                    <Link href="/products" className="block">
+                        <img
+                            src="/images/productplaceholder/hero.jpg"
+                            alt="Lurus"
+                            className="aspect-[4/5] w-full object-cover sm:aspect-[16/9] md:aspect-[21/9]"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-transparent" />
+                        <div className="absolute inset-0 flex items-end justify-start p-6 md:items-center md:justify-center md:p-12">
+                            <div className="max-w-xl text-left text-white md:text-center">
+                                <p className="text-xs tracking-[0.35em] uppercase opacity-90">Modest Fashion</p>
+                                <h1 className="mt-3 font-serif text-4xl tracking-wide md:text-6xl">Lurus</h1>
+                                <p className="mt-3 max-w-md text-sm tracking-wide opacity-90 md:mx-auto md:text-base">
+                                    Refined silhouettes for everyday elegance — intentional modest wear, made to move with
+                                    you.
+                                </p>
+                                <Button variant="accent" className="mt-6" asChild>
+                                    <span>Shop Now</span>
+                                </Button>
+                            </div>
                         </div>
-                    </div>
+                    </Link>
                 </section>
             )}
 

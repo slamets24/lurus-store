@@ -30,6 +30,9 @@ final class ProductPlaceholderImages
 
         if (is_dir($dir)) {
             foreach (scandir($dir) ?: [] as $file) {
+                if ($file === 'hero.jpg' || $file === 'hero.webp' || $file === 'hero.png') {
+                    continue;
+                }
                 if (preg_match('/\.(webp|jpe?g|png)$/i', $file)) {
                     $files[] = $file;
                 }
