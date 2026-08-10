@@ -16,72 +16,79 @@ export default function Products({ products, categories }: ProductsProps) {
     return (
         <StorefrontLayout>
             <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 md:px-[var(--spacing-margin-desktop)] md:py-16">
-                <h1 className="mb-2 font-serif text-4xl tracking-tight">Shop</h1>
-                <p className="mb-10 text-sm text-secondary">Discover our modest fashion collection</p>
+                <div className="mb-10 text-center">
+                    <p className="text-[11px] tracking-[0.35em] text-secondary uppercase">Shop</p>
+                    <h1 className="mt-3 font-serif text-3xl tracking-tight md:text-4xl">All Products</h1>
+                    <p className="mx-auto mt-3 max-w-md text-sm text-secondary">
+                        Discover our modest fashion collection
+                    </p>
 
-                <div className="flex flex-col gap-10 lg:flex-row">
-                    <aside className="lg:w-56 lg:shrink-0">
-                        <h2 className="mb-4 text-xs tracking-widest text-secondary">FILTERS</h2>
-                        <div className="space-y-6 border border-outline-variant p-4">
-                            <div>
-                                <h3 className="mb-3 text-sm font-medium">Category</h3>
-                                <ul className="space-y-2 text-sm">
-                                    <li>
-                                        <Link
-                                            href="/products"
-                                            className={cn(
-                                                'hover:text-warm-brown',
-                                                !activeCategory && 'font-medium text-warm-brown',
-                                            )}
-                                        >
-                                            All Products
-                                        </Link>
-                                    </li>
-                                    {categories.map((cat) => (
-                                        <li key={cat.slug}>
-                                            <Link
-                                                href={`/products?category=${cat.slug}`}
-                                                className={cn(
-                                                    'hover:text-warm-brown',
-                                                    activeCategory === cat.slug && 'font-medium text-warm-brown',
-                                                )}
-                                            >
-                                                {cat.name}
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="mb-3 text-sm font-medium">Price</h3>
-                                <p className="text-xs text-secondary">Filter coming soon</p>
-                            </div>
-                            <div>
-                                <h3 className="mb-3 text-sm font-medium">Size</h3>
-                                <p className="text-xs text-secondary">Filter coming soon</p>
-                            </div>
-                        </div>
-                    </aside>
-
-                    <div className="flex-1">
-                        <p className="mb-6 text-sm text-secondary">
-                            Showing {products.meta.from ?? 0}–{products.meta.to ?? 0} of {products.meta.total} products
-                        </p>
-
-                        {products.data.length > 0 ? (
-                            <>
-                                <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
-                                    {products.data.map((product) => (
-                                        <ProductCard key={product.id} product={product} />
-                                    ))}
-                                </div>
-                                <Pagination pagination={products} className="mt-12" />
-                            </>
-                        ) : (
-                            <p className="py-20 text-center text-secondary">No products found.</p>
-                        )}
+                    <div
+                        className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 md:gap-x-12"
+                        role="tablist"
+                    >
+                        <Link
+                            href="/products"
+                            role="tab"
+                            aria-selected={!activeCategory}
+                            className={cn(
+                                'relative pb-2 text-sm tracking-[0.2em] uppercase transition-colors md:text-base',
+                                !activeCategory
+                                    ? 'text-on-surface'
+                                    : 'text-secondary hover:text-on-surface',
+                            )}
+                        >
+                            All
+                            <span
+                                aria-hidden
+                                className={cn(
+                                    'absolute inset-x-0 bottom-0 h-px bg-on-surface transition-opacity',
+                                    !activeCategory ? 'opacity-100' : 'opacity-0',
+                                )}
+                            />
+                        </Link>
+                        {categories.map((cat) => (
+                            <Link
+                                key={cat.slug}
+                                href={`/products?category=${cat.slug}`}
+                                role="tab"
+                                aria-selected={activeCategory === cat.slug}
+                                className={cn(
+                                    'relative pb-2 text-sm tracking-[0.2em] uppercase transition-colors md:text-base',
+                                    activeCategory === cat.slug
+                                        ? 'text-on-surface'
+                                        : 'text-secondary hover:text-on-surface',
+                                )}
+                            >
+                                {cat.name}
+                                <span
+                                    aria-hidden
+                                    className={cn(
+                                        'absolute inset-x-0 bottom-0 h-px bg-on-surface transition-opacity',
+                                        activeCategory === cat.slug ? 'opacity-100' : 'opacity-0',
+                                    )}
+                                />
+                            </Link>
+                        ))}
                     </div>
+
+                    <p className="mt-6 text-xs tracking-wide text-secondary">
+                        Showing {products.from ?? 0}–{products.to ?? 0} of {products.total}
+                    </p>
                 </div>
+
+                {products.data.length > 0 ? (
+                    <>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
+                            {products.data.map((product) => (
+                                <ProductCard key={product.id} product={product} />
+                            ))}
+                        </div>
+                        <Pagination pagination={products} className="mt-12" />
+                    </>
+                ) : (
+                    <p className="py-20 text-center text-secondary">No products found.</p>
+                )}
             </div>
         </StorefrontLayout>
     );

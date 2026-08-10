@@ -29,17 +29,28 @@ export default function CollectionDetail({ collection, products }: CollectionDet
         <StorefrontLayout>
             <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 md:px-[var(--spacing-margin-desktop)] md:py-16">
                 {collection.banner_image && (
-                    <div className="mb-10 aspect-[21/9] overflow-hidden bg-surface-container">
-                        <img src={storageUrl(collection.banner_image)} alt={collection.name} className="h-full w-full object-cover" />
+                    <div className="mb-12 aspect-[21/9] overflow-hidden bg-surface-container">
+                        <img
+                            src={storageUrl(collection.banner_image)}
+                            alt={collection.name}
+                            className="h-full w-full object-cover"
+                        />
                     </div>
                 )}
-                {collection.subtitle && (
-                    <p className="text-xs tracking-widest text-secondary">{collection.subtitle.toUpperCase()}</p>
-                )}
-                <h1 className="mb-2 font-serif text-4xl tracking-tight">{collection.name}</h1>
-                {collection.description && (
-                    <p className="mb-10 max-w-2xl text-sm leading-relaxed text-secondary">{collection.description}</p>
-                )}
+
+                <div className="mb-12 text-center">
+                    <p className="text-[11px] tracking-[0.35em] text-secondary uppercase">
+                        {collection.subtitle || 'Collection'}
+                    </p>
+                    <h1 className="mt-3 font-serif text-3xl tracking-tight md:text-4xl">
+                        {collection.name}
+                    </h1>
+                    {collection.description && (
+                        <p className="mx-auto mt-3 max-w-md text-sm text-secondary">
+                            {collection.description}
+                        </p>
+                    )}
+                </div>
 
                 {products.data.length > 0 ? (
                     <>

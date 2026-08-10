@@ -101,10 +101,18 @@ class ProductFactory extends Factory
     {
         return $this->afterCreating(function ($product) {
             $imageCount = rand(0, 3);
+            if ($imageCount === 0) {
+                return;
+            }
 
-            for ($i = 0; $i < $imageCount; $i++) {
+            $paths = \App\Support\ProductPlaceholderImages::forProduct($product->id, $imageCount);
+            if ($paths === []) {
+                $paths = ['https://placehold.co/800x800/efeee9/333333?text='.urlencode($product->name)];
+            }
+
+            foreach ($paths as $i => $path) {
                 $product->images()->create([
-                    'image_path' => 'https://placehold.co/800x800/efeee9/333333?text='.urlencode($product->name),
+                    'image_path' => $path,
                     'is_primary' => $i === 0,
                     'sort_order' => $i + 1,
                 ]);

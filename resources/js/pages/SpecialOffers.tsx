@@ -1,20 +1,23 @@
 import { Link } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 
 export default function SpecialOffers() {
     return (
         <StorefrontLayout>
-            <div className="mx-auto max-w-3xl px-4 py-16 text-center md:px-[var(--spacing-margin-desktop)] md:py-24">
-                <p className="text-xs tracking-widest text-secondary">LIMITED TIME</p>
-                <h1 className="mt-2 font-serif text-4xl tracking-tight">Special Offers</h1>
-                <p className="mx-auto mt-6 max-w-lg text-sm leading-relaxed text-secondary">
-                    Enjoy exclusive discounts on selected modest fashion pieces. New offers added regularly —
-                    check back often for the best deals.
-                </p>
-                <Button variant="accent" className="mt-10" asChild>
-                    <Link href="/products">Shop Offers</Link>
-                </Button>
+            <div className="mx-auto max-w-[var(--container-max)] px-4 py-16 md:px-[var(--spacing-margin-desktop)] md:py-24">
+                <div className="mb-10 text-center">
+                    <p className="text-[11px] tracking-[0.35em] text-secondary uppercase">Special Offers</p>
+                    <h1 className="mt-3 font-serif text-3xl tracking-tight md:text-4xl">Limited Time</h1>
+                    <p className="mx-auto mt-3 max-w-md text-sm text-secondary">
+                        Exclusive discounts on selected modest fashion pieces. New offers added regularly.
+                    </p>
+                    <Link
+                        href="/collections/special-offers"
+                        className="mt-8 inline-block text-[11px] tracking-[0.25em] text-secondary uppercase transition-colors hover:text-on-surface"
+                    >
+                        View Offers
+                    </Link>
+                </div>
             </div>
         </StorefrontLayout>
     );

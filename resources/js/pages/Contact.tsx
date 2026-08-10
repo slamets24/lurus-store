@@ -13,26 +13,30 @@ export default function Contact() {
 
     return (
         <StorefrontLayout>
-            <div className="mx-auto max-w-[var(--container-max)] px-4 py-16 md:px-[var(--spacing-margin-desktop)] md:py-24">
-                <div className="grid gap-16 lg:grid-cols-2">
+            <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 md:px-[var(--spacing-margin-desktop)] md:py-16">
+                <div className="mb-14 text-center">
+                    <p className="text-[11px] tracking-[0.35em] text-secondary uppercase">Find Us</p>
+                    <h1 className="mt-3 font-serif text-3xl tracking-tight md:text-4xl">Get in Touch</h1>
+                    <p className="mx-auto mt-3 max-w-md text-sm text-secondary">
+                        Styling advice, order inquiries, or partnership opportunities — we&apos;d love to hear from you.
+                    </p>
+                </div>
+
+                <div className="mx-auto grid max-w-4xl gap-16 lg:grid-cols-2">
                     <div>
-                        <h1 className="mb-4 font-serif text-4xl tracking-tight">Find Us</h1>
-                        <p className="mb-8 text-sm leading-relaxed text-secondary">
-                            We&apos;d love to hear from you. Reach out for styling advice, order inquiries,
-                            or partnership opportunities.
-                        </p>
-                        <dl className="space-y-4 text-sm">
+                        <p className="mb-6 text-[11px] tracking-[0.25em] text-secondary uppercase">Details</p>
+                        <dl className="space-y-6 text-sm">
                             <div>
-                                <dt className="font-medium">Email</dt>
-                                <dd className="text-secondary">hello@example.com</dd>
+                                <dt className="tracking-wide text-on-surface">Email</dt>
+                                <dd className="mt-1 text-secondary">hello@example.com</dd>
                             </div>
                             <div>
-                                <dt className="font-medium">Hours</dt>
-                                <dd className="text-secondary">Mon – Sat, 9:00 – 18:00 WIB</dd>
+                                <dt className="tracking-wide text-on-surface">Hours</dt>
+                                <dd className="mt-1 text-secondary">Mon – Sat, 9:00 – 18:00 WIB</dd>
                             </div>
                             <div>
-                                <dt className="font-medium">Location</dt>
-                                <dd className="text-secondary">Jakarta, Indonesia</dd>
+                                <dt className="tracking-wide text-on-surface">Location</dt>
+                                <dd className="mt-1 text-secondary">Jakarta, Indonesia</dd>
                             </div>
                         </dl>
                     </div>
@@ -42,24 +46,30 @@ export default function Contact() {
                             e.preventDefault();
                             post('/contact');
                         }}
-                        className="space-y-4 border border-outline-variant p-8"
+                        className="space-y-5"
                     >
-                        <h2 className="font-serif text-xl">Send a Message</h2>
+                        <p className="text-[11px] tracking-[0.25em] text-secondary uppercase">Message</p>
                         {recentlySuccessful && (
-                            <p className="text-sm text-warm-brown">Message sent successfully. We will contact you soon.</p>
+                            <p className="text-sm text-warm-brown">
+                                Message sent successfully. We will contact you soon.
+                            </p>
                         )}
                         <div>
-                            <label className="mb-1 block text-sm">Name</label>
+                            <label className="mb-1.5 block text-sm">Name</label>
                             <Input value={data.name} onChange={(e) => setData('name', e.target.value)} />
                             {errors.name && <p className="mt-1 text-xs text-error">{errors.name}</p>}
                         </div>
                         <div>
-                            <label className="mb-1 block text-sm">Email</label>
-                            <Input type="email" value={data.email} onChange={(e) => setData('email', e.target.value)} />
+                            <label className="mb-1.5 block text-sm">Email</label>
+                            <Input
+                                type="email"
+                                value={data.email}
+                                onChange={(e) => setData('email', e.target.value)}
+                            />
                             {errors.email && <p className="mt-1 text-xs text-error">{errors.email}</p>}
                         </div>
                         <div>
-                            <label className="mb-1 block text-sm">Message</label>
+                            <label className="mb-1.5 block text-sm">Message</label>
                             <textarea
                                 value={data.message}
                                 onChange={(e) => setData('message', e.target.value)}
@@ -68,7 +78,15 @@ export default function Contact() {
                             />
                             {errors.message && <p className="mt-1 text-xs text-error">{errors.message}</p>}
                         </div>
-                        <input type="text" name="website" value={data.website} onChange={(e) => setData('website', e.target.value)} className="hidden" tabIndex={-1} autoComplete="off" />
+                        <input
+                            type="text"
+                            name="website"
+                            value={data.website}
+                            onChange={(e) => setData('website', e.target.value)}
+                            className="hidden"
+                            tabIndex={-1}
+                            autoComplete="off"
+                        />
                         <Button type="submit" variant="accent" disabled={processing}>
                             Send Message
                         </Button>

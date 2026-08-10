@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/ProductCard';
 import { Reveal } from '@/components/Reveal';
 import { cn } from '@/lib/utils';
@@ -19,39 +18,47 @@ export function HomeSection({ section }: HomeSectionProps) {
     return (
         <section className="py-[var(--spacing-section-gap)]">
             <Reveal>
-                <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                    <h2 className="font-serif text-3xl tracking-tight text-on-surface md:text-4xl">
+                <div className="mb-10 text-center">
+                    <p className="text-[11px] tracking-[0.35em] text-secondary uppercase">
                         {section.label}
-                    </h2>
-                    {activeSlug && (
-                        <Button variant="outline" asChild className="self-start md:self-auto">
-                            <Link href={`/categories/${activeSlug}`}>View All</Link>
-                        </Button>
+                    </p>
+
+                    {section.categories.length > 0 && (
+                        <div
+                            className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 md:gap-x-12"
+                            role="tablist"
+                        >
+                            {section.categories.map((category) => (
+                                <button
+                                    key={category.slug}
+                                    type="button"
+                                    role="tab"
+                                    aria-selected={activeSlug === category.slug}
+                                    onClick={() => setActiveSlug(category.slug)}
+                                    className={cn(
+                                        'relative pb-2 text-sm tracking-[0.2em] uppercase transition-colors md:text-base',
+                                        activeSlug === category.slug
+                                            ? 'text-on-surface'
+                                            : 'text-secondary hover:text-on-surface',
+                                    )}
+                                >
+                                    {category.name}
+                                    <span
+                                        aria-hidden
+                                        className={cn(
+                                            'absolute inset-x-0 bottom-0 h-px bg-on-surface transition-opacity',
+                                            activeSlug === category.slug
+                                                ? 'opacity-100'
+                                                : 'opacity-0',
+                                        )}
+                                    />
+                                </button>
+                            ))}
+                        </div>
                     )}
+
                 </div>
             </Reveal>
-
-            {section.categories.length > 0 && (
-                <div className="mb-8 flex flex-wrap gap-2 border-b border-outline-variant" role="tablist">
-                    {section.categories.map((category) => (
-                        <button
-                            key={category.slug}
-                            type="button"
-                            role="tab"
-                            aria-selected={activeSlug === category.slug}
-                            onClick={() => setActiveSlug(category.slug)}
-                            className={cn(
-                                'border-b-2 px-4 py-2 text-sm transition-colors hover:text-warm-brown',
-                                activeSlug === category.slug
-                                    ? 'border-warm-brown text-warm-brown'
-                                    : 'border-transparent text-secondary',
-                            )}
-                        >
-                            {category.name}
-                        </button>
-                    ))}
-                </div>
-            )}
 
             <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
                 {products.length > 0 ? (
@@ -66,6 +73,17 @@ export function HomeSection({ section }: HomeSectionProps) {
                     </p>
                 )}
             </div>
+
+            {activeSlug && (
+                <div className="mt-10 text-center">
+                    <Link
+                        href={`/categories/${activeSlug}`}
+                        className="inline-block text-[11px] tracking-[0.25em] text-secondary uppercase transition-colors hover:text-on-surface"
+                    >
+                        View All
+                    </Link>
+                </div>
+            )}
         </section>
     );
 }

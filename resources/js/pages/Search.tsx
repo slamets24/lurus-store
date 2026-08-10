@@ -55,7 +55,7 @@ export default function Search({ query, products }: SearchProps) {
 
                 {query && (
                     <p className="mb-6 text-sm text-secondary">
-                        {products.meta.total} result{products.meta.total !== 1 ? 's' : ''} for &ldquo;{query}&rdquo;
+                        {products.total} result{products.total !== 1 ? 's' : ''} for &ldquo;{query}&rdquo;
                     </p>
                 )}
 

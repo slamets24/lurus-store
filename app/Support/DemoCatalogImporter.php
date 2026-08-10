@@ -10,6 +10,7 @@ use App\Models\ProductVariant;
 use App\Models\StoreContentSetting;
 use App\Models\User;
 use App\Services\EmbeddingService;
+use App\Support\ProductPlaceholderImages;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -190,13 +191,15 @@ class DemoCatalogImporter
 
     private function createImages(Product $product): void
     {
-        $label = urlencode($product->name);
-        $palette = ['efeee9', 'e9e8e3', 'dbdad5'];
+        $paths = ProductPlaceholderImages::forProduct($product->id, 2);
+        if ($paths === []) {
+            $paths = ['https://placehold.co/800x1000/efeee9/53433e?text='.urlencode($product->name)];
+        }
 
-        foreach ($palette as $i => $color) {
+        foreach ($paths as $i => $path) {
             ProductImage::query()->create([
                 'product_id' => $product->id,
-                'image_path' => "https://placehold.co/800x1000/{$color}/53433e?text={$label}",
+                'image_path' => $path,
                 'is_primary' => $i === 0,
                 'sort_order' => $i + 1,
             ]);

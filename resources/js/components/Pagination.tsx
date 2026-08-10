@@ -8,7 +8,7 @@ interface PaginationProps {
 }
 
 export function Pagination({ pagination, className }: PaginationProps) {
-    if (pagination.meta.last_page <= 1) {
+    if (pagination.last_page <= 1) {
         return null;
     }
 

@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Services\EmbeddingService;
+use App\Support\ProductPlaceholderImages;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -396,10 +397,15 @@ class ProductSeeder extends Seeder
                 }
             }
 
-            for ($j = 0; $j < 2; $j++) {
+            $imagePaths = ProductPlaceholderImages::forProduct($createdProduct->id, 2);
+            if ($imagePaths === []) {
+                $imagePaths = ['https://placehold.co/800x800/efeee9/333333?text='.urlencode($createdProduct->name)];
+            }
+
+            foreach ($imagePaths as $j => $imagePath) {
                 ProductImage::create([
                     'product_id' => $createdProduct->id,
-                    'image_path' => 'https://placehold.co/800x800/efeee9/333333?text='.urlencode($createdProduct->name),
+                    'image_path' => $imagePath,
                     'is_primary' => $j === 0,
                     'sort_order' => $j + 1,
                 ]);
