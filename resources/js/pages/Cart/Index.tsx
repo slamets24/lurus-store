@@ -1,9 +1,10 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { FreeShippingHint } from '@/components/FreeShippingHint';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { formatCurrency, storageUrl } from '@/lib/utils';
-import type { CartItem } from '@/types';
+import type { CartItem, CommerceProps } from '@/types';
 
 interface CartIndexProps {
     cartItems: CartItem[];
@@ -13,9 +14,11 @@ interface CartIndexProps {
 }
 
 export default function CartIndex({ cartItems, subtotal, discount_amount, total }: CartIndexProps) {
+    const { commerce } = usePage().props as unknown as { commerce: CommerceProps };
+
     return (
         <StorefrontLayout>
-            <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 md:px-[var(--spacing-margin-desktop)] md:py-16">
+            <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 pb-28 md:px-[var(--spacing-margin-desktop)] md:py-16 md:pb-16">
                 <h1 className="mb-10 font-serif text-4xl tracking-tight">Shopping Cart</h1>
 
                 {cartItems.length === 0 ? (
@@ -63,7 +66,14 @@ export default function CartIndex({ cartItems, subtotal, discount_amount, total 
                                     <dd>{formatCurrency(total)}</dd>
                                 </div>
                             </dl>
-                            <Button variant="accent" className="mt-6 w-full" asChild>
+                            <div className="mt-4">
+                                <FreeShippingHint
+                                    total={total}
+                                    enabled={commerce.freeShippingEnabled}
+                                    threshold={commerce.freeShippingThreshold}
+                                />
+                            </div>
+                            <Button variant="accent" className="mt-6 hidden w-full md:inline-flex" asChild>
                                 <Link href="/checkout">Proceed to Checkout</Link>
                             </Button>
                             <Button variant="outline" className="mt-3 w-full" asChild>
@@ -73,6 +83,27 @@ export default function CartIndex({ cartItems, subtotal, discount_amount, total 
                     </div>
                 )}
             </div>
+
+            {cartItems.length > 0 && (
+                <div
+                    className="fixed inset-x-0 z-40 border-t border-outline-variant bg-background/95 px-4 py-3 backdrop-blur-sm md:hidden"
+                    style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom))' }}
+                >
+                    <div className="flex items-center gap-3">
+                        <div>
+                            <p className="text-sm font-medium">{formatCurrency(total)}</p>
+                            <FreeShippingHint
+                                total={total}
+                                enabled={commerce.freeShippingEnabled}
+                                threshold={commerce.freeShippingThreshold}
+                            />
+                        </div>
+                        <Button variant="accent" className="ml-auto" asChild>
+                            <Link href="/checkout">Checkout</Link>
+                        </Button>
+                    </div>
+                </div>
+            )}
         </StorefrontLayout>
     );
 }

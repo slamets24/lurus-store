@@ -1,8 +1,9 @@
-import { Link, usePage } from '@inertiajs/react';
-import { useEffect, useState, type FormEvent } from 'react';
+import { Link, router, useForm, usePage } from '@inertiajs/react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import {
     Heart,
     Home,
+    Menu,
     Search,
     ShoppingBag,
     Store,
@@ -31,6 +32,8 @@ interface StorefrontLayoutProps {
     announcementBar?: import('@/types').AnnouncementBar | null;
 }
 
+type NavPanel = 'collection' | 'category' | 'browse' | null;
+
 export default function StorefrontLayout({ children, announcementBar }: StorefrontLayoutProps) {
     const page = usePage();
     const {
@@ -48,21 +51,55 @@ export default function StorefrontLayout({ children, announcementBar }: Storefro
 
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [navPanel, setNavPanel] = useState<NavPanel>(null);
+    const headerRef = useRef<HTMLElement>(null);
+    const newsletter = useForm({ email: '', website: '' });
 
     useEffect(() => {
         document.title = `${name} | Modest Fashion`;
     }, [name]);
 
     useEffect(() => {
-        if (flash.success) toast.success(String(flash.success));
+        if (flash.success === 'Product added to cart.') {
+            toast.success(String(flash.success), {
+                action: {
+                    label: 'View cart',
+                    onClick: () => router.visit('/cart'),
+                },
+            });
+        } else if (flash.success) {
+            toast.success(String(flash.success));
+        }
         if (flash.error) toast.error(String(flash.error));
-        if (flash.message) toast.message(String(flash.message));
+        if (flash.message && !flash.success && !flash.error) toast.message(String(flash.message));
     }, [flash]);
+
+    useEffect(() => {
+        const onPointer = (event: MouseEvent) => {
+            if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
+                setNavPanel(null);
+            }
+        };
+        const onKey = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                setNavPanel(null);
+                setSearchOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', onPointer);
+        document.addEventListener('keydown', onKey);
+
+        return () => {
+            document.removeEventListener('mousedown', onPointer);
+            document.removeEventListener('keydown', onKey);
+        };
+    }, []);
 
     const handleSearch = (e: FormEvent) => {
         e.preventDefault();
         if (searchQuery.trim()) {
-            window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`;
+            router.get('/search', { q: searchQuery.trim() });
         }
     };
 
@@ -74,6 +111,11 @@ export default function StorefrontLayout({ children, announcementBar }: Storefro
         paths.some((path) =>
             path === '/' ? currentPath === '/' : currentPath === path || currentPath.startsWith(`${path}/`),
         );
+
+    const hideWhatsapp =
+        currentPath === '/cart' ||
+        currentPath === '/checkout' ||
+        /^\/products\/.+/.test(currentPath);
 
     const accountHref = auth.user ? '/account' : '/login';
     const wishlistHref = auth.user ? '/wishlist' : '/login';
@@ -102,6 +144,8 @@ export default function StorefrontLayout({ children, announcementBar }: Storefro
         },
     ];
 
+    const closePanel = () => setNavPanel(null);
+
     return (
         <div className="flex min-h-screen flex-col bg-background text-on-surface">
             {announcementBar?.enabled && announcementBar.text && (
@@ -116,11 +160,22 @@ export default function StorefrontLayout({ children, announcementBar }: Storefro
                 </div>
             )}
 
-            <header className="sticky top-0 z-40 border-b border-outline-variant bg-background/95 backdrop-blur-sm">
+            <header ref={headerRef} className="sticky top-0 z-40 border-b border-outline-variant bg-background/95 backdrop-blur-sm">
                 <div className="mx-auto flex max-w-[var(--container-max)] items-center justify-between px-4 py-3 md:px-[var(--spacing-margin-desktop)] md:py-4">
-                    <Link href="/" className="font-serif text-xl tracking-widest md:text-2xl">
-                        {String(name)}
-                    </Link>
+                    <div className="flex items-center gap-1">
+                        <button
+                            type="button"
+                            className="p-2 hover:text-warm-brown md:hidden"
+                            aria-label="Open menu"
+                            aria-expanded={navPanel === 'browse'}
+                            onClick={() => setNavPanel(navPanel === 'browse' ? null : 'browse')}
+                        >
+                            {navPanel === 'browse' ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                        </button>
+                        <Link href="/" className="font-serif text-xl tracking-widest md:text-2xl">
+                            {String(name)}
+                        </Link>
+                    </div>
 
                     <nav className="hidden items-center gap-8 md:flex">
                         <Link href="/" className="text-xs tracking-[0.2em] hover:text-warm-brown">
@@ -129,27 +184,67 @@ export default function StorefrontLayout({ children, announcementBar }: Storefro
                         <Link href="/products" className="text-xs tracking-[0.2em] hover:text-warm-brown">
                             SHOP
                         </Link>
-                        <div className="group relative">
-                            <span className="cursor-pointer text-xs tracking-[0.2em] hover:text-warm-brown">
+                        <div className="relative">
+                            <button
+                                type="button"
+                                className="text-xs tracking-[0.2em] hover:text-warm-brown"
+                                aria-expanded={navPanel === 'collection'}
+                                onClick={() => setNavPanel(navPanel === 'collection' ? null : 'collection')}
+                            >
                                 COLLECTION
-                            </span>
-                            <div className="invisible absolute left-0 top-full z-50 min-w-48 border border-outline-variant bg-background py-2 opacity-0 shadow-sm transition-all group-hover:visible group-hover:opacity-100">
-                                {storeCollections.map((collection) => (
+                            </button>
+                            {navPanel === 'collection' && (
+                                <div className="absolute left-0 top-full z-50 min-w-48 border border-outline-variant bg-background py-2 shadow-sm">
+                                    {storeCollections.map((collection) => (
+                                        <Link
+                                            key={collection.slug}
+                                            href={`/collections/${collection.slug}`}
+                                            className="block px-4 py-2 text-sm hover:bg-surface-container hover:text-warm-brown"
+                                            onClick={closePanel}
+                                        >
+                                            {collection.name}
+                                        </Link>
+                                    ))}
                                     <Link
-                                        key={collection.slug}
-                                        href={`/collections/${collection.slug}`}
-                                        className="block px-4 py-2 text-sm hover:bg-surface-container hover:text-warm-brown"
+                                        href="/collections"
+                                        className="block border-t border-outline-variant px-4 py-2 text-sm text-warm-brown"
+                                        onClick={closePanel}
                                     >
-                                        {collection.name}
+                                        View All Collections
                                     </Link>
-                                ))}
-                                <Link
-                                    href="/collections"
-                                    className="block border-t border-outline-variant px-4 py-2 text-sm text-warm-brown"
-                                >
-                                    View All Collections
-                                </Link>
-                            </div>
+                                </div>
+                            )}
+                        </div>
+                        <div className="relative">
+                            <button
+                                type="button"
+                                className="text-xs tracking-[0.2em] hover:text-warm-brown"
+                                aria-expanded={navPanel === 'category'}
+                                onClick={() => setNavPanel(navPanel === 'category' ? null : 'category')}
+                            >
+                                CATEGORIES
+                            </button>
+                            {navPanel === 'category' && (
+                                <div className="absolute left-0 top-full z-50 min-w-48 border border-outline-variant bg-background py-2 shadow-sm">
+                                    {storeCategories.map((category) => (
+                                        <Link
+                                            key={category.slug}
+                                            href={`/categories/${category.slug}`}
+                                            className="block px-4 py-2 text-sm hover:bg-surface-container hover:text-warm-brown"
+                                            onClick={closePanel}
+                                        >
+                                            {category.name}
+                                        </Link>
+                                    ))}
+                                    <Link
+                                        href="/categories"
+                                        className="block border-t border-outline-variant px-4 py-2 text-sm text-warm-brown"
+                                        onClick={closePanel}
+                                    >
+                                        View All Categories
+                                    </Link>
+                                </div>
+                            )}
                         </div>
                         <Link href="/contact" className="text-xs tracking-[0.2em] hover:text-warm-brown">
                             FIND US
@@ -165,7 +260,10 @@ export default function StorefrontLayout({ children, announcementBar }: Storefro
                     <div className="flex items-center gap-1 md:gap-2">
                         <button
                             type="button"
-                            onClick={() => setSearchOpen(!searchOpen)}
+                            onClick={() => {
+                                setSearchOpen(!searchOpen);
+                                setNavPanel(null);
+                            }}
                             className="p-2 hover:text-warm-brown"
                             aria-label="Search"
                         >
@@ -238,6 +336,54 @@ export default function StorefrontLayout({ children, announcementBar }: Storefro
                         </form>
                     </div>
                 )}
+
+                {navPanel === 'browse' && (
+                    <div className="border-t border-outline-variant px-4 py-5 md:hidden">
+                        <p className="text-[11px] tracking-[0.25em] text-secondary uppercase">Shop</p>
+                        <ul className="mt-3 space-y-2 text-sm">
+                            <li>
+                                <Link href="/products" className="block py-1" onClick={closePanel}>
+                                    All Products
+                                </Link>
+                            </li>
+                            {storeCategories.map((category) => (
+                                <li key={category.slug}>
+                                    <Link
+                                        href={`/categories/${category.slug}`}
+                                        className="block py-1"
+                                        onClick={closePanel}
+                                    >
+                                        {category.name}
+                                    </Link>
+                                </li>
+                            ))}
+                            <li>
+                                <Link href="/categories" className="block py-1 text-warm-brown" onClick={closePanel}>
+                                    All Categories
+                                </Link>
+                            </li>
+                        </ul>
+                        <p className="mt-6 text-[11px] tracking-[0.25em] text-secondary uppercase">Collections</p>
+                        <ul className="mt-3 space-y-2 text-sm">
+                            {storeCollections.map((collection) => (
+                                <li key={collection.slug}>
+                                    <Link
+                                        href={`/collections/${collection.slug}`}
+                                        className="block py-1"
+                                        onClick={closePanel}
+                                    >
+                                        {collection.name}
+                                    </Link>
+                                </li>
+                            ))}
+                            <li>
+                                <Link href="/collections" className="block py-1 text-warm-brown" onClick={closePanel}>
+                                    All Collections
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
+                )}
             </header>
 
             <main className="flex-1 pb-20 md:pb-0">{children}</main>
@@ -249,12 +395,40 @@ export default function StorefrontLayout({ children, announcementBar }: Storefro
                         <p className="mb-4 text-sm text-secondary">
                             Subscribe for modest fashion updates, new arrivals, and exclusive offers.
                         </p>
-                        <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
-                            <Input type="email" placeholder="Your email" className="bg-background" />
-                            <Button type="submit" variant="accent" size="sm">
+                        <form
+                            className="flex gap-2"
+                            onSubmit={(event) => {
+                                event.preventDefault();
+                                newsletter.post('/newsletter', {
+                                    preserveScroll: true,
+                                    onSuccess: () => newsletter.reset('email'),
+                                });
+                            }}
+                        >
+                            <Input
+                                type="email"
+                                placeholder="Your email"
+                                className="bg-background"
+                                value={newsletter.data.email}
+                                onChange={(event) => newsletter.setData('email', event.target.value)}
+                                required
+                            />
+                            <input
+                                type="text"
+                                name="website"
+                                value={newsletter.data.website}
+                                onChange={(event) => newsletter.setData('website', event.target.value)}
+                                className="hidden"
+                                tabIndex={-1}
+                                autoComplete="off"
+                            />
+                            <Button type="submit" variant="accent" size="sm" disabled={newsletter.processing}>
                                 Join
                             </Button>
                         </form>
+                        {newsletter.errors.email && (
+                            <p className="mt-2 text-xs text-error">{newsletter.errors.email}</p>
+                        )}
                     </div>
                     <div>
                         <h3 className="mb-4 font-serif text-lg">Shop</h3>
@@ -345,7 +519,7 @@ export default function StorefrontLayout({ children, announcementBar }: Storefro
                 </ul>
             </nav>
 
-            {whatsappUrl && (
+            {whatsappUrl && !hideWhatsapp && (
                 <a
                     href={whatsappUrl}
                     target="_blank"

@@ -44,6 +44,9 @@ export interface PromoPopup {
 export interface CommerceProps {
     paymentsEnabled: boolean;
     flatShippingCost: number;
+    biteshipEnabled: boolean;
+    freeShippingEnabled: boolean;
+    freeShippingThreshold: number;
 }
 
 export interface MidtransProps {

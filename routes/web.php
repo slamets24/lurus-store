@@ -24,6 +24,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
@@ -51,6 +52,7 @@ Route::inertia('/privacy-policy', 'PrivacyPolicy')->name('privacy-policy');
 Route::inertia('/terms-of-service', 'TermsOfService')->name('terms-of-service');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');
+Route::post('/newsletter', [NewsletterController::class, 'store'])->middleware('throttle:5,1')->name('newsletter.store');
 Route::get('/search', SearchController::class)->name('search');
 
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');

@@ -187,7 +187,16 @@ export default function SettingsIndex({
                     className="rounded-xl border border-outline-variant/15 bg-surface-container-lowest p-6 space-y-4"
                     onSubmit={(event) => {
                         event.preventDefault();
-                        shippingForm.post('/admin/settings', { preserveScroll: true });
+                        shippingForm
+                            .transform((data) => ({
+                                ...data,
+                                free_shipping_max_subsidy:
+                                    data.free_shipping_max_subsidy === '' ||
+                                    data.free_shipping_max_subsidy === null
+                                        ? null
+                                        : Number(data.free_shipping_max_subsidy),
+                            }))
+                            .post('/admin/settings', { preserveScroll: true });
                     }}
                 >
                     <div className="flex items-center justify-between">
@@ -226,6 +235,30 @@ export default function SettingsIndex({
                                     shippingForm.setData('free_shipping_threshold', Number(event.target.value))
                                 }
                             />
+                        </label>
+                        <label className="text-sm">
+                            <span className="mb-1 block text-on-surface-variant">Maks. subsidi (Rp)</span>
+                            <Input
+                                type="number"
+                                min={0}
+                                step={1000}
+                                placeholder="Kosong = full free"
+                                value={shippingForm.data.free_shipping_max_subsidy}
+                                onChange={(event) =>
+                                    shippingForm.setData(
+                                        'free_shipping_max_subsidy',
+                                        event.target.value === '' ? '' : Number(event.target.value),
+                                    )
+                                }
+                            />
+                            <p className="mt-1 text-xs text-on-surface-variant">
+                                Mis. 30000: ongkir 50rb → customer bayar 20rb
+                            </p>
+                            {shippingForm.errors.free_shipping_max_subsidy ? (
+                                <p className="mt-1 text-xs text-error">
+                                    {shippingForm.errors.free_shipping_max_subsidy}
+                                </p>
+                            ) : null}
                         </label>
                     </div>
                     <label className="flex items-center gap-2 text-sm">

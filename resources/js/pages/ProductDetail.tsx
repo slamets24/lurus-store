@@ -1,6 +1,6 @@
 import { Link, router, useForm, usePage } from '@inertiajs/react';
-import { useMemo, useState } from 'react';
-import { Heart, Minus, Plus } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Heart, Minus, Plus, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/ProductCard';
@@ -32,48 +32,105 @@ function toCard(product: ProductCardType & { images?: Array<{ image_path: string
 export default function ProductDetail({ product, recommendedProducts, latestProducts }: ProductDetailProps) {
     const { wishlistMap, auth } = usePage().props as unknown as { wishlistMap: Record<number, number>; auth: AuthProps };
     const [activeImage, setActiveImage] = useState(0);
-    const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] ?? '');
+    const [selectedSize, setSelectedSize] = useState('');
     const [selectedColor, setSelectedColor] = useState(product.colors?.[0] ?? '');
+    const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+    const [zoomOrigin, setZoomOrigin] = useState('50% 50%');
+    const [zoomed, setZoomed] = useState(false);
+    const galleryRef = useRef<HTMLDivElement>(null);
 
+    const needsSize = (product.sizes?.length ?? 0) > 0;
+    const sizeMissing = needsSize && selectedSize === '';
     const hasDiscount = (product.discount_percent ?? 0) > 0;
     const effectivePrice = hasDiscount
         ? product.price * (1 - (product.discount_percent ?? 0) / 100)
         : product.price;
 
-    const variantStock = useMemo(() => {
-        if (product.published_variants.length === 0) return product.stock;
-        const match = product.published_variants.find(
-            (v) =>
-                (!selectedColor || v.color === selectedColor) &&
-                (!selectedSize || v.size === selectedSize),
-        );
-        return match?.stock ?? 0;
-    }, [product, selectedColor, selectedSize]);
+    const colorHasStock = useMemo(() => {
+        if (product.published_variants.length === 0) {
+            return product.stock > 0;
+        }
 
-    const isSoldOut = variantStock <= 0;
+        return product.published_variants.some(
+            (variant) => variant.stock > 0 && (!selectedColor || variant.color === selectedColor),
+        );
+    }, [product, selectedColor]);
+
+    const variantStock = useMemo(() => {
+        if (product.published_variants.length === 0) {
+            return product.stock;
+        }
+
+        const match = product.published_variants.find(
+            (variant) =>
+                (!selectedColor || variant.color === selectedColor) &&
+                (!needsSize || variant.size === selectedSize),
+        );
+
+        return match?.stock ?? 0;
+    }, [needsSize, product, selectedColor, selectedSize]);
+
+    const isSoldOut = !colorHasStock || (!sizeMissing && variantStock <= 0);
     const isWishlisted = Boolean(wishlistMap[product.id]);
+    const canAdd = !isSoldOut && !sizeMissing && variantStock > 0;
 
     const { data, setData, post, processing } = useForm({
         product_id: product.id,
         quantity: 1,
-        size: selectedSize || null,
+        size: null as string | null,
         color: selectedColor || null,
     });
 
+    useEffect(() => {
+        if (!sizeGuideOpen) {
+            return;
+        }
+
+        const onKey = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                setSizeGuideOpen(false);
+            }
+        };
+
+        document.addEventListener('keydown', onKey);
+
+        return () => document.removeEventListener('keydown', onKey);
+    }, [sizeGuideOpen]);
+
     const handleAddToCart = () => {
-        post('/cart', {
-            preserveScroll: true,
-            onBefore: () => {
-                setData({ ...data, size: selectedSize || null, color: selectedColor || null });
-            },
-        });
+        if (!canAdd) {
+            return;
+        }
+
+        post('/cart', { preserveScroll: true });
     };
 
     const images = product.images.length > 0 ? product.images : [{ id: 0, image_path: '', thumb_path: null }];
 
+    const showImage = (index: number) => {
+        setActiveImage(index);
+        galleryRef.current?.scrollTo({ left: index * (galleryRef.current.clientWidth || 0), behavior: 'smooth' });
+    };
+
+    const onGalleryScroll = () => {
+        const el = galleryRef.current;
+
+        if (!el?.clientWidth) {
+            return;
+        }
+
+        const index = Math.round(el.scrollLeft / el.clientWidth);
+
+        if (index !== activeImage) {
+            setActiveImage(index);
+        }
+    };
+
+    const addLabel = sizeMissing ? 'Select a size' : isSoldOut ? 'Sold Out' : 'Add to Cart';
+
     return (
         <StorefrontLayout>
-            <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 md:px-[var(--spacing-margin-desktop)] md:py-16">
+            <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 pb-28 md:px-[var(--spacing-margin-desktop)] md:py-16 md:pb-16">
                 <nav className="mb-8 text-xs text-secondary">
                     <Link href="/" className="hover:text-warm-brown">Home</Link>
                     <span className="mx-2">/</span>
@@ -92,20 +149,51 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
 
                 <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
                     <div>
-                        <div className="aspect-[3/4] overflow-hidden bg-surface-container">
+                        <div
+                            ref={galleryRef}
+                            className="flex snap-x snap-mandatory overflow-x-auto md:hidden"
+                            onScroll={onGalleryScroll}
+                        >
+                            {images.map((img) => (
+                                <div key={img.id} className="aspect-[3/4] w-full shrink-0 snap-center overflow-hidden bg-surface-container">
+                                    <img
+                                        src={storageUrl(img.image_path)}
+                                        alt={product.name}
+                                        className="h-full w-full object-cover"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+
+                        <div
+                            className="relative hidden aspect-[3/4] overflow-hidden bg-surface-container md:block"
+                            onMouseMove={(event) => {
+                                const rect = event.currentTarget.getBoundingClientRect();
+                                const x = ((event.clientX - rect.left) / rect.width) * 100;
+                                const y = ((event.clientY - rect.top) / rect.height) * 100;
+                                setZoomOrigin(`${x}% ${y}%`);
+                                setZoomed(true);
+                            }}
+                            onMouseLeave={() => setZoomed(false)}
+                        >
                             <img
                                 src={storageUrl(images[activeImage]?.image_path)}
                                 alt={product.name}
-                                className="h-full w-full object-cover"
+                                className="h-full w-full cursor-zoom-in object-cover transition-transform duration-200"
+                                style={{
+                                    transformOrigin: zoomOrigin,
+                                    transform: zoomed ? 'scale(1.6)' : 'scale(1)',
+                                }}
                             />
                         </div>
+
                         {images.length > 1 && (
                             <div className="mt-4 flex gap-2 overflow-x-auto">
                                 {images.map((img, i) => (
                                     <button
                                         key={img.id}
                                         type="button"
-                                        onClick={() => setActiveImage(i)}
+                                        onClick={() => showImage(i)}
                                         className={cn(
                                             'h-20 w-16 shrink-0 overflow-hidden border-2',
                                             activeImage === i ? 'border-warm-brown' : 'border-transparent',
@@ -156,7 +244,10 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                                         <button
                                             key={color}
                                             type="button"
-                                            onClick={() => setSelectedColor(color)}
+                                            onClick={() => {
+                                                setSelectedColor(color);
+                                                setData('color', color);
+                                            }}
                                             className={cn(
                                                 'border px-4 py-2 text-sm transition-colors',
                                                 selectedColor === color
@@ -174,16 +265,17 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                         {product.sizes && product.sizes.length > 0 && (
                             <div className="mt-6">
                                 <div className="mb-3 flex items-center justify-between">
-                                    <p className="text-sm font-medium">Size: {selectedSize}</p>
+                                    <p className="text-sm font-medium">
+                                        Size{selectedSize ? `: ${selectedSize}` : ''}
+                                    </p>
                                     {product.size_chart_url && (
-                                        <a
-                                            href={product.size_chart_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
+                                        <button
+                                            type="button"
+                                            onClick={() => setSizeGuideOpen(true)}
                                             className="text-xs text-warm-brown hover:underline"
                                         >
                                             Size Guide
-                                        </a>
+                                        </button>
                                     )}
                                 </div>
                                 <div className="flex flex-wrap gap-2">
@@ -191,7 +283,10 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                                         <button
                                             key={size}
                                             type="button"
-                                            onClick={() => setSelectedSize(size)}
+                                            onClick={() => {
+                                                setSelectedSize(size);
+                                                setData('size', size);
+                                            }}
                                             className={cn(
                                                 'min-w-12 border px-3 py-2 text-sm transition-colors',
                                                 selectedSize === size
@@ -220,25 +315,25 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                                 <button
                                     type="button"
                                     className="p-3 hover:text-warm-brown disabled:opacity-50"
-                                    disabled={data.quantity >= variantStock}
+                                    disabled={data.quantity >= variantStock || sizeMissing}
                                     onClick={() => setData('quantity', data.quantity + 1)}
                                 >
                                     <Plus className="h-4 w-4" />
                                 </button>
                             </div>
-                            {!isSoldOut && variantStock > 0 && (
+                            {!isSoldOut && !sizeMissing && variantStock > 0 && (
                                 <p className="text-xs text-secondary">{variantStock} in stock</p>
                             )}
                         </div>
 
-                        <div className="mt-6 flex gap-3">
+                        <div className="mt-6 hidden gap-3 md:flex">
                             <Button
                                 variant="accent"
                                 className="flex-1"
-                                disabled={isSoldOut || processing}
+                                disabled={!canAdd || processing}
                                 onClick={handleAddToCart}
                             >
-                                {isSoldOut ? 'Sold Out' : 'Add to Cart'}
+                                {processing ? 'Adding...' : addLabel}
                             </Button>
                             {auth.user && (
                                 <Button
@@ -282,8 +377,8 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                     <section className="mt-20 border-t border-outline-variant pt-16">
                         <h2 className="mb-8 font-serif text-2xl tracking-tight">You May Also Like</h2>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
-                            {recommendedProducts.map((p) => (
-                                <ProductCard key={p.id} product={toCard(p)} />
+                            {recommendedProducts.map((item) => (
+                                <ProductCard key={item.id} product={toCard(item)} />
                             ))}
                         </div>
                     </section>
@@ -293,13 +388,58 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                     <section className="mt-16">
                         <h2 className="mb-8 font-serif text-2xl tracking-tight">Latest Arrivals</h2>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
-                            {latestProducts.map((p) => (
-                                <ProductCard key={p.id} product={toCard(p)} />
+                            {latestProducts.map((item) => (
+                                <ProductCard key={item.id} product={toCard(item)} />
                             ))}
                         </div>
                     </section>
                 )}
             </div>
+
+            <div
+                className="fixed inset-x-0 z-40 border-t border-outline-variant bg-background/95 px-4 py-3 backdrop-blur-sm md:hidden"
+                style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom))' }}
+            >
+                <div className="flex items-center gap-3">
+                    <div className="min-w-0">
+                        <p className="text-sm font-medium">{formatCurrency(effectivePrice)}</p>
+                        <p className="truncate text-[11px] text-secondary">
+                            {selectedSize || (needsSize ? 'Choose a size' : selectedColor)}
+                        </p>
+                    </div>
+                    <Button
+                        variant="accent"
+                        className="ml-auto"
+                        disabled={!canAdd || processing}
+                        onClick={handleAddToCart}
+                    >
+                        {processing ? 'Adding...' : addLabel}
+                    </Button>
+                </div>
+            </div>
+
+            {sizeGuideOpen && product.size_chart_url && (
+                <div
+                    className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-0 md:items-center md:p-8"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Size guide"
+                    onClick={() => setSizeGuideOpen(false)}
+                >
+                    <div
+                        className="max-h-[90vh] w-full overflow-auto bg-background p-4 md:max-w-lg md:p-6"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <div className="mb-4 flex items-center justify-between">
+                            <h2 className="font-serif text-xl">Size Guide</h2>
+                            <button type="button" onClick={() => setSizeGuideOpen(false)} aria-label="Close size guide">
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                        <img src={product.size_chart_url} alt="Size chart" className="w-full" />
+                    </div>
+                </div>
+            )}
         </StorefrontLayout>
     );
 }

@@ -45,6 +45,11 @@ class CartController extends Controller
         ]);
 
         $product = Product::with('variants')->findOrFail($validated['product_id']);
+
+        if (is_array($product->sizes) && $product->sizes !== [] && blank($validated['size'] ?? null)) {
+            return back()->with('error', 'Please select a size.');
+        }
+
         $variant = ProductVariant::where('product_id', $product->id)
             ->where('color', $validated['color'] ?? null)
             ->where('size', $validated['size'] ?? null)

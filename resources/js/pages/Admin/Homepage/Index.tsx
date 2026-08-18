@@ -1,5 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import { Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { Button } from '@/components/ui/button';
@@ -23,8 +23,26 @@ interface ProductOption {
     image?: string | null;
 }
 
+interface CategoryOption {
+    id: number;
+    name: string;
+    slug: string;
+}
+
+interface HomeSection {
+    key: string;
+    label: string;
+    category_slugs: string[];
+}
+
 interface HomepageSettings {
     hero: HeroBanner[];
+    announcementBar: {
+        enabled: boolean;
+        text: string;
+        link?: string | null;
+    };
+    homeSections: HomeSection[];
     featuredProductIds: number[];
     socialLinks: Array<{ name: string; url: string }>;
     whatsappNumber: string;
@@ -41,9 +59,10 @@ interface HomepageSettings {
 interface HomepageIndexProps {
     settings: HomepageSettings;
     products: ProductOption[];
+    categories: CategoryOption[];
 }
 
-export default function HomepageIndex({ settings, products }: HomepageIndexProps) {
+export default function HomepageIndex({ settings, products, categories }: HomepageIndexProps) {
     const [editingHeroId, setEditingHeroId] = useState<string | null>(null);
 
     const heroForm = useForm({
@@ -53,6 +72,24 @@ export default function HomepageIndex({ settings, products }: HomepageIndexProps
         hero_link: '',
         hero_desktop_image: null as File | null,
         hero_mobile_image: null as File | null,
+    });
+
+    const announcementForm = useForm({
+        section: 'announcement_bar',
+        enabled: settings.announcementBar.enabled,
+        text: settings.announcementBar.text,
+        link: settings.announcementBar.link ?? '',
+    });
+
+    const sectionsForm = useForm({
+        section: 'home_sections',
+        sections: settings.homeSections.length
+            ? settings.homeSections.map((section) => ({
+                  key: section.key,
+                  label: section.label,
+                  category_slugs: [...section.category_slugs],
+              }))
+            : [{ key: '', label: '', category_slugs: [] as string[] }],
     });
 
     const featuredForm = useForm({
@@ -105,6 +142,21 @@ export default function HomepageIndex({ settings, products }: HomepageIndexProps
         );
     };
 
+    const updateSection = (index: number, patch: Partial<HomeSection>) => {
+        const next = sectionsForm.data.sections.map((section, i) =>
+            i === index ? { ...section, ...patch } : section,
+        );
+        sectionsForm.setData('sections', next);
+    };
+
+    const toggleSectionCategory = (index: number, slug: string) => {
+        const section = sectionsForm.data.sections[index];
+        const slugs = section.category_slugs.includes(slug)
+            ? section.category_slugs.filter((item) => item !== slug)
+            : [...section.category_slugs, slug];
+        updateSection(index, { category_slugs: slugs });
+    };
+
     return (
         <AdminLayout title="Homepage">
             <Head title="Homepage" />
@@ -112,9 +164,53 @@ export default function HomepageIndex({ settings, products }: HomepageIndexProps
             <div className="mx-auto max-w-5xl space-y-8">
                 <AdminPageHeader
                     title="Store Content"
-                    description="Manage hero banners, featured products, social links, and promo popup."
+                    description="Manage announcement, hero, home sections, featured products, social links, and promo popup."
                     eyebrow="Homepage"
                 />
+
+                <form
+                    className="rounded-xl border border-outline-variant/15 bg-surface-container-lowest p-6 space-y-4"
+                    onSubmit={(event) => {
+                        event.preventDefault();
+                        announcementForm.post('/admin/homepage', { preserveScroll: true });
+                    }}
+                >
+                    <div className="flex items-center justify-between">
+                        <h2 className="font-serif text-xl text-primary">Announcement Bar</h2>
+                        <label className="flex items-center gap-2 text-sm">
+                            <input
+                                type="checkbox"
+                                checked={announcementForm.data.enabled}
+                                onChange={(event) => announcementForm.setData('enabled', event.target.checked)}
+                            />
+                            Enabled
+                        </label>
+                    </div>
+                    <label className="block text-sm">
+                        <span className="mb-1 block text-on-surface-variant">Text</span>
+                        <Input
+                            value={announcementForm.data.text}
+                            onChange={(event) => announcementForm.setData('text', event.target.value)}
+                        />
+                        {announcementForm.errors.text ? (
+                            <p className="mt-1 text-xs text-error">{announcementForm.errors.text}</p>
+                        ) : null}
+                    </label>
+                    <label className="block text-sm">
+                        <span className="mb-1 block text-on-surface-variant">Link (optional)</span>
+                        <Input
+                            placeholder="/products or https://..."
+                            value={announcementForm.data.link}
+                            onChange={(event) => announcementForm.setData('link', event.target.value)}
+                        />
+                        {announcementForm.errors.link ? (
+                            <p className="mt-1 text-xs text-error">{announcementForm.errors.link}</p>
+                        ) : null}
+                    </label>
+                    <Button type="submit" variant="accent" disabled={announcementForm.processing}>
+                        Save Announcement Bar
+                    </Button>
+                </form>
 
                 <section className="rounded-xl border border-outline-variant/15 bg-surface-container-lowest p-6">
                     <div className="flex items-center justify-between">
@@ -224,6 +320,127 @@ export default function HomepageIndex({ settings, products }: HomepageIndexProps
                         ) : null}
                     </div>
                 </section>
+
+                <form
+                    className="rounded-xl border border-outline-variant/15 bg-surface-container-lowest p-6 space-y-4"
+                    onSubmit={(event) => {
+                        event.preventDefault();
+                        sectionsForm.post('/admin/homepage', { preserveScroll: true });
+                    }}
+                >
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <h2 className="font-serif text-xl text-primary">Home Sections</h2>
+                            <p className="mt-1 text-sm text-on-surface-variant">
+                                Category rails shown on the homepage (label + categories).
+                            </p>
+                        </div>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                                sectionsForm.setData('sections', [
+                                    ...sectionsForm.data.sections,
+                                    { key: '', label: '', category_slugs: [] },
+                                ])
+                            }
+                        >
+                            <Plus className="mr-1 h-4 w-4" />
+                            Add Section
+                        </Button>
+                    </div>
+
+                    <div className="space-y-4">
+                        {sectionsForm.data.sections.map((section, index) => (
+                            <div key={index} className="rounded-lg border border-outline-variant/20 p-4 space-y-3">
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="grid flex-1 gap-3 sm:grid-cols-2">
+                                        <label className="text-sm">
+                                            <span className="mb-1 block text-on-surface-variant">Label</span>
+                                            <Input
+                                                value={section.label}
+                                                onChange={(event) => updateSection(index, { label: event.target.value })}
+                                            />
+                                            {sectionsForm.errors[`sections.${index}.label`] ? (
+                                                <p className="mt-1 text-xs text-error">
+                                                    {sectionsForm.errors[`sections.${index}.label`]}
+                                                </p>
+                                            ) : null}
+                                        </label>
+                                        <label className="text-sm">
+                                            <span className="mb-1 block text-on-surface-variant">Key (optional)</span>
+                                            <Input
+                                                placeholder="auto from label"
+                                                value={section.key}
+                                                onChange={(event) => updateSection(index, { key: event.target.value })}
+                                            />
+                                        </label>
+                                    </div>
+                                    {sectionsForm.data.sections.length > 1 ? (
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() =>
+                                                sectionsForm.setData(
+                                                    'sections',
+                                                    sectionsForm.data.sections.filter((_, i) => i !== index),
+                                                )
+                                            }
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    ) : null}
+                                </div>
+
+                                <div>
+                                    <p className="mb-2 text-sm text-on-surface-variant">Categories</p>
+                                    {categories.length === 0 ? (
+                                        <p className="text-sm text-on-surface-variant">No active categories yet.</p>
+                                    ) : (
+                                        <div className="grid gap-2 sm:grid-cols-2">
+                                            {categories.map((category) => {
+                                                const selected = section.category_slugs.includes(category.slug);
+                                                return (
+                                                    <label
+                                                        key={category.id}
+                                                        className={cn(
+                                                            'flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm',
+                                                            selected
+                                                                ? 'border-warm-brown bg-warm-brown/5'
+                                                                : 'border-outline-variant/20',
+                                                        )}
+                                                    >
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selected}
+                                                            onChange={() => toggleSectionCategory(index, category.slug)}
+                                                        />
+                                                        {category.name}
+                                                    </label>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                    {sectionsForm.errors[`sections.${index}.category_slugs`] ? (
+                                        <p className="mt-1 text-xs text-error">
+                                            {sectionsForm.errors[`sections.${index}.category_slugs`]}
+                                        </p>
+                                    ) : null}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {sectionsForm.errors.sections ? (
+                        <p className="text-xs text-error">{sectionsForm.errors.sections}</p>
+                    ) : null}
+
+                    <Button type="submit" variant="accent" disabled={sectionsForm.processing}>
+                        Save Home Sections
+                    </Button>
+                </form>
 
                 <form
                     className="rounded-xl border border-outline-variant/15 bg-surface-container-lowest p-6"

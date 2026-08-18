@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
 use App\Models\StoreContentSetting;
 use App\Models\User;
+use App\Services\HomePageService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -76,7 +78,8 @@ class AdminHomepageSettingsTest extends TestCase
 
         $this->assertCount(1, StoreContentSetting::heroBanners());
 
-        $superAdmin = User::factory()->create(['role' => User::ROLE_SUPER_ADMIN]);
+        $superAdmin = User::query()->where('role', User::ROLE_SUPER_ADMIN)->first()
+            ?? User::factory()->create(['role' => User::ROLE_SUPER_ADMIN]);
 
         $this->actingAs($superAdmin)->withSession(['_token' => 'test-token'])->post('/admin/homepage', [
             '_token' => 'test-token',
@@ -144,5 +147,70 @@ class AdminHomepageSettingsTest extends TestCase
 
         $this->get('/')->assertInertia(fn (Assert $page) => $page
             ->where('promoPopup', null));
+    }
+
+    public function test_announcement_bar_can_be_saved(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        $this->actingAs($admin)->withSession(['_token' => 'test-token'])->post('/admin/homepage', [
+            '_token' => 'test-token',
+            'section' => 'announcement_bar',
+            'enabled' => '1',
+            'text' => 'Free shipping this week',
+            'link' => '/products',
+        ])->assertRedirect();
+
+        $this->assertSame([
+            'enabled' => true,
+            'text' => 'Free shipping this week',
+            'link' => '/products',
+        ], StoreContentSetting::value('announcement_bar'));
+
+        $this->get('/admin/homepage')->assertInertia(fn (Assert $page) => $page
+            ->where('settings.announcementBar.text', 'Free shipping this week')
+            ->where('settings.announcementBar.enabled', true)
+            ->where('settings.announcementBar.link', '/products'));
+    }
+
+    public function test_home_sections_can_be_saved_and_used_by_homepage_service(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $blouse = Category::query()->where('slug', 'blouse')->first()
+            ?? Category::factory()->create(['name' => 'Blouse', 'slug' => 'blouse', 'is_active' => true, 'sort_order' => 1]);
+        $dress = Category::query()->where('slug', 'dress')->first()
+            ?? Category::factory()->create(['name' => 'Dress', 'slug' => 'dress', 'is_active' => true, 'sort_order' => 2]);
+
+        $this->actingAs($admin)->withSession(['_token' => 'test-token'])->post('/admin/homepage', [
+            '_token' => 'test-token',
+            'section' => 'home_sections',
+            'sections' => [
+                [
+                    'key' => '',
+                    'label' => 'New Arrivals Rail',
+                    'category_slugs' => [$blouse->slug, $dress->slug],
+                ],
+            ],
+        ])->assertRedirect();
+
+        $this->assertSame([
+            [
+                'key' => 'new-arrivals-rail',
+                'label' => 'New Arrivals Rail',
+                'category_slugs' => [$blouse->slug, $dress->slug],
+            ],
+        ], StoreContentSetting::value('home_sections'));
+
+        $sections = app(HomePageService::class)->sections();
+        $this->assertCount(1, $sections);
+        $this->assertSame('New Arrivals Rail', $sections[0]['label']);
+        $this->assertSame('new-arrivals-rail', $sections[0]['key']);
+        $this->assertSame(
+            [
+                ['name' => $blouse->name, 'slug' => $blouse->slug],
+                ['name' => $dress->name, 'slug' => $dress->slug],
+            ],
+            $sections[0]['categories'],
+        );
     }
 }

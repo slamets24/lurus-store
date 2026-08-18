@@ -96,10 +96,15 @@ class HandleInertiaRequests extends Middleware
             'commerce' => function () {
                 $payments = StoreContentSetting::paymentSettings();
                 $shipping = StoreContentSetting::shippingSettings();
+                $freeShippingOpen = $shipping['free_shipping_enabled']
+                    && StoreContentSetting::freeShippingWindowOpen(null, $shipping);
 
                 return [
                     'paymentsEnabled' => $payments['enabled'] && $payments['methods'] !== [],
                     'flatShippingCost' => $shipping['flat_shipping_cost'],
+                    'biteshipEnabled' => $shipping['biteship_enabled'],
+                    'freeShippingEnabled' => $freeShippingOpen && $shipping['biteship_enabled'],
+                    'freeShippingThreshold' => $shipping['free_shipping_threshold'],
                 ];
             },
             'midtrans' => fn () => $request->routeIs(

@@ -96,6 +96,32 @@ class CommerceFlowTest extends TestCase
         ]);
     }
 
+    public function test_cart_add_requires_size_when_product_has_sizes(): void
+    {
+        $product = $this->product(stock: 5);
+        $product->update(['sizes' => ['M', 'L']]);
+        $token = Str::random(40);
+
+        $this->withCookie(EnsureGuestCartToken::COOKIE, $token)
+            ->post('/cart', ['product_id' => $product->id, 'quantity' => 1])
+            ->assertRedirect()
+            ->assertSessionHas('error', 'Please select a size.');
+
+        $this->assertDatabaseMissing('cart_items', ['product_id' => $product->id]);
+
+        $this->withCookie(EnsureGuestCartToken::COOKIE, $token)
+            ->post('/cart', ['product_id' => $product->id, 'quantity' => 1, 'size' => 'M'])
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('cart_items', [
+            'session_id' => $token,
+            'product_id' => $product->id,
+            'size' => 'M',
+            'quantity' => 1,
+        ]);
+    }
+
     public function test_cart_preview_includes_line_items_and_totals(): void
     {
         $product = $this->product(price: 100000, stock: 5);
@@ -310,6 +336,39 @@ class CommerceFlowTest extends TestCase
         Http::assertSent(fn ($request) => $request->hasHeader('Authorization', 'biteship-key')
             && $request['origin_postal_code'] === 15143
             && $request['destination_postal_code'] === 40123);
+    }
+
+    public function test_checkout_shipping_rates_endpoint_returns_couriers(): void
+    {
+        config([
+            'services.biteship.api_key' => 'biteship-key',
+            'services.biteship.base_url' => 'https://api.biteship.test',
+            'services.biteship.origin_postal_code' => '15143',
+            'services.biteship.fake_rates' => false,
+        ]);
+        Http::fake([
+            'https://api.biteship.test/v1/rates/couriers' => Http::response([
+                'pricing' => [
+                    [
+                        'courier_code' => 'jne',
+                        'courier_name' => 'JNE',
+                        'courier_service_code' => 'reg',
+                        'courier_service_name' => 'REG',
+                        'duration' => '2 - 3 days',
+                        'price' => 9000,
+                    ],
+                ],
+            ]),
+        ]);
+        $product = $this->product(price: 100000, stock: 5);
+        $token = Str::random(40);
+        CartItem::create(['session_id' => $token, 'product_id' => $product->id, 'quantity' => 1]);
+
+        $this->withCookie(EnsureGuestCartToken::COOKIE, $token)
+            ->post('/checkout/shipping-rates', ['postal_code' => '40123'])
+            ->assertOk()
+            ->assertJsonPath('rates.0.courier_code', 'jne')
+            ->assertJsonPath('rates.0.courier_service_code', 'reg');
     }
 
     public function test_checkout_area_search_uses_biteship_maps_and_caches(): void

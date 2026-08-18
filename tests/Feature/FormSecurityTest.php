@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Http\Middleware\EnsureGuestCartToken;
 use App\Models\CartItem;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\User;
 use App\Support\ContactRules;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -123,7 +125,7 @@ class FormSecurityTest extends TestCase
 
     public function test_session_fingerprint_logs_out_authenticated_user_on_ua_change(): void
     {
-        $user = \App\Models\User::factory()->create([
+        $user = User::factory()->create([
             'email_verified_at' => now(),
         ]);
 
@@ -146,11 +148,25 @@ class FormSecurityTest extends TestCase
         $this->assertNull(ContactRules::normalizePhone('  '));
     }
 
+    public function test_newsletter_honeypot_and_email_rules(): void
+    {
+        $this->post('/newsletter', [
+            'email' => 'bot@example.com',
+            'website' => 'spam',
+        ])->assertSessionHasErrors('website');
+
+        $this->post('/newsletter', [
+            'email' => 'person@example.com',
+        ])->assertRedirect()->assertSessionHas('success');
+
+        $this->assertDatabaseHas('newsletter_subscribers', ['email' => 'person@example.com']);
+    }
+
     public function test_checkout_completes_with_valid_international_phone(): void
     {
         $token = $this->fillCart();
 
-        $this->withCookie(\App\Http\Middleware\EnsureGuestCartToken::COOKIE, $token)
+        $this->withCookie(EnsureGuestCartToken::COOKIE, $token)
             ->post('/checkout', $this->checkoutPayload(['phone' => '+1 415 555 2671']))
             ->assertRedirect();
 

@@ -1,8 +1,10 @@
 import { Link, useForm, usePage } from '@inertiajs/react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { FreeShippingHint } from '@/components/FreeShippingHint';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
-import { formatCurrency, storageUrl } from '@/lib/utils';
+import { csrfHeaders, formatCurrency, storageUrl } from '@/lib/utils';
 import type { CartItem, CommerceProps } from '@/types';
 
 interface CheckoutProps {
@@ -26,6 +28,16 @@ interface CheckoutProps {
     };
 }
 
+interface ShippingRate {
+    courier_code: string;
+    courier_name: string;
+    courier_service_code: string;
+    courier_service_name: string;
+    duration: string;
+    price: number;
+    original_price?: number;
+}
+
 export default function Checkout({
     cartItems,
     pricing,
@@ -34,9 +46,13 @@ export default function Checkout({
     defaultShippingCost,
     freeShippingEnabled,
     freeShippingThreshold,
+    biteshipEnabled,
     paymentSettings,
 }: CheckoutProps) {
     const { commerce } = usePage().props as unknown as { commerce: CommerceProps };
+    const [rates, setRates] = useState<ShippingRate[]>([]);
+    const [ratesError, setRatesError] = useState<string | null>(null);
+    const [loadingRates, setLoadingRates] = useState(false);
 
     const { data, setData, post, processing, errors } = useForm({
         name: shippingAddress?.name ?? '',
@@ -55,9 +71,73 @@ export default function Checkout({
         website: '',
     });
 
-    const shippingCost =
-        freeShippingEnabled && pricing.payable >= freeShippingThreshold ? 0 : defaultShippingCost;
+    useEffect(() => {
+        if (!biteshipEnabled || !/^\d{5}$/.test(data.postal_code)) {
+            setRates([]);
+            setRatesError(null);
+            return;
+        }
+
+        const controller = new AbortController();
+        setLoadingRates(true);
+        setRatesError(null);
+
+        fetch('/checkout/shipping-rates', {
+            method: 'POST',
+            headers: csrfHeaders(),
+            credentials: 'same-origin',
+            signal: controller.signal,
+            body: JSON.stringify({ postal_code: data.postal_code }),
+        })
+            .then(async (response) => {
+                const payload = await response.json().catch(() => ({}));
+
+                if (!response.ok) {
+                    const message = payload.errors?.shipping_courier?.[0]
+                        ?? payload.message
+                        ?? 'Could not load shipping rates.';
+                    throw new Error(message);
+                }
+
+                return payload.rates as ShippingRate[];
+            })
+            .then((nextRates) => {
+                setRates(nextRates ?? []);
+                const first = nextRates?.[0];
+                if (first) {
+                    setData('shipping_courier', first.courier_code);
+                    setData('shipping_service', first.courier_service_code);
+                }
+            })
+            .catch((error: Error) => {
+                if (error.name === 'AbortError') {
+                    return;
+                }
+                setRates([]);
+                setRatesError(error.message);
+            })
+            .finally(() => setLoadingRates(false));
+
+        return () => controller.abort();
+    }, [biteshipEnabled, data.postal_code]);
+
+    const selectedRate = useMemo(
+        () =>
+            rates.find(
+                (rate) =>
+                    rate.courier_code === data.shipping_courier &&
+                    rate.courier_service_code === data.shipping_service,
+            ),
+        [data.shipping_courier, data.shipping_service, rates],
+    );
+
+    const shippingCost = selectedRate
+        ? selectedRate.price
+        : freeShippingEnabled && pricing.payable >= freeShippingThreshold
+            ? 0
+            : defaultShippingCost;
     const orderTotal = pricing.payable + shippingCost;
+    const showFreeShipping = commerce.freeShippingEnabled || freeShippingEnabled;
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -66,7 +146,7 @@ export default function Checkout({
 
     return (
         <StorefrontLayout>
-            <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 md:px-[var(--spacing-margin-desktop)] md:py-16">
+            <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 pb-28 md:px-[var(--spacing-margin-desktop)] md:py-16 md:pb-16">
                 <h1 className="mb-10 font-serif text-4xl tracking-tight">Checkout</h1>
 
                 <form onSubmit={handleSubmit} className="grid gap-10 lg:grid-cols-3">
@@ -131,6 +211,51 @@ export default function Checkout({
                             <input type="text" name="website" value={data.website} onChange={(e) => setData('website', e.target.value)} className="hidden" tabIndex={-1} autoComplete="off" />
                         </section>
 
+                        {biteshipEnabled && (
+                            <section className="border border-outline-variant p-6">
+                                <h2 className="mb-6 font-serif text-xl">Shipping</h2>
+                                {!/^\d{5}$/.test(data.postal_code) && (
+                                    <p className="text-sm text-secondary">Enter a 5-digit postal code to see courier options.</p>
+                                )}
+                                {loadingRates && <p className="text-sm text-secondary">Loading rates…</p>}
+                                {ratesError && <p className="text-xs text-error">{ratesError}</p>}
+                                <div className="space-y-3">
+                                    {rates.map((rate) => {
+                                        const selected =
+                                            data.shipping_courier === rate.courier_code &&
+                                            data.shipping_service === rate.courier_service_code;
+
+                                        return (
+                                            <label
+                                                key={`${rate.courier_code}-${rate.courier_service_code}`}
+                                                className="flex cursor-pointer items-center gap-3 border border-outline-variant p-4"
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name="shipping_rate"
+                                                    checked={selected}
+                                                    onChange={() => {
+                                                        setData('shipping_courier', rate.courier_code);
+                                                        setData('shipping_service', rate.courier_service_code);
+                                                    }}
+                                                />
+                                                <span className="flex-1 text-sm">
+                                                    {rate.courier_name} {rate.courier_service_name}
+                                                    <span className="mt-0.5 block text-xs text-secondary">{rate.duration}</span>
+                                                </span>
+                                                <span className="text-sm">
+                                                    {rate.price === 0 ? 'Free' : formatCurrency(rate.price)}
+                                                </span>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                                {errors.shipping_courier && (
+                                    <p className="mt-2 text-xs text-error">{errors.shipping_courier}</p>
+                                )}
+                            </section>
+                        )}
+
                         {commerce.paymentsEnabled && (
                             <section className="border border-outline-variant p-6">
                                 <h2 className="mb-6 font-serif text-xl">Payment Method</h2>
@@ -184,19 +309,49 @@ export default function Checkout({
                             )}
                             <div className="flex justify-between">
                                 <dt className="text-secondary">Shipping</dt>
-                                <dd>{shippingCost === 0 ? 'Free' : formatCurrency(shippingCost)}</dd>
+                                <dd>
+                                    {biteshipEnabled && !selectedRate && loadingRates
+                                        ? '…'
+                                        : shippingCost === 0
+                                            ? 'Free'
+                                            : formatCurrency(shippingCost)}
+                                </dd>
                             </div>
                             <div className="flex justify-between border-t border-outline-variant pt-3 text-base font-medium">
                                 <dt>Total</dt>
                                 <dd>{formatCurrency(orderTotal)}</dd>
                             </div>
                         </dl>
-                        <Button type="submit" variant="accent" className="mt-6 w-full" disabled={processing}>
+                        <div className="mt-4">
+                            <FreeShippingHint
+                                total={pricing.payable}
+                                enabled={showFreeShipping}
+                                threshold={freeShippingThreshold}
+                            />
+                        </div>
+                        <Button type="submit" variant="accent" className="mt-6 hidden w-full md:inline-flex" disabled={processing}>
                             {processing ? 'Processing...' : 'Place Order'}
                         </Button>
                         <Button variant="outline" className="mt-3 w-full" asChild>
                             <Link href="/cart">Back to Cart</Link>
                         </Button>
+                    </div>
+
+                    <div
+                        className="fixed inset-x-0 z-40 border-t border-outline-variant bg-background/95 px-4 py-3 backdrop-blur-sm md:hidden"
+                        style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom))' }}
+                    >
+                        <div className="flex items-center gap-3">
+                            <div>
+                                <p className="text-sm font-medium">{formatCurrency(orderTotal)}</p>
+                                <p className="text-[11px] text-secondary">
+                                    Shipping {shippingCost === 0 ? 'Free' : formatCurrency(shippingCost)}
+                                </p>
+                            </div>
+                            <Button type="submit" variant="accent" className="ml-auto" disabled={processing}>
+                                {processing ? 'Processing...' : 'Place Order'}
+                            </Button>
+                        </div>
                     </div>
                 </form>
             </div>

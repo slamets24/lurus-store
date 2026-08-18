@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\StoreContentSetting;
+use App\Services\HomePageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -13,11 +15,13 @@ use Inertia\Inertia;
 
 class AdminHomepageController extends Controller
 {
-    public function index()
+    public function index(HomePageService $homePage)
     {
         return Inertia::render('Admin/Homepage/Index', [
             'settings' => [
                 'hero' => StoreContentSetting::heroBanners(),
+                'announcementBar' => $homePage->announcementBar(),
+                'homeSections' => StoreContentSetting::value('home_sections', $this->defaultHomeSections()),
                 'featuredProductIds' => StoreContentSetting::value('featured_product_ids', []),
                 'socialLinks' => StoreContentSetting::value('social_links', $this->defaultSocialLinks()),
                 'whatsappNumber' => StoreContentSetting::value('whatsapp_number', StoreContentSetting::DEFAULT_WHATSAPP_NUMBER),
@@ -34,17 +38,29 @@ class AdminHomepageController extends Controller
                     'price' => (float) $product->price,
                     'image' => $product->images->first()?->image_path,
                 ]),
+            'categories' => Category::query()
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get(['id', 'name', 'slug'])
+                ->map(fn (Category $category) => [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'slug' => $category->slug,
+                ]),
         ]);
     }
 
     public function update(Request $request)
     {
         $section = $request->validate([
-            'section' => 'required|in:hero,featured_products,social_media,promo_popup',
+            'section' => 'required|in:hero,announcement_bar,home_sections,featured_products,social_media,promo_popup',
         ])['section'];
 
         match ($section) {
             'hero' => $this->updateHero($request),
+            'announcement_bar' => $this->updateAnnouncementBar($request),
+            'home_sections' => $this->updateHomeSections($request),
             'featured_products' => $this->updateFeaturedProducts($request),
             'social_media' => $this->updateSocialMedia($request),
             'promo_popup' => $this->updatePromoPopup($request),
@@ -52,6 +68,8 @@ class AdminHomepageController extends Controller
 
         return back()->with('success', match ($section) {
             'hero' => 'Hero banner saved successfully.',
+            'announcement_bar' => 'Announcement bar saved successfully.',
+            'home_sections' => 'Home sections saved successfully.',
             'featured_products' => 'Featured products saved successfully.',
             'social_media' => 'Social media and WhatsApp saved successfully.',
             'promo_popup' => 'Promo popup saved successfully.',
@@ -170,6 +188,57 @@ class AdminHomepageController extends Controller
         StoreContentSetting::putValue('hero', $reordered);
     }
 
+    private function updateAnnouncementBar(Request $request): void
+    {
+        $validated = $request->validate([
+            'enabled' => ['required', 'boolean'],
+            'text' => ['required', 'string', 'max:255'],
+            'link' => ['nullable', 'string', 'max:255', 'regex:#^(https?://|/(?!/))#i'],
+        ]);
+
+        StoreContentSetting::putValue('announcement_bar', [
+            'enabled' => $request->boolean('enabled'),
+            'text' => $validated['text'],
+            'link' => filled($validated['link'] ?? null) ? $validated['link'] : null,
+        ]);
+    }
+
+    private function updateHomeSections(Request $request): void
+    {
+        $validated = $request->validate([
+            'sections' => ['required', 'array', 'min:1', 'max:8'],
+            'sections.*.key' => ['nullable', 'string', 'max:64'],
+            'sections.*.label' => ['required', 'string', 'max:80'],
+            'sections.*.category_slugs' => ['required', 'array', 'min:1'],
+            'sections.*.category_slugs.*' => [
+                'required',
+                'string',
+                'max:120',
+                Rule::exists('categories', 'slug')->where(fn ($query) => $query->where('is_active', true)->whereNull('deleted_at')),
+            ],
+        ]);
+
+        $sections = collect($validated['sections'])
+            ->map(function (array $section) {
+                $label = trim($section['label']);
+                $key = trim((string) ($section['key'] ?? ''));
+
+                if ($key === '') {
+                    $key = Str::slug($label) ?: 'section';
+                }
+
+                return [
+                    'key' => $key,
+                    'label' => $label,
+                    'category_slugs' => array_values(array_unique($section['category_slugs'])),
+                ];
+            })
+            ->values()
+            ->all();
+
+        StoreContentSetting::putValue('home_sections', $sections);
+    }
+
     private function updateFeaturedProducts(Request $request): void
     {
         $validated = $request->validate([
@@ -239,6 +308,23 @@ class AdminHomepageController extends Controller
             ['name' => 'Instagram', 'url' => '#'],
             ['name' => 'Twitter', 'url' => '#'],
             ['name' => 'TikTok', 'url' => '#'],
+        ];
+    }
+
+    /** @return list<array{key: string, label: string, category_slugs: list<string>}> */
+    private function defaultHomeSections(): array
+    {
+        return [
+            [
+                'key' => 'apparels',
+                'label' => 'Apparels',
+                'category_slugs' => ['blouse', 'dress', 'skirt', 'pants', 'koko'],
+            ],
+            [
+                'key' => 'essentials',
+                'label' => 'Essentials',
+                'category_slugs' => ['scarves', 'shoes', 'bag', 'accessories', 'prayer-set'],
+            ],
         ];
     }
 }

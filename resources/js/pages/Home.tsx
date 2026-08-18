@@ -171,7 +171,7 @@ export default function Home({
                                         <div className="absolute inset-x-0 bottom-0 p-6 text-white">
                                             <h3 className="font-serif text-2xl">{card.title}</h3>
                                             <p className="mt-1 text-sm opacity-90">{card.subtitle}</p>
-                                            <span className="mt-4 inline-block text-xs tracking-[0.2em] uppercase opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                                            <span className="mt-4 inline-block text-xs tracking-[0.2em] uppercase md:opacity-0 md:transition-opacity md:duration-300 md:group-hover:opacity-100">
                                                 Explore →
                                             </span>
                                         </div>

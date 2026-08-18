@@ -24,7 +24,7 @@ export default function Products({ products, categories }: ProductsProps) {
                     </p>
 
                     <div
-                        className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 md:gap-x-12"
+                        className="mt-8 flex flex-nowrap items-center justify-start gap-x-8 gap-y-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] md:flex-wrap md:justify-center md:overflow-visible [&::-webkit-scrollbar]:hidden"
                         role="tablist"
                     >
                         <Link
