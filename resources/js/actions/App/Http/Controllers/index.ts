@@ -2,6 +2,7 @@ import Api from './Api'
 import SitemapController from './SitemapController'
 import HomeController from './HomeController'
 import ContactController from './ContactController'
+import NewsletterController from './NewsletterController'
 import SearchController from './SearchController'
 import ProductController from './ProductController'
 import CategoryController from './CategoryController'
@@ -22,6 +23,7 @@ const Controllers = {
 SitemapController: Object.assign(SitemapController, SitemapController),
 HomeController: Object.assign(HomeController, HomeController),
 ContactController: Object.assign(ContactController, ContactController),
+NewsletterController: Object.assign(NewsletterController, NewsletterController),
 SearchController: Object.assign(SearchController, SearchController),
 ProductController: Object.assign(ProductController, ProductController),
 CategoryController: Object.assign(CategoryController, CategoryController),

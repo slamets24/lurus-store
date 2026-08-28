@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Admin\AdminHomepageController::index
- * @see app/Http/Controllers/Admin/AdminHomepageController.php:16
+ * @see app/Http/Controllers/Admin/AdminHomepageController.php:18
  * @route '/admin/homepage'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminHomepageController::index
- * @see app/Http/Controllers/Admin/AdminHomepageController.php:16
+ * @see app/Http/Controllers/Admin/AdminHomepageController.php:18
  * @route '/admin/homepage'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminHomepageController::index
- * @see app/Http/Controllers/Admin/AdminHomepageController.php:16
+ * @see app/Http/Controllers/Admin/AdminHomepageController.php:18
  * @route '/admin/homepage'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Admin\AdminHomepageController::index
- * @see app/Http/Controllers/Admin/AdminHomepageController.php:16
+ * @see app/Http/Controllers/Admin/AdminHomepageController.php:18
  * @route '/admin/homepage'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Admin\AdminHomepageController::index
- * @see app/Http/Controllers/Admin/AdminHomepageController.php:16
+ * @see app/Http/Controllers/Admin/AdminHomepageController.php:18
  * @route '/admin/homepage'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Admin\AdminHomepageController::index
- * @see app/Http/Controllers/Admin/AdminHomepageController.php:16
+ * @see app/Http/Controllers/Admin/AdminHomepageController.php:18
  * @route '/admin/homepage'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Admin\AdminHomepageController::index
- * @see app/Http/Controllers/Admin/AdminHomepageController.php:16
+ * @see app/Http/Controllers/Admin/AdminHomepageController.php:18
  * @route '/admin/homepage'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Admin\AdminHomepageController::update
- * @see app/Http/Controllers/Admin/AdminHomepageController.php:40
+ * @see app/Http/Controllers/Admin/AdminHomepageController.php:54
  * @route '/admin/homepage'
  */
 export const update = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminHomepageController::update
- * @see app/Http/Controllers/Admin/AdminHomepageController.php:40
+ * @see app/Http/Controllers/Admin/AdminHomepageController.php:54
  * @route '/admin/homepage'
  */
 update.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ update.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminHomepageController::update
- * @see app/Http/Controllers/Admin/AdminHomepageController.php:40
+ * @see app/Http/Controllers/Admin/AdminHomepageController.php:54
  * @route '/admin/homepage'
  */
 update.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +113,7 @@ update.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Admin\AdminHomepageController::update
- * @see app/Http/Controllers/Admin/AdminHomepageController.php:40
+ * @see app/Http/Controllers/Admin/AdminHomepageController.php:54
  * @route '/admin/homepage'
  */
     const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +123,7 @@ update.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Admin\AdminHomepageController::update
- * @see app/Http/Controllers/Admin/AdminHomepageController.php:40
+ * @see app/Http/Controllers/Admin/AdminHomepageController.php:54
  * @route '/admin/homepage'
  */
         updateForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

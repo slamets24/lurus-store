@@ -10,7 +10,6 @@ use App\Models\ProductVariant;
 use App\Models\StoreContentSetting;
 use App\Models\User;
 use App\Services\EmbeddingService;
-use App\Support\ProductPlaceholderImages;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -57,13 +56,16 @@ class DemoCatalogImporter
 
     private function importUsers(): void
     {
-        $password = env('DEMO_ADMIN_PASSWORD', env('SEED_ADMIN_PASSWORD'));
+        $password = env('DEMO_ADMIN_PASSWORD') ?: env('SEED_ADMIN_PASSWORD');
 
-        if (app()->isProduction() && blank($password)) {
-            return;
+        if (blank($password)) {
+            if (app()->isProduction()) {
+                return;
+            }
+
+            $password = 'Admin123!';
         }
 
-        $password ??= 'Admin123!';
         $userIds = [];
 
         foreach ($this->payload['users'] ?? [] as $row) {

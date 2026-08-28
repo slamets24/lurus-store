@@ -11,21 +11,23 @@ class UserSeeder extends Seeder
     {
         $password = env('SEED_ADMIN_PASSWORD');
 
-        if (app()->isProduction() && blank($password)) {
-            $this->command?->error('Set SEED_ADMIN_PASSWORD in .env before seeding on VPS.');
+        if (blank($password)) {
+            if (app()->isProduction()) {
+                $this->command?->error('Set SEED_ADMIN_PASSWORD in .env before seeding on VPS.');
 
-            return;
+                return;
+            }
+
+            // Local/testing default only — never used when APP_ENV=production.
+            $password = 'Admin123!';
         }
-
-        // Local default only — never used when APP_ENV=production.
-        $password ??= 'Admin123!';
 
         $superAdmin = User::query()->where('email', 'superadmin@aaamen.com')->first();
 
         if (! $superAdmin) {
             $superAdmin = new User([
                 'name' => 'Super Admin',
-                'email' => 'superadmin@aaamen.com',
+                'email' => 'superadmin@lurus.com',
                 'password' => $password,
             ]);
             $superAdmin->role = User::ROLE_SUPER_ADMIN;
@@ -35,7 +37,7 @@ class UserSeeder extends Seeder
         if (! User::query()->where('email', 'admin@aaamen.com')->exists()) {
             $admin = new User([
                 'name' => 'Admin',
-                'email' => 'admin@aaamen.com',
+                'email' => 'admin@lurus.com',
                 'password' => $password,
             ]);
             $admin->role = User::ROLE_ADMIN;
