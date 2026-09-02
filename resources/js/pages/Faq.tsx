@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 
@@ -26,9 +26,6 @@ const faqs = [
 ];
 
 export default function Faq() {
-    const { appUrl } = usePage().props as unknown as { appUrl?: string };
-    const baseUrl = (appUrl || '').replace(/\/$/, '');
-
     const faqJsonLd = {
         '@context': 'https://schema.org',
         '@type': 'FAQPage',

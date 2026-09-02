@@ -187,16 +187,15 @@ export default function SettingsIndex({
                     className="rounded-xl border border-outline-variant/15 bg-surface-container-lowest p-6 space-y-4"
                     onSubmit={(event) => {
                         event.preventDefault();
-                        shippingForm
-                            .transform((data) => ({
-                                ...data,
-                                free_shipping_max_subsidy:
-                                    data.free_shipping_max_subsidy === '' ||
-                                    data.free_shipping_max_subsidy === null
-                                        ? null
-                                        : Number(data.free_shipping_max_subsidy),
-                            }))
-                            .post('/admin/settings', { preserveScroll: true });
+                        shippingForm.transform((data) => ({
+                            ...data,
+                            free_shipping_max_subsidy:
+                                data.free_shipping_max_subsidy === '' ||
+                                data.free_shipping_max_subsidy === null
+                                    ? null
+                                    : Number(data.free_shipping_max_subsidy),
+                        }));
+                        shippingForm.post('/admin/settings', { preserveScroll: true });
                     }}
                 >
                     <div className="flex items-center justify-between">

@@ -70,8 +70,8 @@ export default function Home({
             <SeoHead
                 title="Lurus Store | Modest Fashion & Muslimah Elegance"
                 description="Belanja koleksi busana muslimah elegan, modern, dan nyaman di Lurus Store. Tersedia dress muslim, hijab, blouse, skirt, dan daily wear muslimah berkualitas."
-                image={hero?.desktopImage ?? hero?.mobileImage}
-                preloadImage={hero?.desktopImage ?? hero?.mobileImage}
+                image={hero?.desktopImage ?? hero?.mobileImage ?? undefined}
+                preloadImage={hero?.desktopImage ?? hero?.mobileImage ?? undefined}
                 canonical="/"
                 jsonLd={homeJsonLd}
             />
