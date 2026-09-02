@@ -106,7 +106,14 @@ export default function ProductsIndex({ products, filters, categories }: Product
                                         </td>
                                         <td className="px-4 py-3">{product.stock}</td>
                                         <td className="px-4 py-3">
-                                            <StatusBadge status={product.is_active ? 'published' : 'draft'} />
+                                            <button
+                                                type="button"
+                                                onClick={() => router.patch(`/admin/products/${product.id}/toggle-status`, {}, { preserveScroll: true })}
+                                                title={product.is_active ? 'Klik untuk menyembunyikan (draft)' : 'Klik untuk mempublikasikan (published)'}
+                                                className="cursor-pointer transition-opacity hover:opacity-80"
+                                            >
+                                                <StatusBadge status={product.is_active ? 'published' : 'draft'} />
+                                            </button>
                                         </td>
                                         <td className="px-4 py-3 text-on-surface-variant">
                                             {product.created_at ? formatDate(product.created_at) : '—'}

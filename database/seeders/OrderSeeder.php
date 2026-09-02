@@ -13,7 +13,7 @@ class OrderSeeder extends Seeder
 {
     public function run(): void
     {
-        $customer = User::where('email', 'customer@aaamen.com')->first();
+        $customer = User::where('email', 'customer@lurus.com')->first();
         if (! $customer) {
             $customer = User::first();
         }
@@ -189,7 +189,7 @@ class OrderSeeder extends Seeder
 
         $shippingAddress = [
             'name' => 'Budi Santoso',
-            'email' => 'customer@aaamen.com',
+            'email' => 'customer@lurus.com',
             'phone' => '081234567890',
             'address' => 'Jl. Merdeka No. 45, RT 03 RW 08',
             'city' => 'Jakarta Selatan',

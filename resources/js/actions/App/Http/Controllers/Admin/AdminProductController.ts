@@ -212,7 +212,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\Admin\AdminProductController::edit
- * @see app/Http/Controllers/Admin/AdminProductController.php:157
+ * @see app/Http/Controllers/Admin/AdminProductController.php:159
  * @route '/admin/products/{product}/edit'
  */
 export const edit = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -227,7 +227,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminProductController::edit
- * @see app/Http/Controllers/Admin/AdminProductController.php:157
+ * @see app/Http/Controllers/Admin/AdminProductController.php:159
  * @route '/admin/products/{product}/edit'
  */
 edit.url = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -260,7 +260,7 @@ edit.url = (args: { product: number | { id: number } } | [product: number | { id
 
 /**
 * @see \App\Http\Controllers\Admin\AdminProductController::edit
- * @see app/Http/Controllers/Admin/AdminProductController.php:157
+ * @see app/Http/Controllers/Admin/AdminProductController.php:159
  * @route '/admin/products/{product}/edit'
  */
 edit.get = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -269,7 +269,7 @@ edit.get = (args: { product: number | { id: number } } | [product: number | { id
 })
 /**
 * @see \App\Http\Controllers\Admin\AdminProductController::edit
- * @see app/Http/Controllers/Admin/AdminProductController.php:157
+ * @see app/Http/Controllers/Admin/AdminProductController.php:159
  * @route '/admin/products/{product}/edit'
  */
 edit.head = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -279,7 +279,7 @@ edit.head = (args: { product: number | { id: number } } | [product: number | { i
 
     /**
 * @see \App\Http\Controllers\Admin\AdminProductController::edit
- * @see app/Http/Controllers/Admin/AdminProductController.php:157
+ * @see app/Http/Controllers/Admin/AdminProductController.php:159
  * @route '/admin/products/{product}/edit'
  */
     const editForm = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -289,7 +289,7 @@ edit.head = (args: { product: number | { id: number } } | [product: number | { i
 
             /**
 * @see \App\Http\Controllers\Admin\AdminProductController::edit
- * @see app/Http/Controllers/Admin/AdminProductController.php:157
+ * @see app/Http/Controllers/Admin/AdminProductController.php:159
  * @route '/admin/products/{product}/edit'
  */
         editForm.get = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -298,7 +298,7 @@ edit.head = (args: { product: number | { id: number } } | [product: number | { i
         })
             /**
 * @see \App\Http\Controllers\Admin\AdminProductController::edit
- * @see app/Http/Controllers/Admin/AdminProductController.php:157
+ * @see app/Http/Controllers/Admin/AdminProductController.php:159
  * @route '/admin/products/{product}/edit'
  */
         editForm.head = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -314,7 +314,7 @@ edit.head = (args: { product: number | { id: number } } | [product: number | { i
     edit.form = editForm
 /**
 * @see \App\Http\Controllers\Admin\AdminProductController::update
- * @see app/Http/Controllers/Admin/AdminProductController.php:203
+ * @see app/Http/Controllers/Admin/AdminProductController.php:205
  * @route '/admin/products/{product}'
  */
 export const update = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -329,7 +329,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminProductController::update
- * @see app/Http/Controllers/Admin/AdminProductController.php:203
+ * @see app/Http/Controllers/Admin/AdminProductController.php:205
  * @route '/admin/products/{product}'
  */
 update.url = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -362,7 +362,7 @@ update.url = (args: { product: number | { id: number } } | [product: number | { 
 
 /**
 * @see \App\Http\Controllers\Admin\AdminProductController::update
- * @see app/Http/Controllers/Admin/AdminProductController.php:203
+ * @see app/Http/Controllers/Admin/AdminProductController.php:205
  * @route '/admin/products/{product}'
  */
 update.put = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -372,7 +372,7 @@ update.put = (args: { product: number | { id: number } } | [product: number | { 
 
     /**
 * @see \App\Http\Controllers\Admin\AdminProductController::update
- * @see app/Http/Controllers/Admin/AdminProductController.php:203
+ * @see app/Http/Controllers/Admin/AdminProductController.php:205
  * @route '/admin/products/{product}'
  */
     const updateForm = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -387,7 +387,7 @@ update.put = (args: { product: number | { id: number } } | [product: number | { 
 
             /**
 * @see \App\Http\Controllers\Admin\AdminProductController::update
- * @see app/Http/Controllers/Admin/AdminProductController.php:203
+ * @see app/Http/Controllers/Admin/AdminProductController.php:205
  * @route '/admin/products/{product}'
  */
         updateForm.put = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -403,7 +403,7 @@ update.put = (args: { product: number | { id: number } } | [product: number | { 
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\Admin\AdminProductController::destroy
- * @see app/Http/Controllers/Admin/AdminProductController.php:266
+ * @see app/Http/Controllers/Admin/AdminProductController.php:278
  * @route '/admin/products/{product}'
  */
 export const destroy = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -418,7 +418,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminProductController::destroy
- * @see app/Http/Controllers/Admin/AdminProductController.php:266
+ * @see app/Http/Controllers/Admin/AdminProductController.php:278
  * @route '/admin/products/{product}'
  */
 destroy.url = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -451,7 +451,7 @@ destroy.url = (args: { product: number | { id: number } } | [product: number | {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminProductController::destroy
- * @see app/Http/Controllers/Admin/AdminProductController.php:266
+ * @see app/Http/Controllers/Admin/AdminProductController.php:278
  * @route '/admin/products/{product}'
  */
 destroy.delete = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -461,7 +461,7 @@ destroy.delete = (args: { product: number | { id: number } } | [product: number 
 
     /**
 * @see \App\Http\Controllers\Admin\AdminProductController::destroy
- * @see app/Http/Controllers/Admin/AdminProductController.php:266
+ * @see app/Http/Controllers/Admin/AdminProductController.php:278
  * @route '/admin/products/{product}'
  */
     const destroyForm = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -476,7 +476,7 @@ destroy.delete = (args: { product: number | { id: number } } | [product: number 
 
             /**
 * @see \App\Http\Controllers\Admin\AdminProductController::destroy
- * @see app/Http/Controllers/Admin/AdminProductController.php:266
+ * @see app/Http/Controllers/Admin/AdminProductController.php:278
  * @route '/admin/products/{product}'
  */
         destroyForm.delete = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -492,7 +492,7 @@ destroy.delete = (args: { product: number | { id: number } } | [product: number 
     destroy.form = destroyForm
 /**
 * @see \App\Http\Controllers\Admin\AdminProductController::deleteImage
- * @see app/Http/Controllers/Admin/AdminProductController.php:578
+ * @see app/Http/Controllers/Admin/AdminProductController.php:590
  * @route '/admin/products/images/{image}'
  */
 export const deleteImage = (args: { image: number | { id: number } } | [image: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -507,7 +507,7 @@ deleteImage.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminProductController::deleteImage
- * @see app/Http/Controllers/Admin/AdminProductController.php:578
+ * @see app/Http/Controllers/Admin/AdminProductController.php:590
  * @route '/admin/products/images/{image}'
  */
 deleteImage.url = (args: { image: number | { id: number } } | [image: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -540,7 +540,7 @@ deleteImage.url = (args: { image: number | { id: number } } | [image: number | {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminProductController::deleteImage
- * @see app/Http/Controllers/Admin/AdminProductController.php:578
+ * @see app/Http/Controllers/Admin/AdminProductController.php:590
  * @route '/admin/products/images/{image}'
  */
 deleteImage.delete = (args: { image: number | { id: number } } | [image: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -550,7 +550,7 @@ deleteImage.delete = (args: { image: number | { id: number } } | [image: number 
 
     /**
 * @see \App\Http\Controllers\Admin\AdminProductController::deleteImage
- * @see app/Http/Controllers/Admin/AdminProductController.php:578
+ * @see app/Http/Controllers/Admin/AdminProductController.php:590
  * @route '/admin/products/images/{image}'
  */
     const deleteImageForm = (args: { image: number | { id: number } } | [image: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -565,7 +565,7 @@ deleteImage.delete = (args: { image: number | { id: number } } | [image: number 
 
             /**
 * @see \App\Http\Controllers\Admin\AdminProductController::deleteImage
- * @see app/Http/Controllers/Admin/AdminProductController.php:578
+ * @see app/Http/Controllers/Admin/AdminProductController.php:590
  * @route '/admin/products/images/{image}'
  */
         deleteImageForm.delete = (args: { image: number | { id: number } } | [image: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

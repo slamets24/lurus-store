@@ -17,12 +17,10 @@ class UserSeeder extends Seeder
 
                 return;
             }
-
-            // Local/testing default only — never used when APP_ENV=production.
             $password = 'Admin123!';
         }
 
-        $superAdmin = User::query()->where('email', 'superadmin@aaamen.com')->first();
+        $superAdmin = User::query()->where('email', 'superadmin@lurus.com')->first();
 
         if (! $superAdmin) {
             $superAdmin = new User([
@@ -34,7 +32,7 @@ class UserSeeder extends Seeder
             $superAdmin->save();
         }
 
-        if (! User::query()->where('email', 'admin@aaamen.com')->exists()) {
+        if (! User::query()->where('email', 'admin@lurus.com')->exists()) {
             $admin = new User([
                 'name' => 'Admin',
                 'email' => 'admin@lurus.com',

@@ -119,7 +119,8 @@ class AdminProductController extends Controller
             'tokopedia_url' => 'nullable|url:http,https|max:500',
             'tiktok_url' => 'nullable|url:http,https|max:500',
             'related_fit_product_id' => 'nullable|exists:products,id',
-            'is_featured' => 'boolean',
+            'is_active' => 'nullable',
+            'is_featured' => 'nullable',
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
             'image_colors' => 'nullable|array',
@@ -132,7 +133,8 @@ class AdminProductController extends Controller
         $validated['category_id'] = $category?->id;
         $validated['slug'] = $this->makeProductSlug($validated['name'], $category?->name);
         $validated['sku'] = ($validated['sku'] ?? null) ?: $this->makeArticleCode($validated['name']);
-        $validated['is_active'] = true;
+        $validated['is_active'] = $request->boolean('is_active', true);
+        $validated['is_featured'] = $request->boolean('is_featured', false);
 
         $product = Product::create($this->productPayload($validated));
         $this->syncVariants($product, $validated);
@@ -225,8 +227,8 @@ class AdminProductController extends Controller
             'tokopedia_url' => 'nullable|url:http,https|max:500',
             'tiktok_url' => 'nullable|url:http,https|max:500',
             'related_fit_product_id' => 'nullable|exists:products,id',
-            'is_active' => 'boolean',
-            'is_featured' => 'boolean',
+            'is_active' => 'nullable',
+            'is_featured' => 'nullable',
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
             'image_colors' => 'nullable|array',
@@ -241,6 +243,8 @@ class AdminProductController extends Controller
         $validated['category_id'] = $category?->id;
         $validated['slug'] = $this->makeProductSlug($validated['name'], $category?->name, $product->id);
         $validated['sku'] = ($validated['sku'] ?? null) ?: $product->sku ?: $this->makeArticleCode($validated['name'], $product->id);
+        $validated['is_active'] = $request->boolean('is_active');
+        $validated['is_featured'] = $request->boolean('is_featured');
 
         $product->update($this->productPayload($validated));
         $this->syncVariants($product, $validated);
@@ -261,6 +265,14 @@ class AdminProductController extends Controller
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Product updated successfully.');
+    }
+
+    public function toggleStatus(Product $product)
+    {
+        $product->update(['is_active' => ! $product->is_active]);
+        $status = $product->is_active ? 'published' : 'draft';
+
+        return back()->with('success', "Status produk diperbarui menjadi {$status}.");
     }
 
     public function destroy(Product $product)

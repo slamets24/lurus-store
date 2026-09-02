@@ -8,15 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        try {
-            $imported = app(DemoCatalogImporter::class)->import();
-
-            if ($imported) {
-                Log::info('Demo catalog imported from database/fixtures/demo-catalog.json');
-            }
-        } catch (\Throwable $e) {
-            Log::warning('Demo catalog import skipped: '.$e->getMessage());
-        }
+        // No-op: Demo products are disabled. Use `php artisan demo:import-catalog` manually if needed.
     }
 
     public function down(): void
