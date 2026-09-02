@@ -4,6 +4,7 @@ import { Heart, Minus, Plus, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/ProductCard';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { cn, formatCurrency, storageUrl } from '@/lib/utils';
 import type { AuthProps, ProductCard as ProductCardType, ProductDetailData } from '@/types';
@@ -30,7 +31,12 @@ function toCard(product: ProductCardType & { images?: Array<{ image_path: string
 }
 
 export default function ProductDetail({ product, recommendedProducts, latestProducts }: ProductDetailProps) {
-    const { wishlistMap, auth } = usePage().props as unknown as { wishlistMap: Record<number, number>; auth: AuthProps };
+    const { wishlistMap, auth, appUrl } = usePage().props as unknown as {
+        wishlistMap: Record<number, number>;
+        auth: AuthProps;
+        appUrl?: string;
+    };
+    const baseUrl = (appUrl || '').replace(/\/$/, '');
     const [activeImage, setActiveImage] = useState(0);
     const [selectedSize, setSelectedSize] = useState('');
     const [selectedColor, setSelectedColor] = useState(product.colors?.[0] ?? '');
@@ -128,8 +134,112 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
 
     const addLabel = sizeMissing ? 'Select a size' : isSoldOut ? 'Sold Out' : 'Add to Cart';
 
+    const productDescription = useMemo(() => {
+        if (product.description) {
+            const clean = product.description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+            if (clean) return clean;
+        }
+        return `Beli ${product.name} berkualitas premium di Lurus Store. Busana muslimah elegan dengan material pilihan yang nyaman dan anggun.`;
+    }, [product.name, product.description]);
+
+    const primaryImage = product.images?.[0]?.image_path
+        ? storageUrl(product.images[0].image_path)
+        : undefined;
+
+    const productJsonLd = useMemo(() => {
+        const itemUrl = baseUrl ? `${baseUrl}/products/${product.slug}` : `/products/${product.slug}`;
+        const imageUrls = product.images?.length
+            ? product.images.map((img) => storageUrl(img.image_path))
+            : undefined;
+
+        const breadcrumbs = [
+            {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: baseUrl || '/',
+            },
+            {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Products',
+                item: baseUrl ? `${baseUrl}/products` : '/products',
+            },
+        ];
+
+        if (product.category) {
+            breadcrumbs.push(
+                {
+                    '@type': 'ListItem',
+                    position: 3,
+                    name: product.category.name,
+                    item: baseUrl
+                        ? `${baseUrl}/categories/${product.category.slug}`
+                        : `/categories/${product.category.slug}`,
+                },
+                {
+                    '@type': 'ListItem',
+                    position: 4,
+                    name: product.name,
+                    item: itemUrl,
+                },
+            );
+        } else {
+            breadcrumbs.push({
+                '@type': 'ListItem',
+                position: 3,
+                name: product.name,
+                item: itemUrl,
+            });
+        }
+
+        return [
+            {
+                '@context': 'https://schema.org',
+                '@type': 'Product',
+                name: product.name,
+                image: imageUrls,
+                description: productDescription,
+                sku: `PROD-${product.id}`,
+                brand: {
+                    '@type': 'Brand',
+                    name: 'Lurus Store',
+                },
+                offers: {
+                    '@type': 'Offer',
+                    url: itemUrl,
+                    priceCurrency: 'IDR',
+                    price: effectivePrice,
+                    itemCondition: 'https://schema.org/NewCondition',
+                    availability:
+                        product.stock > 0
+                            ? 'https://schema.org/InStock'
+                            : 'https://schema.org/OutOfStock',
+                    seller: {
+                        '@type': 'Organization',
+                        name: 'Lurus Store',
+                    },
+                },
+            },
+            {
+                '@context': 'https://schema.org',
+                '@type': 'BreadcrumbList',
+                itemListElement: breadcrumbs,
+            },
+        ];
+    }, [product, baseUrl, effectivePrice, productDescription]);
+
     return (
         <StorefrontLayout>
+            <SeoHead
+                title={`${product.name} | Lurus Store`}
+                description={productDescription}
+                canonical={`/products/${product.slug}`}
+                type="product"
+                image={primaryImage}
+                preloadImage={primaryImage}
+                jsonLd={productJsonLd}
+            />
             <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 pb-28 md:px-[var(--spacing-margin-desktop)] md:py-16 md:pb-16">
                 <nav className="mb-8 text-xs text-secondary">
                     <Link href="/" className="hover:text-warm-brown">Home</Link>

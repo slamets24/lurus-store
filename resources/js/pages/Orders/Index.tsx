@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { Pagination } from '@/components/Pagination';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { cn, formatCurrency } from '@/lib/utils';
 import type { Order, Paginated } from '@/types';
@@ -29,6 +30,11 @@ const paymentLabels: Record<string, string> = {
 export default function OrdersIndex({ orders }: OrdersIndexProps) {
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Daftar Pesanan Saya | Lurus Store"
+                canonical="/orders"
+                noindex
+            />
             <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 md:px-[var(--spacing-margin-desktop)] md:py-16">
                 <h1 className="mb-10 font-serif text-4xl tracking-tight">My Orders</h1>
 

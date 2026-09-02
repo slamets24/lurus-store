@@ -1,5 +1,7 @@
+import { usePage } from '@inertiajs/react';
 import { Pagination } from '@/components/Pagination';
 import { ProductCard } from '@/components/ProductCard';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { storageUrl } from '@/lib/utils';
 import type { Collection, Paginated, ProductCard as ProductCardType } from '@/types';
@@ -25,8 +27,50 @@ function toCard(product: CollectionDetailProps['products']['data'][0]): ProductC
 }
 
 export default function CollectionDetail({ collection, products }: CollectionDetailProps) {
+    const { appUrl } = usePage().props as unknown as { appUrl?: string };
+    const baseUrl = (appUrl || '').replace(/\/$/, '');
+
+    const description = collection.description
+        ? collection.description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+        : `Jelajahi koleksi ${collection.name} di Lurus Store. Pilihan modest wear anggun dan modern untuk gaya busana muslimah Anda.`;
+
+    const bannerImage = collection.banner_image ? storageUrl(collection.banner_image) : undefined;
+
+    const collectionJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: baseUrl || '/',
+            },
+            {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Collections',
+                item: baseUrl ? `${baseUrl}/collections` : '/collections',
+            },
+            {
+                '@type': 'ListItem',
+                position: 3,
+                name: collection.name,
+                item: baseUrl ? `${baseUrl}/collections/${collection.slug}` : `/collections/${collection.slug}`,
+            },
+        ],
+    };
+
     return (
         <StorefrontLayout>
+            <SeoHead
+                title={`${collection.name} | Koleksi Busana Muslimah | Lurus Store`}
+                description={description}
+                canonical={`/collections/${collection.slug}`}
+                image={bannerImage}
+                preloadImage={bannerImage}
+                jsonLd={collectionJsonLd}
+            />
             <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 md:px-[var(--spacing-margin-desktop)] md:py-16">
                 {collection.banner_image && (
                     <div className="mb-12 aspect-[21/9] overflow-hidden bg-surface-container">

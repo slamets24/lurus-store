@@ -1,6 +1,7 @@
 import { Link, useForm, usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import type { AuthProps } from '@/types';
 
@@ -40,6 +41,11 @@ export default function Account() {
 
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Akun Saya | Lurus Store"
+                canonical="/account"
+                noindex
+            />
             <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 md:px-[var(--spacing-margin-desktop)] md:py-16">
                 <h1 className="mb-10 font-serif text-4xl tracking-tight">My Account</h1>
 

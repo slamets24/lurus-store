@@ -1,10 +1,16 @@
 import { Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 
 export default function BestSellers() {
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Produk Terlaris | Best Sellers Busana Muslimah | Lurus Store"
+                description="Koleksi busana muslimah dan modest wear terfavorit dan paling banyak dibeli di Lurus Store. Kualitas terpercaya dan desain anggun."
+                canonical="/best-sellers"
+            />
             <div className="mx-auto max-w-3xl px-4 py-16 text-center md:px-[var(--spacing-margin-desktop)] md:py-24">
                 <p className="text-xs tracking-widest text-secondary">CUSTOMER FAVOURITES</p>
                 <h1 className="mt-2 font-serif text-4xl tracking-tight">Best Sellers</h1>

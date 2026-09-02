@@ -9,9 +9,28 @@
         <link rel="apple-touch-icon" href="/logo.png">
 
         {{-- ponytail: static crawl fallback; page-accurate meta needs Inertia SSR --}}
-        <title>{{ config('app.name', 'Lurus Store') }} | Modest Fashion</title>
+        <title>{{ config('app.name', 'Lurus Store') }} | Modest Fashion & Muslimah Elegance</title>
         <meta name="description" content="{{ config('app.name', 'Lurus Store') }} — modest fashion for Muslim women. Blouses, dresses, hijab, scarves, and everyday essentials with elegant, comfortable design.">
         <link rel="canonical" href="{{ url()->current() }}">
+
+        <!-- Search Engine & Author Directives -->
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+        <meta name="keywords" content="Lurus Store, modest fashion, busana muslim wanita, dress muslim, hijab, scarf, gamis modern, pakaian muslimah elegan, brand lokal muslimah">
+        <meta name="author" content="{{ config('app.name', 'Lurus Store') }}">
+
+        <!-- Open Graph / Facebook / WhatsApp Preview -->
+        <meta property="og:title" content="{{ config('app.name', 'Lurus Store') }} | Modest Fashion & Muslimah Elegance">
+        <meta property="og:description" content="{{ config('app.name', 'Lurus Store') }} — modest fashion for Muslim women. Blouses, dresses, hijab, scarves, and everyday essentials with elegant, comfortable design.">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ url()->current() }}">
+        <meta property="og:image" content="{{ asset('logo.png') }}">
+        <meta property="og:site_name" content="{{ config('app.name', 'Lurus Store') }}">
+
+        <!-- Twitter Meta Tags -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ config('app.name', 'Lurus Store') }} | Modest Fashion & Muslimah Elegance">
+        <meta name="twitter:description" content="{{ config('app.name', 'Lurus Store') }} — modest fashion for Muslim women. Blouses, dresses, hijab, scarves, and everyday essentials with elegant, comfortable design.">
+        <meta name="twitter:image" content="{{ asset('logo.png') }}">
 
         @php
             $googleTagId = config('services.google.tag_id');
@@ -25,8 +44,9 @@
             <meta name="google-site-verification" content="{{ $googleSiteVerification }}">
         @endif
 
+        <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
         @if ($loadGoogleTag)
-            <script async src="https://www.googletagmanager.com/gtag/js?id={{ $googleTagId }}"></script>
+            <link rel="preconnect" href="https://www.googletagmanager.com">
             <script>
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
@@ -53,6 +73,29 @@
                     adsId: @json($googleAdsId ?: null),
                     adsPurchaseLabel: @json($googleAdsPurchaseLabel ?: null),
                 };
+
+                // Deferred script injection to avoid blocking initial mobile render / TBT
+                (function () {
+                    var loadGtag = function () {
+                        if (window._gtagLoaded) return;
+                        window._gtagLoaded = true;
+                        var s = document.createElement('script');
+                        s.async = true;
+                        s.src = 'https://www.googletagmanager.com/gtag/js?id=' + @json($googleTagId);
+                        document.head.appendChild(s);
+                    };
+                    if (document.readyState === 'complete') {
+                        loadGtag();
+                    } else {
+                        window.addEventListener('load', function () {
+                            if ('requestIdleCallback' in window) {
+                                requestIdleCallback(loadGtag, { timeout: 2500 });
+                            } else {
+                                setTimeout(loadGtag, 1500);
+                            }
+                        });
+                    }
+                })();
             </script>
         @endif
 

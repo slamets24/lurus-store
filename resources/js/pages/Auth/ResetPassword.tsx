@@ -1,6 +1,7 @@
 import { Link, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 
 interface ResetPasswordProps {
@@ -18,6 +19,10 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
 
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Atur Ulang Kata Sandi | Lurus Store"
+                noindex
+            />
             <div className="mx-auto flex max-w-md flex-col px-4 py-16 md:py-24">
                 <h1 className="mb-2 text-center font-serif text-3xl tracking-tight">Reset Password</h1>
                 <p className="mb-8 text-center text-sm text-secondary">Choose a new password for your account</p>

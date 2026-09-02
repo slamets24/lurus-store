@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { formatCurrency, storageUrl } from '@/lib/utils';
 import type { Order } from '@/types';
@@ -27,6 +28,10 @@ export default function OrdersSuccess({
 
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Pesanan Berhasil Dibuat | Lurus Store"
+                noindex
+            />
             <div className="mx-auto max-w-2xl px-4 py-16 text-center md:py-24">
                 <CheckCircle className="mx-auto mb-6 h-16 w-16 text-warm-brown" />
                 <h1 className="font-serif text-4xl tracking-tight">Thank You!</h1>

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/Pagination';
 import { ProductCard } from '@/components/ProductCard';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import type { Paginated, ProductCard as ProductCardType } from '@/types';
 
@@ -38,6 +39,11 @@ export default function Search({ query, products }: SearchProps) {
 
     return (
         <StorefrontLayout>
+            <SeoHead
+                title={query ? `Pencarian: "${query}" | Lurus Store` : 'Pencarian Produk | Lurus Store'}
+                canonical="/search"
+                noindex
+            />
             <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 md:px-[var(--spacing-margin-desktop)] md:py-16">
                 <h1 className="mb-8 font-serif text-4xl tracking-tight">Search</h1>
 

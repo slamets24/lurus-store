@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { cn, storageUrl } from '@/lib/utils';
 
@@ -36,6 +37,10 @@ export default function TestimonialsCreate({ order, token }: TestimonialsCreateP
 
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Tulis Testimoni | Lurus Store"
+                noindex
+            />
             <div className="mx-auto max-w-2xl px-4 py-10 md:py-16">
                 <h1 className="mb-2 font-serif text-3xl tracking-tight">Share Your Experience</h1>
                 <p className="mb-10 text-sm text-secondary">

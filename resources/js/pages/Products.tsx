@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { Pagination } from '@/components/Pagination';
 import { ProductCard } from '@/components/ProductCard';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { cn } from '@/lib/utils';
 import type { NavCategory, Paginated, ProductCard as ProductCardType } from '@/types';
@@ -11,10 +12,26 @@ interface ProductsProps {
 }
 
 export default function Products({ products, categories }: ProductsProps) {
-    const activeCategory = new URLSearchParams(window.location.search).get('category');
+    const activeCategory = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('category')
+        : null;
+    const currentCategory = categories.find((c) => c.slug === activeCategory);
+
+    const title = currentCategory
+        ? `${currentCategory.name} | Koleksi Busana Muslimah | Lurus Store`
+        : 'Semua Produk | Koleksi Busana Muslimah & Modest Wear | Lurus Store';
+
+    const description = currentCategory
+        ? `Jelajahi koleksi ${currentCategory.name} terbaik di Lurus Store. Pilihan modest wear wanita modern dengan bahan berkualitas tinggi dan desain elegan.`
+        : 'Temukan koleksi lengkap busana muslimah Lurus Store: dress, hijab, blouse, rok, dan pakaian modest harian wanita dengan kualitas premium.';
 
     return (
         <StorefrontLayout>
+            <SeoHead
+                title={title}
+                description={description}
+                canonical={activeCategory ? `/products?category=${activeCategory}` : '/products'}
+            />
             <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 md:px-[var(--spacing-margin-desktop)] md:py-16">
                 <div className="mb-10 text-center">
                     <p className="text-[11px] tracking-[0.35em] text-secondary uppercase">Shop</p>

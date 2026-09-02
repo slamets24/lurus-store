@@ -2,6 +2,7 @@ import { Link, router } from '@inertiajs/react';
 import { Heart, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/Pagination';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { formatCurrency, storageUrl } from '@/lib/utils';
 import type { Paginated, WishlistItem } from '@/types';
@@ -13,6 +14,11 @@ interface WishlistProps {
 export default function Wishlist({ wishlistItems }: WishlistProps) {
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Wishlist Saya | Lurus Store"
+                canonical="/wishlist"
+                noindex
+            />
             <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 md:px-[var(--spacing-margin-desktop)] md:py-16">
                 <h1 className="mb-10 font-serif text-4xl tracking-tight">Wishlist</h1>
 

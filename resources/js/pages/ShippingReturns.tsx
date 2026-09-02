@@ -1,9 +1,15 @@
 import { Link } from '@inertiajs/react';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 
 export default function ShippingReturns() {
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Kebijakan Pengiriman & Pengembalian | Lurus Store"
+                description="Informasi mengenai estimasi pengiriman, ekspedisi kurir, bebas ongkir, serta syarat dan ketentuan pengembalian barang di Lurus Store."
+                canonical="/shipping-returns"
+            />
             <div className="mx-auto max-w-3xl px-4 py-16 md:px-[var(--spacing-margin-desktop)] md:py-24">
                 <h1 className="mb-8 font-serif text-4xl tracking-tight">Shipping & Returns</h1>
                 <div className="space-y-10 text-sm leading-relaxed text-secondary">

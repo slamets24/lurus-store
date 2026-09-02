@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { storageUrl } from '@/lib/utils';
 import type { Collection } from '@/types';
@@ -10,6 +11,11 @@ interface CollectionsIndexProps {
 export default function CollectionsIndex({ collections }: CollectionsIndexProps) {
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Koleksi Pilihan | Lurus Store"
+                description="Jelajahi kurasi koleksi busana muslimah terbaik untuk berbagai momen di Lurus Store. Pilihan gaya modest yang elegan dan timeless."
+                canonical="/collections"
+            />
             <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 md:px-[var(--spacing-margin-desktop)] md:py-16">
                 <div className="mb-12 text-center">
                     <p className="text-[11px] tracking-[0.35em] text-secondary uppercase">Collection</p>

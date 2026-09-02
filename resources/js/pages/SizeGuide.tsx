@@ -1,8 +1,14 @@
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 
 export default function SizeGuide() {
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Panduan Ukuran (Size Guide) | Lurus Store"
+                description="Panduan lengkap memilih ukuran busana muslimah yang pas dan nyaman di Lurus Store. Cek tabel ukuran dada, pinggang, pinggul, dan panjang baju."
+                canonical="/size-guide"
+            />
             <div className="mx-auto max-w-3xl px-4 py-16 md:px-[var(--spacing-margin-desktop)] md:py-24">
                 <h1 className="mb-8 font-serif text-4xl tracking-tight">Size Guide</h1>
                 <div className="space-y-8 text-sm leading-relaxed text-secondary">

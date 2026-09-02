@@ -1,9 +1,15 @@
 import { Link } from '@inertiajs/react';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 
 export default function SpecialOffers() {
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Penawaran Spesial & Promo | Lurus Store"
+                description="Dapatkan penawaran menarik dan diskon eksklusif untuk koleksi busana muslimah pilihan di Lurus Store."
+                canonical="/special-offers"
+            />
             <div className="mx-auto max-w-[var(--container-max)] px-4 py-16 md:px-[var(--spacing-margin-desktop)] md:py-24">
                 <div className="mb-10 text-center">
                     <p className="text-[11px] tracking-[0.35em] text-secondary uppercase">Special Offers</p>

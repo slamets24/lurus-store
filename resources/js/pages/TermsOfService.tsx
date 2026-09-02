@@ -1,8 +1,14 @@
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 
 export default function TermsOfService() {
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Syarat & Ketentuan Layanan | Lurus Store"
+                description="Syarat dan ketentuan penggunaan layanan, pembelian produk, dan transaksi di website resmi Lurus Store."
+                canonical="/terms-of-service"
+            />
             <div className="mx-auto max-w-3xl px-4 py-16 md:px-[var(--spacing-margin-desktop)] md:py-24">
                 <h1 className="mb-8 font-serif text-4xl tracking-tight">Terms of Service</h1>
                 <div className="space-y-6 text-sm leading-relaxed text-secondary">

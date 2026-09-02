@@ -1,6 +1,7 @@
 import { Link, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { formatCurrency, storageUrl } from '@/lib/utils';
 import type { Order } from '@/types';
@@ -34,6 +35,10 @@ export default function OrdersShow({
 
     return (
         <StorefrontLayout>
+            <SeoHead
+                title={`Pesanan ${order.order_number} | Lurus Store`}
+                noindex
+            />
             <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 md:px-[var(--spacing-margin-desktop)] md:py-16">
                 <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
                     <div>

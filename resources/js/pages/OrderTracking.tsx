@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 
 export default function OrderTracking() {
@@ -9,6 +10,11 @@ export default function OrderTracking() {
 
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Lacak Pesanan | Lurus Store"
+                canonical="/order-tracking"
+                noindex
+            />
             <div className="mx-auto max-w-md px-4 py-16 md:py-24">
                 <h1 className="mb-2 text-center font-serif text-3xl tracking-tight">Track Your Order</h1>
                 <p className="mb-8 text-center text-sm text-secondary">

@@ -157,7 +157,7 @@ robots.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     robots.form = robotsForm
 /**
 * @see \App\Http\Controllers\SitemapController::llms
- * @see app/Http/Controllers/SitemapController.php:35
+ * @see app/Http/Controllers/SitemapController.php:50
  * @route '/llms.txt'
  */
 export const llms = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -172,7 +172,7 @@ llms.definition = {
 
 /**
 * @see \App\Http\Controllers\SitemapController::llms
- * @see app/Http/Controllers/SitemapController.php:35
+ * @see app/Http/Controllers/SitemapController.php:50
  * @route '/llms.txt'
  */
 llms.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ llms.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\SitemapController::llms
- * @see app/Http/Controllers/SitemapController.php:35
+ * @see app/Http/Controllers/SitemapController.php:50
  * @route '/llms.txt'
  */
 llms.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -190,7 +190,7 @@ llms.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\SitemapController::llms
- * @see app/Http/Controllers/SitemapController.php:35
+ * @see app/Http/Controllers/SitemapController.php:50
  * @route '/llms.txt'
  */
 llms.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -200,7 +200,7 @@ llms.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\SitemapController::llms
- * @see app/Http/Controllers/SitemapController.php:35
+ * @see app/Http/Controllers/SitemapController.php:50
  * @route '/llms.txt'
  */
     const llmsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -210,7 +210,7 @@ llms.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\SitemapController::llms
- * @see app/Http/Controllers/SitemapController.php:35
+ * @see app/Http/Controllers/SitemapController.php:50
  * @route '/llms.txt'
  */
         llmsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -219,7 +219,7 @@ llms.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\SitemapController::llms
- * @see app/Http/Controllers/SitemapController.php:35
+ * @see app/Http/Controllers/SitemapController.php:50
  * @route '/llms.txt'
  */
         llmsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

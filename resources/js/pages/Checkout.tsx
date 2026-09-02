@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FreeShippingHint } from '@/components/FreeShippingHint';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { csrfHeaders, formatCurrency, storageUrl } from '@/lib/utils';
 import type { CartItem, CommerceProps } from '@/types';
@@ -146,6 +147,11 @@ export default function Checkout({
 
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Checkout Pesanan | Lurus Store"
+                canonical="/checkout"
+                noindex
+            />
             <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 pb-28 md:px-[var(--spacing-margin-desktop)] md:py-16 md:pb-16">
                 <h1 className="mb-10 font-serif text-4xl tracking-tight">Checkout</h1>
 

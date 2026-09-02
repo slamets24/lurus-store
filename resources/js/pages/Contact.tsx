@@ -1,9 +1,13 @@
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 
 export default function Contact() {
+    const { appUrl } = usePage().props as unknown as { appUrl?: string };
+    const baseUrl = (appUrl || '').replace(/\/$/, '');
+
     const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
         name: '',
         email: '',
@@ -11,8 +15,22 @@ export default function Contact() {
         website: '',
     });
 
+    const contactJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'ContactPage',
+        name: 'Hubungi Kami - Lurus Store',
+        description: 'Hubungi tim customer support Lurus Store untuk bantuan pesanan, panduan ukuran, atau pertanyaan lainnya.',
+        url: baseUrl ? `${baseUrl}/contact` : '/contact',
+    };
+
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Hubungi Kami | Customer Service Lurus Store"
+                description="Hubungi layanan pelanggan Lurus Store untuk pertanyaan produk, konsultasi ukuran, status pengiriman, atau informasi kerjasama."
+                canonical="/contact"
+                jsonLd={contactJsonLd}
+            />
             <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 md:px-[var(--spacing-margin-desktop)] md:py-16">
                 <div className="mb-14 text-center">
                     <p className="text-[11px] tracking-[0.35em] text-secondary uppercase">Find Us</p>

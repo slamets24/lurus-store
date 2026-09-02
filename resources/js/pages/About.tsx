@@ -1,9 +1,27 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 
 export default function About() {
+    const { appUrl } = usePage().props as unknown as { appUrl?: string };
+    const baseUrl = (appUrl || '').replace(/\/$/, '');
+
+    const aboutJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'AboutPage',
+        name: 'Tentang Lurus Store',
+        description: 'Lurus Store menghadirkan busana muslimah elegan, modest fashion dengan siluet anggun dan material berkualitas tinggi.',
+        url: baseUrl ? `${baseUrl}/about` : '/about',
+    };
+
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Tentang Kami | Lurus Store — Modest Fashion & Muslimah Elegance"
+                description="Pelajari komitmen Lurus Store dalam menghadirkan modest wear dan busana muslimah elegan, nyaman, dan berkarakter untuk wanita Indonesia."
+                canonical="/about"
+                jsonLd={aboutJsonLd}
+            />
             <div className="mx-auto max-w-3xl px-4 py-16 md:px-[var(--spacing-margin-desktop)] md:py-24">
                 <h1 className="mb-8 font-serif text-4xl tracking-tight">About Us</h1>
                 <div className="space-y-6 text-sm leading-relaxed text-secondary">

@@ -1,6 +1,7 @@
 import { Link, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 
 interface LoginProps {
@@ -16,6 +17,11 @@ export default function Login({ status }: LoginProps) {
 
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Masuk ke Akun | Lurus Store"
+                canonical="/login"
+                noindex
+            />
             <div className="mx-auto flex max-w-md flex-col px-4 py-16 md:py-24">
                 <h1 className="mb-2 text-center font-serif text-3xl tracking-tight">Sign In</h1>
                 <p className="mb-8 text-center text-sm text-secondary">Welcome back to your account</p>

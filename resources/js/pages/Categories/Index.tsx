@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { storageUrl } from '@/lib/utils';
 import type { Category } from '@/types';
@@ -10,6 +11,11 @@ interface CategoriesIndexProps {
 export default function CategoriesIndex({ categories }: CategoriesIndexProps) {
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Kategori Busana Muslimah | Lurus Store"
+                description="Temukan berbagai kategori busana muslimah elegan di Lurus Store: dress, hijab, blouse, skirt, dan koleksi modest wear lainnya."
+                canonical="/categories"
+            />
             <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 md:px-[var(--spacing-margin-desktop)] md:py-16">
                 <h1 className="mb-2 font-serif text-4xl tracking-tight">Categories</h1>
                 <p className="mb-10 text-sm text-secondary">Browse our modest fashion by category</p>

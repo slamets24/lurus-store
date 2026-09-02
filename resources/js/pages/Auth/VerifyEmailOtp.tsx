@@ -1,6 +1,7 @@
 import { Link, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 
 interface VerifyEmailOtpProps {
@@ -14,6 +15,10 @@ export default function VerifyEmailOtp({ email, status }: VerifyEmailOtpProps) {
 
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Verifikasi Email | Lurus Store"
+                noindex
+            />
             <div className="mx-auto flex max-w-md flex-col px-4 py-16 md:py-24">
                 <h1 className="mb-2 text-center font-serif text-3xl tracking-tight">Verify Email</h1>
                 <p className="mb-8 text-center text-sm text-secondary">

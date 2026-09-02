@@ -1,8 +1,14 @@
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 
 export default function PrivacyPolicy() {
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Kebijakan Privasi | Lurus Store"
+                description="Kebijakan privasi Lurus Store menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi data pribadi Anda."
+                canonical="/privacy-policy"
+            />
             <div className="mx-auto max-w-3xl px-4 py-16 md:px-[var(--spacing-margin-desktop)] md:py-24">
                 <h1 className="mb-8 font-serif text-4xl tracking-tight">Privacy Policy</h1>
                 <div className="space-y-6 text-sm leading-relaxed text-secondary">

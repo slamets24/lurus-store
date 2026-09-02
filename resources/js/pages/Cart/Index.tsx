@@ -2,6 +2,7 @@ import { Link, router, usePage } from '@inertiajs/react';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FreeShippingHint } from '@/components/FreeShippingHint';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { formatCurrency, storageUrl } from '@/lib/utils';
 import type { CartItem, CommerceProps } from '@/types';
@@ -18,6 +19,11 @@ export default function CartIndex({ cartItems, subtotal, discount_amount, total 
 
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="Keranjang Belanja | Lurus Store"
+                canonical="/cart"
+                noindex
+            />
             <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 pb-28 md:px-[var(--spacing-margin-desktop)] md:py-16 md:pb-16">
                 <h1 className="mb-10 font-serif text-4xl tracking-tight">Shopping Cart</h1>
 

@@ -1,4 +1,5 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 
 const faqs = [
@@ -25,8 +26,30 @@ const faqs = [
 ];
 
 export default function Faq() {
+    const { appUrl } = usePage().props as unknown as { appUrl?: string };
+    const baseUrl = (appUrl || '').replace(/\/$/, '');
+
+    const faqJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqs.map((item) => ({
+            '@type': 'Question',
+            name: item.q,
+            acceptedAnswer: {
+                '@type': 'Answer',
+                text: item.a,
+            },
+        })),
+    };
+
     return (
         <StorefrontLayout>
+            <SeoHead
+                title="FAQ - Pertanyaan Umum | Lurus Store"
+                description="Temukan jawaban atas pertanyaan umum seputar cara pemesanan, metode pembayaran, opsi pengiriman, dan kebijakan retur di Lurus Store."
+                canonical="/faq"
+                jsonLd={faqJsonLd}
+            />
             <div className="mx-auto max-w-3xl px-4 py-16 md:px-[var(--spacing-margin-desktop)] md:py-24">
                 <h1 className="mb-2 font-serif text-4xl tracking-tight">FAQ</h1>
                 <p className="mb-10 text-sm text-secondary">Frequently asked questions</p>

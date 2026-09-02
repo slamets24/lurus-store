@@ -1,9 +1,10 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Package, RefreshCw, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { HomeSection } from '@/components/HomeSection';
 import { ProductCard } from '@/components/ProductCard';
 import { Reveal } from '@/components/Reveal';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { cn, storageUrl } from '@/lib/utils';
 import type {
@@ -36,9 +37,44 @@ export default function Home({
     testimonials,
 }: HomeProps) {
     const hero = heroBanners[0];
+    const { appUrl } = usePage().props as unknown as { appUrl?: string };
+    const baseUrl = (appUrl || '').replace(/\/$/, '');
+
+    const homeJsonLd = [
+        {
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: 'Lurus Store',
+            url: baseUrl || undefined,
+            description: 'Brand busana muslimah elegan, modest wear, dress, hijab, dan aksesoris wanita muslim di Indonesia.',
+            potentialAction: {
+                '@type': 'SearchAction',
+                target: {
+                    '@type': 'EntryPoint',
+                    urlTemplate: `${baseUrl}/search?q={search_term_string}`,
+                },
+                'query-input': 'required name=search_term_string',
+            },
+        },
+        {
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'Lurus Store',
+            url: baseUrl || undefined,
+            logo: baseUrl ? `${baseUrl}/logo.png` : undefined,
+        },
+    ];
 
     return (
         <StorefrontLayout announcementBar={announcementBar}>
+            <SeoHead
+                title="Lurus Store | Modest Fashion & Muslimah Elegance"
+                description="Belanja koleksi busana muslimah elegan, modern, dan nyaman di Lurus Store. Tersedia dress muslim, hijab, blouse, skirt, dan daily wear muslimah berkualitas."
+                image={hero?.desktopImage ?? hero?.mobileImage}
+                preloadImage={hero?.desktopImage ?? hero?.mobileImage}
+                canonical="/"
+                jsonLd={homeJsonLd}
+            />
             {hero ? (
                 <section className="relative">
                     <Link href={hero.link ?? '/products'} className="block">

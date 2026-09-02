@@ -1,5 +1,7 @@
+import { usePage } from '@inertiajs/react';
 import { Pagination } from '@/components/Pagination';
 import { ProductCard } from '@/components/ProductCard';
+import { SeoHead } from '@/components/SeoHead';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { storageUrl } from '@/lib/utils';
 import type { Category, Paginated, ProductCard as ProductCardType } from '@/types';
@@ -25,8 +27,50 @@ function toCard(product: CategoryDetailProps['products']['data'][0]): ProductCar
 }
 
 export default function CategoryDetail({ category, products }: CategoryDetailProps) {
+    const { appUrl } = usePage().props as unknown as { appUrl?: string };
+    const baseUrl = (appUrl || '').replace(/\/$/, '');
+
+    const description = category.description
+        ? category.description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+        : `Koleksi ${category.name} terbaik di Lurus Store. Busana muslimah elegan dengan pilihan material premium dan potongan yang nyaman.`;
+
+    const categoryImage = category.image ? storageUrl(category.image) : undefined;
+
+    const categoryJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: baseUrl || '/',
+            },
+            {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Categories',
+                item: baseUrl ? `${baseUrl}/categories` : '/categories',
+            },
+            {
+                '@type': 'ListItem',
+                position: 3,
+                name: category.name,
+                item: baseUrl ? `${baseUrl}/categories/${category.slug}` : `/categories/${category.slug}`,
+            },
+        ],
+    };
+
     return (
         <StorefrontLayout>
+            <SeoHead
+                title={`${category.name} | Koleksi Busana Muslimah | Lurus Store`}
+                description={description}
+                canonical={`/categories/${category.slug}`}
+                image={categoryImage}
+                preloadImage={categoryImage}
+                jsonLd={categoryJsonLd}
+            />
             <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 md:px-[var(--spacing-margin-desktop)] md:py-16">
                 {category.image && (
                     <div className="mb-10 aspect-[21/9] overflow-hidden bg-surface-container">

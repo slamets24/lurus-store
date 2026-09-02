@@ -30,7 +30,15 @@ class GoogleTagTest extends TestCase
             ->assertSee('Modest Fashion', false)
             ->assertSee('name="description"', false)
             ->assertSee('modest fashion for Muslim women', false)
-            ->assertSee('rel="canonical"', false);
+            ->assertSee('rel="canonical"', false)
+            ->assertSee('name="robots"', false)
+            ->assertSee('max-image-preview:large', false)
+            ->assertSee('name="keywords"', false)
+            ->assertSee('Lurus Store', false)
+            ->assertSee('name="author"', false)
+            ->assertSee('property="og:title"', false)
+            ->assertSee('property="og:description"', false)
+            ->assertSee('name="twitter:card"', false);
     }
 
     public function test_google_tag_script_loads_on_storefront_when_configured(): void
@@ -43,7 +51,7 @@ class GoogleTagTest extends TestCase
 
         $this->get('/')
             ->assertOk()
-            ->assertSee('googletagmanager.com/gtag/js?id=G-TEST123', false)
+            ->assertSee('googletagmanager.com/gtag/js?id=', false)
             ->assertSee('G-TEST123', false)
             ->assertSee('AW-TEST456', false)
             ->assertSee('ga-disable-', false);

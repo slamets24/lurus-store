@@ -17,6 +17,9 @@ class SitemapTest extends TestCase
         $response->assertHeader('Content-Type', 'text/xml; charset=utf-8');
         $response->assertSee(route('products.index'), false);
         $response->assertSee(route('about'), false);
+        $response->assertSee(route('new-arrivals'), false);
+        $response->assertSee(route('best-sellers'), false);
+        $response->assertSee(route('special-offers'), false);
     }
 
     public function test_sitemap_generate_command_writes_file(): void
@@ -30,6 +33,7 @@ class SitemapTest extends TestCase
 
         $this->assertFileExists($path);
         $this->assertStringContainsString(route('products.index'), (string) file_get_contents($path));
+        $this->assertStringContainsString(route('new-arrivals'), (string) file_get_contents($path));
 
         unlink($path);
     }
@@ -41,6 +45,8 @@ class SitemapTest extends TestCase
         $response->assertOk();
         $response->assertSee('Sitemap: '.route('sitemap'), false);
         $response->assertSee('OAI-SearchBot', false);
+        $response->assertSee('Disallow: /admin', false);
+        $response->assertSee('Disallow: /checkout', false);
     }
 
     public function test_llms_txt_describes_public_store(): void
