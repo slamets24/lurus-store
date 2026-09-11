@@ -391,7 +391,7 @@ export default function StorefrontLayout({ children, announcementBar }: Storefro
             <footer className="mb-16 border-t border-outline-variant bg-surface-container-low md:mb-0">
                 <div className="mx-auto grid max-w-[var(--container-max)] gap-10 px-4 py-16 md:grid-cols-2 lg:grid-cols-4 md:px-[var(--spacing-margin-desktop)]">
                     <div>
-                        <h3 className="mb-4 font-serif text-lg">Newsletter</h3>
+                        <p className="mb-4 font-serif text-lg font-medium text-on-surface">Newsletter</p>
                         <p className="mb-4 text-sm text-secondary">
                             Subscribe for modest fashion updates, new arrivals, and exclusive offers.
                         </p>
@@ -431,7 +431,7 @@ export default function StorefrontLayout({ children, announcementBar }: Storefro
                         )}
                     </div>
                     <div>
-                        <h3 className="mb-4 font-serif text-lg">Shop</h3>
+                        <p className="mb-4 font-serif text-lg font-medium text-on-surface">Shop</p>
                         <ul className="space-y-2 text-sm text-secondary">
                             <li><Link href="/products" className="hover:text-warm-brown">All Products</Link></li>
                             <li><Link href="/categories" className="hover:text-warm-brown">Categories</Link></li>
@@ -451,7 +451,7 @@ export default function StorefrontLayout({ children, announcementBar }: Storefro
                         )}
                     </div>
                     <div>
-                        <h3 className="mb-4 font-serif text-lg">Help</h3>
+                        <p className="mb-4 font-serif text-lg font-medium text-on-surface">Help</p>
                         <ul className="space-y-2 text-sm text-secondary">
                             <li><Link href="/faq" className="hover:text-warm-brown">FAQ</Link></li>
                             <li><Link href="/contact" className="hover:text-warm-brown">Contact Us</Link></li>
@@ -460,7 +460,7 @@ export default function StorefrontLayout({ children, announcementBar }: Storefro
                         </ul>
                     </div>
                     <div>
-                        <h3 className="mb-4 font-serif text-lg">Follow Us</h3>
+                        <p className="mb-4 font-serif text-lg font-medium text-on-surface">Follow Us</p>
                         <ul className="space-y-2 text-sm">
                             {socialLinks.map((link) => (
                                 <li key={link.name}>

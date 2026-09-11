@@ -19,9 +19,12 @@ export function HomeSection({ section }: HomeSectionProps) {
         <section className="py-[var(--spacing-section-gap)]">
             <Reveal>
                 <div className="mb-10 text-center">
-                    <p className="text-[11px] tracking-[0.35em] text-secondary uppercase">
-                        {section.label}
+                    <p className="text-xs tracking-[0.3em] text-warm-brown uppercase">
+                        Koleksi Kurasi
                     </p>
+                    <h2 className="mt-2 font-serif text-3xl tracking-tight md:text-4xl">
+                        {section.label}
+                    </h2>
 
                     {section.categories.length > 0 && (
                         <div

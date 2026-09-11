@@ -41,6 +41,8 @@ class Product extends Model implements Sitemapable
         'is_active',
         'is_featured',
         'embedding',
+        'last_posted_to_fb_at',
+        'fb_post_count',
     ];
 
     protected $hidden = [
@@ -57,6 +59,8 @@ class Product extends Model implements Sitemapable
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
         'embedding' => 'array',
+        'last_posted_to_fb_at' => 'datetime',
+        'fb_post_count' => 'integer',
     ];
 
     private static ?string $pgvectorType = null;

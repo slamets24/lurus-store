@@ -402,6 +402,95 @@ update.put = (args: { product: number | { id: number } } | [product: number | { 
     
     update.form = updateForm
 /**
+* @see \App\Http\Controllers\Admin\AdminProductController::toggleStatus
+ * @see app/Http/Controllers/Admin/AdminProductController.php:270
+ * @route '/admin/products/{product}/toggle-status'
+ */
+export const toggleStatus = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: toggleStatus.url(args, options),
+    method: 'patch',
+})
+
+toggleStatus.definition = {
+    methods: ["patch"],
+    url: '/admin/products/{product}/toggle-status',
+} satisfies RouteDefinition<["patch"]>
+
+/**
+* @see \App\Http\Controllers\Admin\AdminProductController::toggleStatus
+ * @see app/Http/Controllers/Admin/AdminProductController.php:270
+ * @route '/admin/products/{product}/toggle-status'
+ */
+toggleStatus.url = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { product: args }
+    }
+
+            if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+            args = { product: args.id }
+        }
+    
+    if (Array.isArray(args)) {
+        args = {
+                    product: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        product: typeof args.product === 'object'
+                ? args.product.id
+                : args.product,
+                }
+
+    return toggleStatus.definition.url
+            .replace('{product}', parsedArgs.product.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Admin\AdminProductController::toggleStatus
+ * @see app/Http/Controllers/Admin/AdminProductController.php:270
+ * @route '/admin/products/{product}/toggle-status'
+ */
+toggleStatus.patch = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: toggleStatus.url(args, options),
+    method: 'patch',
+})
+
+    /**
+* @see \App\Http\Controllers\Admin\AdminProductController::toggleStatus
+ * @see app/Http/Controllers/Admin/AdminProductController.php:270
+ * @route '/admin/products/{product}/toggle-status'
+ */
+    const toggleStatusForm = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: toggleStatus.url(args, {
+                    [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                        _method: 'PATCH',
+                        ...(options?.query ?? options?.mergeQuery ?? {}),
+                    }
+                }),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Http\Controllers\Admin\AdminProductController::toggleStatus
+ * @see app/Http/Controllers/Admin/AdminProductController.php:270
+ * @route '/admin/products/{product}/toggle-status'
+ */
+        toggleStatusForm.patch = (args: { product: number | { id: number } } | [product: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: toggleStatus.url(args, {
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'PATCH',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'post',
+        })
+    
+    toggleStatus.form = toggleStatusForm
+/**
 * @see \App\Http\Controllers\Admin\AdminProductController::destroy
  * @see app/Http/Controllers/Admin/AdminProductController.php:278
  * @route '/admin/products/{product}'
@@ -579,6 +668,6 @@ deleteImage.delete = (args: { image: number | { id: number } } | [image: number 
         })
     
     deleteImage.form = deleteImageForm
-const AdminProductController = { index, create, store, edit, update, destroy, deleteImage }
+const AdminProductController = { index, create, store, edit, update, toggleStatus, destroy, deleteImage }
 
 export default AdminProductController
