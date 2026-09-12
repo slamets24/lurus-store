@@ -1,8 +1,9 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ChevronLeft, Loader2, Plus, Trash2, Upload } from 'lucide-react';
+import { ChevronLeft, Loader2, Trash2, Upload } from 'lucide-react';
 import * as React from 'react';
 import { CategoryCombobox } from '@/components/admin/CategoryCombobox';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
+import { VariantStockMatrix } from '@/components/admin/VariantStockMatrix';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { AdminCategory, AdminProduct, ProductVariant } from '@/types/admin';
 
@@ -17,7 +18,17 @@ interface ProductsFormProps {
     };
 }
 
-const emptyVariant = (): ProductVariant => ({ color: '', size: '', stock: 0 });
+const DEFAULT_VARIANTS: ProductVariant[] = [
+    { color: 'Black', size: 'S', stock: 0 },
+    { color: 'Black', size: 'M', stock: 0 },
+    { color: 'Black', size: 'L', stock: 0 },
+    { color: 'Black', size: 'XL', stock: 0 },
+    { color: 'Black', size: 'XXL', stock: 0 },
+];
+
+const DEFAULT_HEXES: Record<string, string> = {
+    Black: '#2D2D2D',
+};
 
 export default function ProductsForm({
     product,
@@ -42,11 +53,17 @@ export default function ProductsForm({
         related_fit_product_id: product?.related_fit_product_id ? String(product.related_fit_product_id) : '',
         is_active: product?.is_active ?? true,
         is_featured: product?.is_featured ?? false,
-        variants: (product?.variants?.length ? product.variants : [emptyVariant()]).map((variant) => ({
+        variants: (product?.variants?.length
+            ? product.variants.filter((v) => v.color?.trim() && v.size?.trim())
+            : DEFAULT_VARIANTS
+        ).map((variant) => ({
             color: variant.color,
             size: variant.size,
-            stock: variant.stock,
+            stock: Number(variant.stock) || 0,
         })),
+        color_hexes: (product?.color_hexes && Object.keys(product.color_hexes).length > 0
+            ? product.color_hexes
+            : DEFAULT_HEXES) as Record<string, string>,
         images: [] as File[],
         image_colors: [] as string[],
         existing_image_colors: (product?.images ?? []).reduce<Record<number, string>>((acc, image) => {
@@ -58,14 +75,6 @@ export default function ProductsForm({
     });
 
     const [imagePreviews, setImagePreviews] = React.useState<Array<{ file: File; url: string }>>([]);
-    const [bulkStock, setBulkStock] = React.useState('');
-
-    const applyBulkStock = () => {
-        const qty = Number(bulkStock);
-        if (isNaN(qty) || qty < 0) return;
-        const updated = form.data.variants.map((v) => ({ ...v, stock: qty }));
-        form.setData('variants', updated);
-    };
 
     // Calculate discounted price
     const calculatedDiscountedPrice = React.useMemo(() => {
@@ -98,12 +107,6 @@ export default function ProductsForm({
         }
 
         form.post('/admin/products', { forceFormData: true });
-    };
-
-    const updateVariant = (index: number, field: keyof ProductVariant, value: string | number) => {
-        const variants = [...form.data.variants];
-        variants[index] = { ...variants[index], [field]: value };
-        form.setData('variants', variants);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -362,149 +365,16 @@ export default function ProductsForm({
                         </div>
                     </div>
 
-                    {/* SECTION: VARIANTS & INVENTORY */}
-                    <div className="rounded-2xl border border-[#e5e1dc] bg-white p-6 sm:p-8 shadow-sm space-y-5">
-                        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f0ece5] pb-4">
-                            <div>
-                                <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-stone-800">
-                                    VARIAN PRODUK & STOK
-                                </h2>
-                                <p className="mt-1 font-sans text-xs text-stone-500">
-                                    Atur kombinasi warna, ukuran, dan jumlah stok. Total stok terdaftar:{' '}
-                                    <strong className="text-stone-800 font-semibold">{totalStock} pcs</strong>
-                                </p>
-                            </div>
-
-                            <div className="flex flex-wrap items-center gap-3">
-                                {/* Stock All (Set Stok Sekaligus) */}
-                                <div className="flex items-center rounded-md border border-[#e5e1dc] bg-[#faf8f5] p-0.5">
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        placeholder="Qty stok"
-                                        value={bulkStock}
-                                        onChange={(e) => setBulkStock(e.target.value)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                e.preventDefault();
-                                                applyBulkStock();
-                                            }
-                                        }}
-                                        className="h-8 w-20 bg-transparent px-2.5 text-center text-xs font-semibold text-stone-800 focus:outline-none placeholder:text-stone-400 placeholder:font-normal"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={applyBulkStock}
-                                        disabled={bulkStock === ''}
-                                        className="rounded bg-stone-200/80 px-3 py-1.5 font-sans text-xs font-semibold text-stone-700 hover:bg-[#8b7355] hover:text-white disabled:opacity-40 disabled:hover:bg-stone-200/80 disabled:hover:text-stone-700 transition cursor-pointer"
-                                        title="Terapkan jumlah stok ini ke semua baris varian sekaligus"
-                                    >
-                                        Set Semua Stok
-                                    </button>
-                                </div>
-
-                                <button
-                                    type="button"
-                                    onClick={() => form.setData('variants', [...form.data.variants, emptyVariant()])}
-                                    className="inline-flex items-center gap-1.5 rounded-md border border-[#e5e1dc] bg-[#faf8f5] px-3.5 py-2 font-sans text-xs font-semibold text-stone-700 hover:bg-[#f0ece5] hover:text-stone-900 transition cursor-pointer"
-                                >
-                                    <Plus className="h-3.5 w-3.5" />
-                                    <span>Tambah Varian</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        {form.errors.variants && (
-                            <p className="text-xs text-red-500">{form.errors.variants}</p>
-                        )}
-
-                        <div className="space-y-3">
-                            <div className="hidden sm:grid sm:grid-cols-12 gap-3 text-xs font-bold uppercase tracking-wider text-stone-500 px-1">
-                                <div className="sm:col-span-5">WARNA</div>
-                                <div className="sm:col-span-4">UKURAN</div>
-                                <div className="sm:col-span-2">STOK (PCS)</div>
-                                <div className="sm:col-span-1 text-right">AKSI</div>
-                            </div>
-
-                            {form.data.variants.map((variant, index) => (
-                                <div
-                                    key={index}
-                                    className="grid grid-cols-1 sm:grid-cols-12 gap-3 rounded-xl border border-[#ece8e3] bg-[#faf8f5]/60 p-3 items-center"
-                                >
-                                    <div className="sm:col-span-5">
-                                        <span className="sm:hidden block text-[11px] font-bold uppercase text-stone-500 mb-1">
-                                            Warna
-                                        </span>
-                                        <input
-                                            list="color-options"
-                                            placeholder="e.g. Black, White, Navy"
-                                            value={variant.color}
-                                            onChange={(e) => updateVariant(index, 'color', e.target.value)}
-                                            className="flex h-10 w-full rounded-md border border-[#e5e1dc] bg-white px-3 text-sm text-stone-800 placeholder:text-stone-400 focus:border-warm-brown focus:outline-none focus:ring-1 focus:ring-warm-brown"
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="sm:col-span-4">
-                                        <span className="sm:hidden block text-[11px] font-bold uppercase text-stone-500 mb-1">
-                                            Ukuran
-                                        </span>
-                                        <input
-                                            list="size-options"
-                                            placeholder="e.g. S, M, L, XL"
-                                            value={variant.size}
-                                            onChange={(e) => updateVariant(index, 'size', e.target.value)}
-                                            className="flex h-10 w-full rounded-md border border-[#e5e1dc] bg-white px-3 text-sm text-stone-800 placeholder:text-stone-400 focus:border-warm-brown focus:outline-none focus:ring-1 focus:ring-warm-brown"
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="sm:col-span-2">
-                                        <span className="sm:hidden block text-[11px] font-bold uppercase text-stone-500 mb-1">
-                                            Stok
-                                        </span>
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            placeholder="0"
-                                            value={variant.stock}
-                                            onChange={(e) => updateVariant(index, 'stock', Number(e.target.value))}
-                                            className="flex h-10 w-full rounded-md border border-[#e5e1dc] bg-white px-3 text-sm text-stone-800 placeholder:text-stone-400 focus:border-warm-brown focus:outline-none focus:ring-1 focus:ring-warm-brown"
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="sm:col-span-1 flex justify-end">
-                                        <button
-                                            type="button"
-                                            disabled={form.data.variants.length <= 1}
-                                            onClick={() =>
-                                                form.setData(
-                                                    'variants',
-                                                    form.data.variants.filter((_, i) => i !== index),
-                                                )
-                                            }
-                                            title="Hapus baris varian"
-                                            className="flex h-9 w-9 items-center justify-center rounded-md text-stone-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-stone-400 transition"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        <datalist id="color-options">
-                            {variantOptions.colors.map((color) => (
-                                <option key={color} value={color} />
-                            ))}
-                        </datalist>
-                        <datalist id="size-options">
-                            {variantOptions.sizes.map((size) => (
-                                <option key={size} value={size} />
-                            ))}
-                        </datalist>
-                    </div>
+                    {/* SECTION: VARIANTS & INVENTORY (STOK VARIAN Matrix) */}
+                    <VariantStockMatrix
+                        variants={form.data.variants}
+                        colorHexes={form.data.color_hexes}
+                        availableColors={variantOptions.colors}
+                        availableSizes={variantOptions.sizes}
+                        onChangeVariants={(updatedVariants) => form.setData('variants', updatedVariants)}
+                        onChangeColorHexes={(updatedHexes) => form.setData('color_hexes', updatedHexes)}
+                        error={form.errors.variants}
+                    />
 
                     {/* SECTION: PRODUCT IMAGES */}
                     <div className="rounded-2xl border border-[#e5e1dc] bg-white p-6 sm:p-8 shadow-sm space-y-6">
