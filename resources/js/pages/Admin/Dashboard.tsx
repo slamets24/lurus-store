@@ -222,7 +222,7 @@ export default function Dashboard({ stats }: DashboardProps) {
                 {/* Section 2: Chart & Needs Action */}
                 <div className="grid gap-6 xl:grid-cols-3">
                     {/* Revenue & Orders Chart */}
-                    <div className="rounded-2xl border border-[#e5e1dc] bg-white p-6 sm:p-7 shadow-sm xl:col-span-2 space-y-6">
+                    <div className="rounded-2xl border border-[#e5e1dc] bg-white p-6 sm:p-7 shadow-sm xl:col-span-2 min-w-0 space-y-6">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                             <div>
                                 <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-stone-800">
@@ -270,33 +270,56 @@ export default function Dashboard({ stats }: DashboardProps) {
                             )}
                         </div>
 
-                        {/* Chart Bars */}
-                        <div className="flex h-52 items-end gap-1.5 pt-2 border-b border-[#f0ece5] pb-2">
-                            {stats.chartStats.map((point) => (
-                                <div
-                                    key={point.key}
-                                    onMouseEnter={() => setHoveredPoint(point)}
-                                    onMouseLeave={() => setHoveredPoint(null)}
-                                    className="group flex flex-1 flex-col items-center gap-2 cursor-pointer h-full justify-end"
-                                >
-                                    <div className="relative flex w-full items-end justify-center h-44">
+                        {/* Chart Bars Container with responsive bounds */}
+                        <div className="w-full min-w-0 overflow-x-auto pb-1">
+                            <div className="flex h-52 min-w-[340px] items-end gap-1 sm:gap-1.5 pt-2 border-b border-[#f0ece5] pb-2">
+                                {stats.chartStats.map((point, index) => {
+                                    const isHovered = hoveredPoint?.key === point.key;
+                                    const step = Math.ceil(stats.chartStats.length / 7);
+                                    const showLabel =
+                                        stats.chartStats.length <= 12 ||
+                                        index === 0 ||
+                                        index === stats.chartStats.length - 1 ||
+                                        index % step === 0;
+
+                                    return (
                                         <div
-                                            className="w-full max-w-[28px] rounded-t-sm bg-stone-300/80 group-hover:bg-[#8b7355] transition-all"
-                                            style={{
-                                                height: `${Math.max((point.revenue / maxRevenue) * 100, 4)}%`,
-                                            }}
-                                        />
-                                    </div>
-                                    <span className="text-[10px] font-medium text-stone-500 truncate max-w-full">
-                                        {point.label}
-                                    </span>
-                                </div>
-                            ))}
+                                            key={point.key}
+                                            onMouseEnter={() => setHoveredPoint(point)}
+                                            onMouseLeave={() => setHoveredPoint(null)}
+                                            className="group flex flex-1 min-w-0 flex-col items-center gap-1.5 cursor-pointer h-full justify-end"
+                                        >
+                                            <div className="relative flex w-full items-end justify-center h-44">
+                                                <div
+                                                    className={cn(
+                                                        'w-full max-w-[22px] rounded-t-sm transition-all',
+                                                        isHovered
+                                                            ? 'bg-[#8b7355] shadow-xs'
+                                                            : 'bg-stone-300/80 group-hover:bg-[#8b7355]/80',
+                                                    )}
+                                                    style={{
+                                                        height: `${Math.max((point.revenue / maxRevenue) * 100, 4)}%`,
+                                                    }}
+                                                />
+                                            </div>
+                                            <span
+                                                className={cn(
+                                                    'text-[10px] font-medium text-stone-500 whitespace-nowrap block text-center transition-colors',
+                                                    isHovered && 'text-[#8b7355] font-bold',
+                                                )}
+                                                title={point.label}
+                                            >
+                                                {showLabel ? point.label : <span className="opacity-0">·</span>}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
 
                     {/* Needs Action / Perlu Tindakan */}
-                    <div className="rounded-2xl border border-[#e5e1dc] bg-white p-6 sm:p-7 shadow-sm space-y-4">
+                    <div className="rounded-2xl border border-[#e5e1dc] bg-white p-6 sm:p-7 shadow-sm min-w-0 space-y-4">
                         <div className="flex items-center justify-between border-b border-[#f0ece5] pb-3">
                             <div>
                                 <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-stone-800">

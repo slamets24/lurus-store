@@ -58,6 +58,14 @@ export default function ProductsForm({
     });
 
     const [imagePreviews, setImagePreviews] = React.useState<Array<{ file: File; url: string }>>([]);
+    const [bulkStock, setBulkStock] = React.useState('');
+
+    const applyBulkStock = () => {
+        const qty = Number(bulkStock);
+        if (isNaN(qty) || qty < 0) return;
+        const updated = form.data.variants.map((v) => ({ ...v, stock: qty }));
+        form.setData('variants', updated);
+    };
 
     // Calculate discounted price
     const calculatedDiscountedPrice = React.useMemo(() => {
@@ -367,14 +375,43 @@ export default function ProductsForm({
                                 </p>
                             </div>
 
-                            <button
-                                type="button"
-                                onClick={() => form.setData('variants', [...form.data.variants, emptyVariant()])}
-                                className="inline-flex items-center gap-1.5 rounded-md border border-[#e5e1dc] bg-[#faf8f5] px-3.5 py-2 font-sans text-xs font-semibold text-stone-700 hover:bg-[#f0ece5] hover:text-stone-900 transition cursor-pointer"
-                            >
-                                <Plus className="h-3.5 w-3.5" />
-                                <span>Tambah Varian</span>
-                            </button>
+                            <div className="flex flex-wrap items-center gap-3">
+                                {/* Stock All (Set Stok Sekaligus) */}
+                                <div className="flex items-center rounded-md border border-[#e5e1dc] bg-[#faf8f5] p-0.5">
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        placeholder="Qty stok"
+                                        value={bulkStock}
+                                        onChange={(e) => setBulkStock(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                applyBulkStock();
+                                            }
+                                        }}
+                                        className="h-8 w-20 bg-transparent px-2.5 text-center text-xs font-semibold text-stone-800 focus:outline-none placeholder:text-stone-400 placeholder:font-normal"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={applyBulkStock}
+                                        disabled={bulkStock === ''}
+                                        className="rounded bg-stone-200/80 px-3 py-1.5 font-sans text-xs font-semibold text-stone-700 hover:bg-[#8b7355] hover:text-white disabled:opacity-40 disabled:hover:bg-stone-200/80 disabled:hover:text-stone-700 transition cursor-pointer"
+                                        title="Terapkan jumlah stok ini ke semua baris varian sekaligus"
+                                    >
+                                        Set Semua Stok
+                                    </button>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() => form.setData('variants', [...form.data.variants, emptyVariant()])}
+                                    className="inline-flex items-center gap-1.5 rounded-md border border-[#e5e1dc] bg-[#faf8f5] px-3.5 py-2 font-sans text-xs font-semibold text-stone-700 hover:bg-[#f0ece5] hover:text-stone-900 transition cursor-pointer"
+                                >
+                                    <Plus className="h-3.5 w-3.5" />
+                                    <span>Tambah Varian</span>
+                                </button>
+                            </div>
                         </div>
 
                         {form.errors.variants && (
