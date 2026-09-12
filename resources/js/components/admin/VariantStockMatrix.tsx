@@ -47,16 +47,16 @@ export function VariantStockMatrix({
     onChangeColorHexes,
     error,
 }: VariantStockMatrixProps) {
-    // Extract unique colors from existing variants
+    // Extract unique colors from existing variants (empty array if no colors yet)
     const initialColors = React.useMemo(() => {
         const set = new Set<string>();
         variants.forEach((v) => {
             if (v.color?.trim()) set.add(v.color.trim());
         });
-        return set.size > 0 ? Array.from(set) : ['Black'];
+        return Array.from(set);
     }, []);
 
-    // Extract unique sizes from existing variants
+    // Extract unique sizes from existing variants (default to common sizes if none)
     const initialSizes = React.useMemo(() => {
         const set = new Set<string>();
         variants.forEach((v) => {
@@ -67,7 +67,7 @@ export function VariantStockMatrix({
 
     const [colors, setColors] = React.useState<string[]>(initialColors);
     const [sizes, setSizes] = React.useState<string[]>(initialSizes);
-    const [activeEditColor, setActiveEditColor] = React.useState<string>(initialColors[0] || 'Black');
+    const [activeEditColor, setActiveEditColor] = React.useState<string>(initialColors[0] || '');
 
     const [newColorInput, setNewColorInput] = React.useState('');
     const [newSizeInput, setNewSizeInput] = React.useState('');
@@ -116,18 +116,6 @@ export function VariantStockMatrix({
         onChangeVariants(newVariants);
     };
 
-    // Ensure initial synchronization on mount if variants prop was empty or incomplete
-    React.useEffect(() => {
-        if (
-            !variants ||
-            variants.length === 0 ||
-            !variants.some((v) => v.color?.trim() && v.size?.trim())
-        ) {
-            emitVariants(colors, sizes, stockMap);
-            onChangeColorHexes(localHexes);
-        }
-    }, []);
-
     // Add Color
     const addColor = (rawColor: string) => {
         const trimmed = rawColor.trim();
@@ -153,9 +141,8 @@ export function VariantStockMatrix({
         setNewColorInput('');
     };
 
-    // Remove Color
+    // Remove Color (Any color can be deleted, including the last one)
     const removeColor = (colorToRemove: string) => {
-        if (colors.length <= 1) return; // Keep at least 1 color
         const updated = colors.filter((c) => c !== colorToRemove);
         setColors(updated);
         if (activeEditColor === colorToRemove) {
@@ -172,6 +159,7 @@ export function VariantStockMatrix({
 
     // Update Hex code for a color
     const handleHexChange = (color: string, hexValue: string) => {
+        if (!color) return;
         let formatted = hexValue;
         if (!formatted.startsWith('#')) {
             formatted = '#' + formatted;
@@ -196,9 +184,8 @@ export function VariantStockMatrix({
         setNewSizeInput('');
     };
 
-    // Remove Size
+    // Remove Size (Any size can be deleted)
     const removeSize = (sizeToRemove: string) => {
-        if (sizes.length <= 1) return; // Keep at least 1 size
         const updated = sizes.filter((s) => s !== sizeToRemove);
         setSizes(updated);
         emitVariants(colors, updated, stockMap);
@@ -234,7 +221,9 @@ export function VariantStockMatrix({
         return sum;
     }, [colors, sizes, stockMap]);
 
-    const activeHex = localHexes[activeEditColor] || '#2D2D2D';
+    const activeHex = activeEditColor
+        ? localHexes[activeEditColor] || '#2D2D2D'
+        : '';
 
     return (
         <div className="rounded-2xl border border-[#e5e1dc] bg-white p-6 sm:p-8 shadow-sm space-y-6">
@@ -248,7 +237,7 @@ export function VariantStockMatrix({
                 </p>
             </div>
 
-            {/* TOP ROW: WARNA & UKURAN (Image Exact Replica) */}
+            {/* TOP ROW: WARNA & UKURAN */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                 {/* Column 1: WARNA * */}
                 <div className="space-y-2">
@@ -265,23 +254,21 @@ export function VariantStockMatrix({
                                     className="inline-flex items-center gap-1.5 rounded-sm bg-[#e8e5e0] px-2 py-1 text-xs font-medium text-stone-800"
                                 >
                                     <span>{c}</span>
-                                    {colors.length > 1 && (
-                                        <button
-                                            type="button"
-                                            onClick={() => removeColor(c)}
-                                            className="text-stone-500 hover:text-stone-800 focus:outline-none cursor-pointer"
-                                            title={`Hapus warna ${c}`}
-                                        >
-                                            <X className="h-3 w-3" />
-                                        </button>
-                                    )}
+                                    <button
+                                        type="button"
+                                        onClick={() => removeColor(c)}
+                                        className="text-stone-500 hover:text-stone-800 focus:outline-none cursor-pointer"
+                                        title={`Hapus warna ${c}`}
+                                    >
+                                        <X className="h-3 w-3" />
+                                    </button>
                                 </span>
                             ))}
 
                             <input
                                 list="available-colors"
                                 type="text"
-                                placeholder={colors.length === 0 ? 'Ketik warna & Enter' : ''}
+                                placeholder={colors.length === 0 ? 'Ketik warna & Enter (contoh: Sage, Cream, White)' : '+ Warna'}
                                 value={newColorInput}
                                 onChange={(e) => {
                                     const val = e.target.value;
@@ -299,36 +286,49 @@ export function VariantStockMatrix({
                                     } else if (
                                         e.key === 'Backspace' &&
                                         !newColorInput &&
-                                        colors.length > 1
+                                        colors.length > 0
                                     ) {
                                         removeColor(colors[colors.length - 1]);
                                     }
                                 }}
-                                className="flex-1 min-w-[70px] bg-transparent px-1 text-xs text-stone-800 placeholder:text-stone-400 focus:outline-none"
+                                className="flex-1 min-w-[100px] bg-transparent px-1 text-xs text-stone-800 placeholder:text-stone-400 focus:outline-none"
                             />
                         </div>
 
                         {/* Color Picker Swatch Box */}
-                        <label
-                            className="relative h-11 w-11 shrink-0 cursor-pointer rounded-sm border border-[#e5e1dc] overflow-hidden shadow-2xs"
-                            style={{ backgroundColor: activeHex }}
-                            title={`Pilih warna RGB untuk ${activeEditColor}`}
-                        >
-                            <input
-                                type="color"
-                                value={activeHex.length === 7 ? activeHex : '#2D2D2D'}
-                                onChange={(e) => handleHexChange(activeEditColor, e.target.value)}
-                                className="absolute inset-0 h-full w-full opacity-0 cursor-pointer"
-                            />
-                        </label>
+                        {activeEditColor ? (
+                            <label
+                                className="relative h-11 w-11 shrink-0 cursor-pointer rounded-sm border border-[#e5e1dc] overflow-hidden shadow-2xs"
+                                style={{ backgroundColor: activeHex }}
+                                title={`Pilih warna RGB untuk ${activeEditColor}`}
+                            >
+                                <input
+                                    type="color"
+                                    value={activeHex.length === 7 ? activeHex : '#2D2D2D'}
+                                    onChange={(e) => handleHexChange(activeEditColor, e.target.value)}
+                                    className="absolute inset-0 h-full w-full opacity-0 cursor-pointer"
+                                />
+                            </label>
+                        ) : (
+                            <div
+                                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm border border-[#e5e1dc] bg-[#faf8f5] text-xs text-stone-300 select-none"
+                                title="Tambahkan warna terlebih dahulu"
+                            >
+                                -
+                            </div>
+                        )}
 
                         {/* Hex Code Input */}
                         <input
                             type="text"
                             value={activeHex}
                             onChange={(e) => handleHexChange(activeEditColor, e.target.value)}
-                            placeholder="#2D2D2D"
-                            className="h-11 w-24 rounded-sm border border-[#e5e1dc] bg-[#faf8f5] px-2.5 text-center font-mono text-xs font-semibold text-stone-800 focus:border-stone-800 focus:bg-white focus:outline-none"
+                            placeholder="#HEX"
+                            disabled={!activeEditColor}
+                            className={cn(
+                                "h-11 w-24 rounded-sm border border-[#e5e1dc] bg-[#faf8f5] px-2.5 text-center font-mono text-xs font-semibold text-stone-800 focus:border-stone-800 focus:bg-white focus:outline-none",
+                                !activeEditColor && "opacity-50 cursor-not-allowed text-stone-400"
+                            )}
                         />
                     </div>
 
@@ -395,23 +395,21 @@ export function VariantStockMatrix({
                                 className="inline-flex items-center gap-1.5 rounded-sm bg-[#e8e5e0] px-2 py-1 text-xs font-medium text-stone-800"
                             >
                                 <span>{s}</span>
-                                {sizes.length > 1 && (
-                                    <button
-                                        type="button"
-                                        onClick={() => removeSize(s)}
-                                        className="text-stone-500 hover:text-stone-800 focus:outline-none cursor-pointer"
-                                        title={`Hapus ukuran ${s}`}
-                                    >
-                                        <X className="h-3 w-3" />
-                                    </button>
-                                )}
+                                <button
+                                    type="button"
+                                    onClick={() => removeSize(s)}
+                                    className="text-stone-500 hover:text-stone-800 focus:outline-none cursor-pointer"
+                                    title={`Hapus ukuran ${s}`}
+                                >
+                                    <X className="h-3 w-3" />
+                                </button>
                             </span>
                         ))}
 
                         <input
                             list="common-sizes"
                             type="text"
-                            placeholder={sizes.length === 0 ? 'Ketik ukuran & Enter' : ''}
+                            placeholder={sizes.length === 0 ? 'Ketik ukuran & Enter (contoh: S, M, L, XL)' : '+ Ukuran'}
                             value={newSizeInput}
                             onChange={(e) => {
                                 const val = e.target.value;
@@ -429,7 +427,7 @@ export function VariantStockMatrix({
                                 } else if (
                                     e.key === 'Backspace' &&
                                     !newSizeInput &&
-                                    sizes.length > 1
+                                    sizes.length > 0
                                 ) {
                                     removeSize(sizes[sizes.length - 1]);
                                 }
@@ -446,7 +444,7 @@ export function VariantStockMatrix({
                 </div>
             </div>
 
-            {/* MIDDLE ROW: SET SEMUA STOK (Image Exact Replica with hairline dividers) */}
+            {/* MIDDLE ROW: SET SEMUA STOK */}
             <div className="border-t border-b border-[#ece8e3] py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-2.5">
                     <span className="font-sans text-xs font-bold uppercase tracking-wide text-stone-800">
@@ -469,7 +467,8 @@ export function VariantStockMatrix({
                     <button
                         type="button"
                         onClick={handleApplyBulkStock}
-                        className="h-9 rounded-sm bg-stone-900 px-4 font-sans text-xs font-semibold text-white shadow-2xs hover:bg-stone-800 transition cursor-pointer"
+                        disabled={colors.length === 0 || sizes.length === 0}
+                        className="h-9 rounded-sm bg-stone-900 px-4 font-sans text-xs font-semibold text-white shadow-2xs hover:bg-stone-800 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
                     >
                         Terapkan ke Semua
                     </button>
@@ -486,60 +485,72 @@ export function VariantStockMatrix({
                 </div>
             </div>
 
-            {/* MATRIX TABLE (Image Exact Replica: Clean horizontal lines, no outer box) */}
-            <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                    <thead>
-                        <tr className="border-b border-[#ece8e3]">
-                            <th className="py-3.5 px-4 font-sans text-xs font-bold uppercase tracking-wider text-stone-700 w-36">
-                                UKURAN
-                            </th>
-                            {colors.map((c) => {
-                                const hex = localHexes[c] || '#2D2D2D';
-                                return (
-                                    <th
-                                        key={c}
-                                        className="py-3.5 px-4 font-sans text-xs font-bold uppercase tracking-wider text-stone-700 min-w-[140px]"
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <span
-                                                className="h-3 w-3 rounded-full shrink-0"
-                                                style={{ backgroundColor: hex }}
-                                            />
-                                            <span>{c.toUpperCase()}</span>
-                                        </div>
-                                    </th>
-                                );
-                            })}
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[#ece8e3]">
-                        {sizes.map((s) => (
-                            <tr key={s} className="hover:bg-[#faf8f5]/40 transition-colors">
-                                <td className="py-3.5 px-4 font-sans text-xs font-bold text-stone-800">
-                                    {s}
-                                </td>
+            {/* MATRIX TABLE */}
+            {colors.length > 0 && sizes.length > 0 ? (
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="border-b border-[#ece8e3]">
+                                <th className="py-3.5 px-4 font-sans text-xs font-bold uppercase tracking-wider text-stone-700 w-36">
+                                    UKURAN
+                                </th>
                                 {colors.map((c) => {
-                                    const currentQty = stockMap.get(`${c}___${s}`) ?? 0;
+                                    const hex = localHexes[c] || '#2D2D2D';
                                     return (
-                                        <td key={`${c}___${s}`} className="py-3 px-4">
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                value={currentQty}
-                                                onChange={(e) =>
-                                                    handleCellStockChange(c, s, e.target.value)
-                                                }
-                                                className="h-9 w-24 rounded-sm border border-[#e5e1dc] bg-[#faf8f5] px-3 text-center text-sm font-medium text-stone-800 placeholder:text-stone-400 focus:border-stone-900 focus:bg-white focus:outline-none"
-                                            />
-                                        </td>
+                                        <th
+                                            key={c}
+                                            className="py-3.5 px-4 font-sans text-xs font-bold uppercase tracking-wider text-stone-700 min-w-[140px]"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <span
+                                                    className="h-3 w-3 rounded-full shrink-0"
+                                                    style={{ backgroundColor: hex }}
+                                                />
+                                                <span>{c.toUpperCase()}</span>
+                                            </div>
+                                        </th>
                                     );
                                 })}
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody className="divide-y divide-[#ece8e3]">
+                            {sizes.map((s) => (
+                                <tr key={s} className="hover:bg-[#faf8f5]/40 transition-colors">
+                                    <td className="py-3.5 px-4 font-sans text-xs font-bold text-stone-800">
+                                        {s}
+                                    </td>
+                                    {colors.map((c) => {
+                                        const currentQty = stockMap.get(`${c}___${s}`) ?? 0;
+                                        return (
+                                            <td key={`${c}___${s}`} className="py-3 px-4">
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    value={currentQty}
+                                                    onChange={(e) =>
+                                                        handleCellStockChange(c, s, e.target.value)
+                                                    }
+                                                    className="h-9 w-24 rounded-sm border border-[#e5e1dc] bg-[#faf8f5] px-3 text-center text-sm font-medium text-stone-800 placeholder:text-stone-400 focus:border-stone-900 focus:bg-white focus:outline-none"
+                                                />
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            ) : (
+                <div className="rounded-xl border border-dashed border-[#e5e1dc] bg-[#faf8f5]/60 py-8 px-4 text-center">
+                    <p className="font-sans text-xs font-medium text-stone-500">
+                        {colors.length === 0 && sizes.length === 0
+                            ? 'Pilih atau ketik warna dan ukuran di atas untuk mengisi stok.'
+                            : colors.length === 0
+                            ? 'Silakan tambahkan warna pada kolom WARNA di atas untuk memunculkan tabel stok.'
+                            : 'Silakan tambahkan ukuran pada kolom UKURAN di atas untuk memunculkan tabel stok.'}
+                    </p>
+                </div>
+            )}
 
             {error && <p className="text-xs text-red-500">{error}</p>}
         </div>

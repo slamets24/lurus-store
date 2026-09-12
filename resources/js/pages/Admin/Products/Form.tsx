@@ -18,18 +18,6 @@ interface ProductsFormProps {
     };
 }
 
-const DEFAULT_VARIANTS: ProductVariant[] = [
-    { color: 'Black', size: 'S', stock: 0 },
-    { color: 'Black', size: 'M', stock: 0 },
-    { color: 'Black', size: 'L', stock: 0 },
-    { color: 'Black', size: 'XL', stock: 0 },
-    { color: 'Black', size: 'XXL', stock: 0 },
-];
-
-const DEFAULT_HEXES: Record<string, string> = {
-    Black: '#2D2D2D',
-};
-
 export default function ProductsForm({
     product,
     categories,
@@ -55,15 +43,13 @@ export default function ProductsForm({
         is_featured: product?.is_featured ?? false,
         variants: (product?.variants?.length
             ? product.variants.filter((v) => v.color?.trim() && v.size?.trim())
-            : DEFAULT_VARIANTS
+            : []
         ).map((variant) => ({
             color: variant.color,
             size: variant.size,
             stock: Number(variant.stock) || 0,
         })),
-        color_hexes: (product?.color_hexes && Object.keys(product.color_hexes).length > 0
-            ? product.color_hexes
-            : DEFAULT_HEXES) as Record<string, string>,
+        color_hexes: (product?.color_hexes ?? {}) as Record<string, string>,
         images: [] as File[],
         image_colors: [] as string[],
         existing_image_colors: (product?.images ?? []).reduce<Record<number, string>>((acc, image) => {
