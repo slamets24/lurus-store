@@ -150,12 +150,25 @@ export default function PromosForm({ promo, products, categories }: PromosFormPr
                     ) : (
                         <section className="rounded-xl border border-outline-variant/15 bg-surface-container-lowest p-6 space-y-4">
                             <h2 className="font-serif text-xl text-primary">Bundle</h2>
-                            <Input
-                                type="number"
-                                placeholder="Package price"
-                                value={form.data.package_price}
-                                onChange={(event) => form.setData('package_price', Number(event.target.value))}
-                            />
+                            <div className="flex h-10 w-full rounded-sm border border-outline-variant bg-surface-container-lowest focus-within:border-warm-brown focus-within:ring-1 focus-within:ring-warm-brown overflow-hidden">
+                                <span className="flex items-center justify-center bg-surface-container px-3 text-xs font-bold text-on-surface-variant border-r border-outline-variant select-none">
+                                    Rp
+                                </span>
+                                <input
+                                    type="text"
+                                    placeholder="Package price"
+                                    value={
+                                        form.data.package_price !== '' && form.data.package_price !== null && form.data.package_price !== undefined
+                                            ? new Intl.NumberFormat('id-ID').format(Number(form.data.package_price))
+                                            : ''
+                                    }
+                                    onChange={(event) => {
+                                        const cleaned = event.target.value.replace(/[^0-9]/g, '');
+                                        form.setData('package_price', cleaned ? Number(cleaned) : ('' as unknown as number));
+                                    }}
+                                    className="flex-1 bg-transparent px-3 text-sm focus:outline-none"
+                                />
+                            </div>
                             {form.data.components.map((component, index) => (
                                 <div key={index} className="grid gap-2 sm:grid-cols-[1fr_120px_auto]">
                                     <select

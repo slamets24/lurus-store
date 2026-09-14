@@ -1,10 +1,11 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { ChevronLeft, Loader2, Trash2, Upload } from 'lucide-react';
 import * as React from 'react';
 import { CategoryCombobox } from '@/components/admin/CategoryCombobox';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { VariantStockMatrix } from '@/components/admin/VariantStockMatrix';
 import AdminLayout from '@/layouts/AdminLayout';
+import { storageUrl } from '@/lib/utils';
 import type { AdminCategory, AdminProduct, ProductVariant } from '@/types/admin';
 
 interface ProductsFormProps {
@@ -29,7 +30,7 @@ export default function ProductsForm({
     const form = useForm({
         name: product?.name ?? '',
         description: product?.description ?? '',
-        price: product?.price ?? 0,
+        price: product?.price ? Number(product.price) : ('' as unknown as number),
         discount_percent: product?.discount_percent ?? 0,
         sku: product?.sku ?? '',
         category_id: product?.category_id ?? (product?.category?.id ? String(product.category.id) : ''),
@@ -77,8 +78,23 @@ export default function ProductsForm({
     // Parse formatted string back to number
     const handlePriceChange = (val: string) => {
         const cleaned = val.replace(/[^0-9]/g, '');
-        form.setData('price', cleaned ? Number(cleaned) : 0);
+        form.setData('price', cleaned ? Number(cleaned) : ('' as unknown as number));
     };
+
+    // Parse discount percent change
+    const handleDiscountChange = (val: string) => {
+        if (val === '') {
+            form.setData('discount_percent', '' as unknown as number);
+            return;
+        }
+        const num = Math.min(100, Math.max(0, Number(val) || 0));
+        form.setData('discount_percent', num);
+    };
+
+    // Extract unique active colors from variants
+    const activeProductColors = React.useMemo(() => {
+        return Array.from(new Set(form.data.variants.map((v) => v.color?.trim()).filter(Boolean)));
+    }, [form.data.variants]);
 
     const submit = (event: React.FormEvent) => {
         event.preventDefault();
@@ -203,16 +219,20 @@ export default function ProductsForm({
                                 <label className="block font-sans text-xs font-bold uppercase tracking-wide text-stone-700 mb-2">
                                     HARGA JUAL <span className="text-red-500">*</span>
                                 </label>
-                                <div className="relative">
-                                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-sans text-sm text-stone-500 select-none">
+                                <div className="flex h-11 w-full rounded-md border border-[#e5e1dc] bg-[#faf8f5] focus-within:border-warm-brown focus-within:bg-white focus-within:ring-1 focus-within:ring-warm-brown transition-colors overflow-hidden">
+                                    <span className="flex items-center justify-center bg-[#f0ede8] px-3.5 text-xs font-bold text-stone-700 border-r border-[#e5e1dc] select-none tracking-wider">
                                         Rp
                                     </span>
                                     <input
                                         type="text"
                                         placeholder="0"
-                                        value={form.data.price ? formatNumber(Number(form.data.price)) : '0'}
+                                        value={
+                                            form.data.price !== '' && form.data.price !== null && form.data.price !== undefined
+                                                ? formatNumber(Number(form.data.price))
+                                                : ''
+                                        }
                                         onChange={(e) => handlePriceChange(e.target.value)}
-                                        className="flex h-11 w-full rounded-md border border-[#e5e1dc] bg-[#faf8f5] pl-10 pr-3.5 text-sm text-stone-800 placeholder:text-stone-400 focus:border-warm-brown focus:bg-white focus:outline-none focus:ring-1 focus:ring-warm-brown transition-colors"
+                                        className="flex-1 bg-transparent px-3.5 text-sm font-medium text-stone-800 placeholder:text-stone-400 focus:outline-none"
                                         required
                                     />
                                 </div>
@@ -234,8 +254,14 @@ export default function ProductsForm({
                                     min="0"
                                     max="100"
                                     placeholder="0"
-                                    value={form.data.discount_percent || 0}
-                                    onChange={(e) => form.setData('discount_percent', Number(e.target.value))}
+                                    value={
+                                        form.data.discount_percent !== '' &&
+                                        form.data.discount_percent !== null &&
+                                        form.data.discount_percent !== undefined
+                                            ? form.data.discount_percent
+                                            : ''
+                                    }
+                                    onChange={(e) => handleDiscountChange(e.target.value)}
                                     className="flex h-11 w-full rounded-md border border-[#e5e1dc] bg-[#faf8f5] px-3.5 text-sm text-stone-800 placeholder:text-stone-400 focus:border-warm-brown focus:bg-white focus:outline-none focus:ring-1 focus:ring-warm-brown transition-colors"
                                 />
                                 <p className="mt-1.5 font-sans text-xs text-stone-500">
@@ -359,7 +385,10 @@ export default function ProductsForm({
                         availableSizes={variantOptions.sizes}
                         onChangeVariants={(updatedVariants) => form.setData('variants', updatedVariants)}
                         onChangeColorHexes={(updatedHexes) => form.setData('color_hexes', updatedHexes)}
-                        error={form.errors.variants}
+                        error={
+                            form.errors.variants ||
+                            Object.entries(form.errors).find(([k]) => k.startsWith('variants.'))?.[1]
+                        }
                     />
 
                     {/* SECTION: PRODUCT IMAGES */}
@@ -385,8 +414,11 @@ export default function ProductsForm({
                                         >
                                             <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-stone-100">
                                                 <img
-                                                    src={`/storage/${image.image_path}`}
-                                                    alt=""
+                                                    src={storageUrl(image.image_path)}
+                                                    alt={image.color || 'Product image'}
+                                                    onError={(e) => {
+                                                        e.currentTarget.src = '/images/placeholder-product.svg';
+                                                    }}
                                                     className="h-full w-full object-cover"
                                                 />
                                                 {idx === 0 && (
@@ -394,6 +426,20 @@ export default function ProductsForm({
                                                         Cover Utama
                                                     </span>
                                                 )}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        if (confirm('Apakah Anda yakin ingin menghapus foto ini?')) {
+                                                            router.delete(`/admin/products/images/${image.id}`, {
+                                                                preserveScroll: true,
+                                                            });
+                                                        }
+                                                    }}
+                                                    className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-red-600/90 text-white shadow hover:bg-red-700 transition"
+                                                    title="Hapus foto dari produk"
+                                                >
+                                                    <Trash2 className="h-3 w-3" />
+                                                </button>
                                             </div>
                                             <div>
                                                 <label className="block text-[11px] font-medium text-stone-500 mb-1">
@@ -401,6 +447,7 @@ export default function ProductsForm({
                                                 </label>
                                                 <input
                                                     type="text"
+                                                    list="active-product-colors"
                                                     placeholder="e.g. Hitam"
                                                     value={form.data.existing_image_colors[image.id] ?? ''}
                                                     onChange={(e) =>
@@ -438,7 +485,7 @@ export default function ProductsForm({
                                                     type="button"
                                                     onClick={() => removeNewImage(idx)}
                                                     className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white shadow hover:bg-red-700 transition"
-                                                    title="Hapus foto"
+                                                    title="Batalkan foto"
                                                 >
                                                     <Trash2 className="h-3 w-3" />
                                                 </button>
@@ -449,6 +496,7 @@ export default function ProductsForm({
                                                 </label>
                                                 <input
                                                     type="text"
+                                                    list="active-product-colors"
                                                     placeholder="e.g. Putih"
                                                     value={form.data.image_colors[idx] ?? ''}
                                                     onChange={(e) => {
@@ -484,6 +532,24 @@ export default function ProductsForm({
                                 className="sr-only"
                             />
                         </label>
+
+                        {/* Image validation error messages */}
+                        {form.errors.images && (
+                            <p className="text-xs text-red-500 font-medium">{form.errors.images}</p>
+                        )}
+                        {form.errors.image_colors && (
+                            <p className="text-xs text-red-500 font-medium">{form.errors.image_colors}</p>
+                        )}
+                        {form.errors.existing_image_colors && (
+                            <p className="text-xs text-red-500 font-medium">{form.errors.existing_image_colors}</p>
+                        )}
+
+                        {/* Datalist for Color Tags */}
+                        <datalist id="active-product-colors">
+                            {activeProductColors.map((color) => (
+                                <option key={color} value={color} />
+                            ))}
+                        </datalist>
                     </div>
 
                     {/* SECTION: PUBLICATION & SETTINGS */}

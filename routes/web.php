@@ -128,7 +128,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::put('/products/{product}', [AdminProductController::class, 'update'])->name('products.update');
     Route::patch('/products/{product}/toggle-status', [AdminProductController::class, 'toggleStatus'])->name('products.toggle-status');
     Route::delete('/products/{product}', [AdminProductController::class, 'destroy'])->middleware('super-admin')->name('products.destroy');
-    Route::delete('/products/images/{image}', [AdminProductController::class, 'deleteImage'])->middleware('super-admin')->name('products.images.destroy');
+    Route::delete('/products/images/{image}', [AdminProductController::class, 'deleteImage'])->name('products.images.destroy');
 
     Route::get('/categories', [AdminCategoryController::class, 'index'])->name('categories.index');
     Route::get('/categories/create', [AdminCategoryController::class, 'create'])->name('categories.create');

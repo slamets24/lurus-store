@@ -216,40 +216,73 @@ export default function SettingsIndex({
                     />
                     <div className="grid gap-3 sm:grid-cols-2">
                         <label className="text-sm">
-                            <span className="mb-1 block text-on-surface-variant">Flat shipping (IDR)</span>
-                            <Input
-                                type="number"
-                                value={shippingForm.data.flat_shipping_cost}
-                                onChange={(event) =>
-                                    shippingForm.setData('flat_shipping_cost', Number(event.target.value))
-                                }
-                            />
+                            <span className="mb-1 block text-on-surface-variant">Flat shipping</span>
+                            <div className="flex h-10 w-full rounded-sm border border-outline-variant bg-surface-container-lowest focus-within:border-warm-brown focus-within:ring-1 focus-within:ring-warm-brown overflow-hidden">
+                                <span className="flex items-center justify-center bg-surface-container px-3 text-xs font-bold text-on-surface-variant border-r border-outline-variant select-none">
+                                    Rp
+                                </span>
+                                <input
+                                    type="text"
+                                    placeholder="0"
+                                    value={
+                                        shippingForm.data.flat_shipping_cost !== '' && shippingForm.data.flat_shipping_cost !== null && shippingForm.data.flat_shipping_cost !== undefined
+                                            ? new Intl.NumberFormat('id-ID').format(Number(shippingForm.data.flat_shipping_cost))
+                                            : ''
+                                    }
+                                    onChange={(event) => {
+                                        const cleaned = event.target.value.replace(/[^0-9]/g, '');
+                                        shippingForm.setData('flat_shipping_cost', cleaned ? Number(cleaned) : 0);
+                                    }}
+                                    className="flex-1 bg-transparent px-3 text-sm focus:outline-none"
+                                />
+                            </div>
                         </label>
                         <label className="text-sm">
                             <span className="mb-1 block text-on-surface-variant">Free shipping threshold</span>
-                            <Input
-                                type="number"
-                                value={shippingForm.data.free_shipping_threshold}
-                                onChange={(event) =>
-                                    shippingForm.setData('free_shipping_threshold', Number(event.target.value))
-                                }
-                            />
+                            <div className="flex h-10 w-full rounded-sm border border-outline-variant bg-surface-container-lowest focus-within:border-warm-brown focus-within:ring-1 focus-within:ring-warm-brown overflow-hidden">
+                                <span className="flex items-center justify-center bg-surface-container px-3 text-xs font-bold text-on-surface-variant border-r border-outline-variant select-none">
+                                    Rp
+                                </span>
+                                <input
+                                    type="text"
+                                    placeholder="0"
+                                    value={
+                                        shippingForm.data.free_shipping_threshold !== '' && shippingForm.data.free_shipping_threshold !== null && shippingForm.data.free_shipping_threshold !== undefined
+                                            ? new Intl.NumberFormat('id-ID').format(Number(shippingForm.data.free_shipping_threshold))
+                                            : ''
+                                    }
+                                    onChange={(event) => {
+                                        const cleaned = event.target.value.replace(/[^0-9]/g, '');
+                                        shippingForm.setData('free_shipping_threshold', cleaned ? Number(cleaned) : 0);
+                                    }}
+                                    className="flex-1 bg-transparent px-3 text-sm focus:outline-none"
+                                />
+                            </div>
                         </label>
                         <label className="text-sm">
-                            <span className="mb-1 block text-on-surface-variant">Maks. subsidi (Rp)</span>
-                            <Input
-                                type="number"
-                                min={0}
-                                step={1000}
-                                placeholder="Kosong = full free"
-                                value={shippingForm.data.free_shipping_max_subsidy}
-                                onChange={(event) =>
-                                    shippingForm.setData(
-                                        'free_shipping_max_subsidy',
-                                        event.target.value === '' ? '' : Number(event.target.value),
-                                    )
-                                }
-                            />
+                            <span className="mb-1 block text-on-surface-variant">Maks. subsidi</span>
+                            <div className="flex h-10 w-full rounded-sm border border-outline-variant bg-surface-container-lowest focus-within:border-warm-brown focus-within:ring-1 focus-within:ring-warm-brown overflow-hidden">
+                                <span className="flex items-center justify-center bg-surface-container px-3 text-xs font-bold text-on-surface-variant border-r border-outline-variant select-none">
+                                    Rp
+                                </span>
+                                <input
+                                    type="text"
+                                    placeholder="Kosong = full free"
+                                    value={
+                                        shippingForm.data.free_shipping_max_subsidy !== '' && shippingForm.data.free_shipping_max_subsidy !== null && shippingForm.data.free_shipping_max_subsidy !== undefined
+                                            ? new Intl.NumberFormat('id-ID').format(Number(shippingForm.data.free_shipping_max_subsidy))
+                                            : ''
+                                    }
+                                    onChange={(event) => {
+                                        const cleaned = event.target.value.replace(/[^0-9]/g, '');
+                                        shippingForm.setData(
+                                            'free_shipping_max_subsidy',
+                                            cleaned ? Number(cleaned) : '',
+                                        );
+                                    }}
+                                    className="flex-1 bg-transparent px-3 text-sm focus:outline-none"
+                                />
+                            </div>
                             <p className="mt-1 text-xs text-on-surface-variant">
                                 Mis. 30000: ongkir 50rb → customer bayar 20rb
                             </p>
