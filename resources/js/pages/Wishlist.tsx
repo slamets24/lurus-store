@@ -40,6 +40,9 @@ export default function Wishlist({ wishlistItems }: WishlistProps) {
                                             <img
                                                 src={storageUrl(item.product.images?.[0]?.image_path ?? item.product.image)}
                                                 alt={item.product.name}
+                                                onError={(e) => {
+                                                    e.currentTarget.src = '/images/placeholder-product.svg';
+                                                }}
                                                 className="h-full w-full object-cover transition-transform group-hover:scale-105"
                                             />
                                         </div>

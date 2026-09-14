@@ -32,6 +32,9 @@ export default function CategoriesIndex({ categories }: CategoriesIndexProps) {
                                     <img
                                         src={storageUrl(category.image)}
                                         alt={category.name}
+                                        onError={(e) => {
+                                            e.currentTarget.src = '/images/placeholder-product.svg';
+                                        }}
                                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                                     />
                                 </div>

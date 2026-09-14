@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/AdminLayout';
 import { formatDateTime, formatPrice } from '@/lib/format';
+import { storageUrl } from '@/lib/utils';
 import type { AuthProps } from '@/types';
 import {
     ORDER_STATUS_LABELS,
@@ -63,8 +64,11 @@ export default function OrdersShow({ order }: OrdersShowProps) {
                                     <li key={item.id} className="flex gap-4 py-4">
                                         {item.image ? (
                                             <img
-                                                src={`/storage/${item.image}`}
+                                                src={storageUrl(item.image)}
                                                 alt=""
+                                                onError={(e) => {
+                                                    e.currentTarget.src = '/images/placeholder-product.svg';
+                                                }}
                                                 className="h-16 w-16 rounded-sm object-cover"
                                             />
                                         ) : (

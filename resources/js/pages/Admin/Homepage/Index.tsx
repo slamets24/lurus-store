@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/AdminLayout';
 import { formatPrice } from '@/lib/format';
-import { cn } from '@/lib/utils';
+import { cn, storageUrl } from '@/lib/utils';
 
 interface HeroBanner {
     id: string;
@@ -234,8 +234,11 @@ export default function HomepageIndex({ settings, products, categories }: Homepa
                                 <div className="flex flex-wrap gap-4">
                                     {banner.desktop_image ? (
                                         <img
-                                            src={`/storage/${banner.desktop_image}`}
+                                            src={storageUrl(banner.desktop_image)}
                                             alt="Desktop hero"
+                                            onError={(e) => {
+                                                e.currentTarget.src = '/images/placeholder-product.svg';
+                                            }}
                                             className="h-20 w-32 rounded-sm object-cover"
                                         />
                                     ) : null}

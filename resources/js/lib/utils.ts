@@ -18,10 +18,30 @@ export function storageUrl(path?: string | null): string {
     if (!path) {
         return '/images/placeholder-product.svg';
     }
-    if (path.startsWith('http') || path.startsWith('/')) {
-        return path;
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+        try {
+            const parsed = new URL(path);
+            if (parsed.pathname.startsWith('/storage') || parsed.pathname.startsWith('/images')) {
+                path = parsed.pathname;
+            } else {
+                return path;
+            }
+        } catch {
+            return path;
+        }
     }
-    return `/storage/${path}`;
+    // Clean redundant multiple slashes
+    let cleaned = path.replace(/\/+/g, '/');
+    // Remove duplicate /storage/ prefixes if present e.g. /storage/storage/
+    cleaned = cleaned.replace(/^\/storage\/storage\//, '/storage/');
+    // If it points to /storage/images where assets are actually under public/images
+    if (cleaned.startsWith('/storage/images/')) {
+        cleaned = cleaned.replace('/storage/images/', '/images/');
+    }
+    if (cleaned.startsWith('/')) {
+        return cleaned;
+    }
+    return `/storage/${cleaned}`;
 }
 
 export function csrfHeaders(): HeadersInit {

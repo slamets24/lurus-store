@@ -77,6 +77,9 @@ export default function CollectionDetail({ collection, products }: CollectionDet
                         <img
                             src={storageUrl(collection.banner_image)}
                             alt={collection.name}
+                            onError={(e) => {
+                                e.currentTarget.src = '/images/placeholder-product.svg';
+                            }}
                             className="h-full w-full object-cover"
                         />
                     </div>

@@ -70,7 +70,14 @@ export default function OrdersSuccess({
                     {order.items.map((item) => (
                         <li key={item.id} className="flex gap-3 text-sm">
                             {item.product?.images?.[0] && (
-                                <img src={storageUrl(item.product.images[0].image_path)} alt="" className="h-14 w-11 object-cover" />
+                                <img
+                                    src={storageUrl(item.product.images[0].image_path)}
+                                    alt=""
+                                    onError={(e) => {
+                                        e.currentTarget.src = '/images/placeholder-product.svg';
+                                    }}
+                                    className="h-14 w-11 object-cover"
+                                />
                             )}
                             <div>
                                 <p>{item.product_name}</p>

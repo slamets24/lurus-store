@@ -292,6 +292,9 @@ export default function Checkout({
                                     <img
                                         src={storageUrl(item.product.images?.[0]?.image_path ?? item.product.image)}
                                         alt=""
+                                        onError={(e) => {
+                                            e.currentTarget.src = '/images/placeholder-product.svg';
+                                        }}
                                         className="h-16 w-12 object-cover"
                                     />
                                     <div className="flex-1">

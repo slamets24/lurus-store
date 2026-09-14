@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/AdminLayout';
 import { formatDate, formatPrice } from '@/lib/format';
+import { storageUrl } from '@/lib/utils';
 import type { AuthProps } from '@/types';
 import type { AdminCategory, AdminProduct, Paginated } from '@/types/admin';
 
@@ -82,15 +83,16 @@ export default function ProductsIndex({ products, filters, categories }: Product
                                     <tr key={product.id} className="hover:bg-surface-container/30">
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-3">
-                                                {product.images?.[0] ? (
+                                                <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm bg-surface-container">
                                                     <img
-                                                        src={`/storage/${product.images[0].image_path}`}
-                                                        alt=""
-                                                        className="h-10 w-10 rounded-sm object-cover"
+                                                        src={storageUrl(product.images?.[0]?.image_path)}
+                                                        alt={product.name}
+                                                        onError={(e) => {
+                                                            e.currentTarget.src = '/images/placeholder-product.svg';
+                                                        }}
+                                                        className="h-full w-full object-cover"
                                                     />
-                                                ) : (
-                                                    <div className="h-10 w-10 rounded-sm bg-surface-container" />
-                                                )}
+                                                </div>
                                                 <div>
                                                     <p className="font-medium">{product.name}</p>
                                                     <p className="text-xs text-on-surface-variant">{product.sku}</p>

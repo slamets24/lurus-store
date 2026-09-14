@@ -1,6 +1,6 @@
 import { Link, router, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Heart, Minus, Plus, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, Minus, Plus, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/ProductCard';
@@ -37,13 +37,24 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
         appUrl?: string;
     };
     const baseUrl = (appUrl || '').replace(/\/$/, '');
-    const [activeImage, setActiveImage] = useState(0);
+    const [activeImage, setActiveImage] = useState(() => {
+        const firstColor = product.colors?.[0];
+        if (!firstColor || (product.images?.length ?? 0) === 0) return 0;
+        const idx = product.images.findIndex(
+            (img) => img.color && img.color.trim().toLowerCase() === firstColor.trim().toLowerCase(),
+        );
+        return idx !== -1 ? idx : 0;
+    });
     const [selectedSize, setSelectedSize] = useState('');
     const [selectedColor, setSelectedColor] = useState(product.colors?.[0] ?? '');
     const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
     const [zoomOrigin, setZoomOrigin] = useState('50% 50%');
     const [zoomed, setZoomed] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
     const galleryRef = useRef<HTMLDivElement>(null);
+    const isInteractingRef = useRef(false);
+    const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const isProgrammaticScroll = useRef(false);
 
     const needsSize = (product.sizes?.length ?? 0) > 0;
     const sizeMissing = needsSize && selectedSize === '';
@@ -113,24 +124,159 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
 
     const images = product.images.length > 0 ? product.images : [{ id: 0, image_path: '', thumb_path: null }];
 
+    const findImageIndexForColor = (colorName: string) => {
+        if (!colorName || images.length === 0) {
+            return -1;
+        }
+
+        const cleanTarget = colorName.trim().toLowerCase();
+
+        // 1. Exact match on img.color
+        const exactIndex = images.findIndex(
+            (img) => img.color && img.color.trim().toLowerCase() === cleanTarget,
+        );
+        if (exactIndex !== -1) {
+            return exactIndex;
+        }
+
+        // 2. Partial match on img.color
+        const partialIndex = images.findIndex(
+            (img) =>
+                img.color &&
+                (img.color.toLowerCase().includes(cleanTarget) ||
+                    cleanTarget.includes(img.color.toLowerCase())),
+        );
+        if (partialIndex !== -1) {
+            return partialIndex;
+        }
+
+        // 3. Match in image_path (filename contains color slug)
+        const slugTarget = cleanTarget.replace(/\s+/g, '-');
+        const pathIndex = images.findIndex((img) => {
+            if (!img.image_path) {
+                return false;
+            }
+            const path = img.image_path.toLowerCase();
+            return path.includes(slugTarget) || path.includes(cleanTarget);
+        });
+        if (pathIndex !== -1) {
+            return pathIndex;
+        }
+
+        // 4. Index alignment fallback with product.colors
+        if (product.colors && product.colors.length > 0) {
+            const colorIdx = product.colors.findIndex((c) => c.trim().toLowerCase() === cleanTarget);
+            if (colorIdx !== -1 && colorIdx < images.length) {
+                return colorIdx;
+            }
+        }
+
+        return -1;
+    };
+
+    const pauseAndScheduleResume = (delayMs = 5000) => {
+        isInteractingRef.current = true;
+        if (resumeTimeoutRef.current) {
+            clearTimeout(resumeTimeoutRef.current);
+        }
+        resumeTimeoutRef.current = setTimeout(() => {
+            isInteractingRef.current = false;
+        }, delayMs);
+    };
+
     const showImage = (index: number) => {
         setActiveImage(index);
-        galleryRef.current?.scrollTo({ left: index * (galleryRef.current.clientWidth || 0), behavior: 'smooth' });
+        if (galleryRef.current) {
+            const width = galleryRef.current.clientWidth || 0;
+            isProgrammaticScroll.current = true;
+            galleryRef.current.scrollTo({ left: index * width, behavior: 'smooth' });
+            setTimeout(() => {
+                isProgrammaticScroll.current = false;
+            }, 400);
+        }
+    };
+
+    const handleColorClick = (color: string) => {
+        setSelectedColor(color);
+        setData('color', color);
+
+        const targetIndex = findImageIndexForColor(color);
+        if (targetIndex !== -1) {
+            showImage(targetIndex);
+        }
+        pauseAndScheduleResume(5000);
+    };
+
+    const handleThumbnailClick = (index: number) => {
+        showImage(index);
+        pauseAndScheduleResume(5000);
+
+        const img = images[index];
+        if (img?.color && product.colors?.includes(img.color)) {
+            setSelectedColor(img.color);
+            setData('color', img.color);
+        }
+    };
+
+    const showPreviousImage = () => {
+        const prev = (activeImage - 1 + images.length) % images.length;
+        showImage(prev);
+        pauseAndScheduleResume(5000);
+    };
+
+    const showNextImage = () => {
+        const next = (activeImage + 1) % images.length;
+        showImage(next);
+        pauseAndScheduleResume(5000);
     };
 
     const onGalleryScroll = () => {
-        const el = galleryRef.current;
+        if (isProgrammaticScroll.current) {
+            return;
+        }
 
+        const el = galleryRef.current;
         if (!el?.clientWidth) {
             return;
         }
 
         const index = Math.round(el.scrollLeft / el.clientWidth);
-
-        if (index !== activeImage) {
+        if (index !== activeImage && index >= 0 && index < images.length) {
             setActiveImage(index);
         }
     };
+
+    useEffect(() => {
+        if (images.length <= 1) {
+            return;
+        }
+
+        const interval = setInterval(() => {
+            if (isInteractingRef.current || isHovered || zoomed || document.hidden) {
+                return;
+            }
+
+            setActiveImage((prev) => {
+                const next = (prev + 1) % images.length;
+                if (galleryRef.current) {
+                    const width = galleryRef.current.clientWidth || 0;
+                    isProgrammaticScroll.current = true;
+                    galleryRef.current.scrollTo({ left: next * width, behavior: 'smooth' });
+                    setTimeout(() => {
+                        isProgrammaticScroll.current = false;
+                    }, 400);
+                }
+                return next;
+            });
+        }, 3500);
+
+        return () => {
+            clearInterval(interval);
+            if (resumeTimeoutRef.current) {
+                clearTimeout(resumeTimeoutRef.current);
+            }
+        };
+    }, [images.length, isHovered, zoomed]);
 
     const addLabel = sizeMissing ? 'Select a size' : isSoldOut ? 'Sold Out' : 'Add to Cart';
 
@@ -259,59 +405,126 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
 
                 <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
                     <div>
-                        <div
-                            ref={galleryRef}
-                            className="flex snap-x snap-mandatory overflow-x-auto md:hidden"
-                            onScroll={onGalleryScroll}
-                        >
-                            {images.map((img) => (
-                                <div key={img.id} className="aspect-[3/4] w-full shrink-0 snap-center overflow-hidden bg-surface-container">
-                                    <img
-                                        src={storageUrl(img.image_path)}
-                                        alt={product.name}
-                                        className="h-full w-full object-cover"
-                                    />
+                        <div className="relative">
+                            <div
+                                ref={galleryRef}
+                                className="flex snap-x snap-mandatory overflow-x-auto md:hidden"
+                                onScroll={onGalleryScroll}
+                                onTouchStart={() => pauseAndScheduleResume(5000)}
+                                onTouchEnd={() => pauseAndScheduleResume(4000)}
+                            >
+                                {images.map((img, i) => (
+                                    <div key={img.id || i} className="aspect-[3/4] w-full shrink-0 snap-center overflow-hidden bg-surface-container">
+                                        <img
+                                            src={storageUrl(img.image_path)}
+                                            alt={`${product.name} - ${i + 1}`}
+                                            onError={(e) => {
+                                                e.currentTarget.src = '/images/placeholder-product.svg';
+                                            }}
+                                            className="h-full w-full object-cover"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+
+                            {images.length > 1 && (
+                                <div className="pointer-events-none absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 md:hidden">
+                                    {images.map((img, i) => (
+                                        <span
+                                            key={img.id || i}
+                                            className={cn(
+                                                'h-1.5 rounded-full transition-all duration-300',
+                                                activeImage === i ? 'w-5 bg-warm-brown' : 'w-1.5 bg-black/30',
+                                            )}
+                                        />
+                                    ))}
                                 </div>
-                            ))}
+                            )}
                         </div>
 
                         <div
-                            className="relative hidden aspect-[3/4] overflow-hidden bg-surface-container md:block"
+                            className="group relative hidden aspect-[3/4] overflow-hidden bg-surface-container md:block"
+                            onMouseEnter={() => setIsHovered(true)}
                             onMouseMove={(event) => {
+                                setIsHovered(true);
                                 const rect = event.currentTarget.getBoundingClientRect();
                                 const x = ((event.clientX - rect.left) / rect.width) * 100;
                                 const y = ((event.clientY - rect.top) / rect.height) * 100;
                                 setZoomOrigin(`${x}% ${y}%`);
                                 setZoomed(true);
                             }}
-                            onMouseLeave={() => setZoomed(false)}
+                            onMouseLeave={() => {
+                                setIsHovered(false);
+                                setZoomed(false);
+                                pauseAndScheduleResume(3500);
+                            }}
                         >
-                            <img
-                                src={storageUrl(images[activeImage]?.image_path)}
-                                alt={product.name}
-                                className="h-full w-full cursor-zoom-in object-cover transition-transform duration-200"
-                                style={{
-                                    transformOrigin: zoomOrigin,
-                                    transform: zoomed ? 'scale(1.6)' : 'scale(1)',
-                                }}
-                            />
+                            {images.map((img, i) => (
+                                <img
+                                    key={img.id || i}
+                                    src={storageUrl(img.image_path)}
+                                    alt={`${product.name} - ${i + 1}`}
+                                    onError={(e) => {
+                                        e.currentTarget.src = '/images/placeholder-product.svg';
+                                    }}
+                                    className={cn(
+                                        'absolute inset-0 h-full w-full cursor-zoom-in object-cover transition-opacity duration-500 ease-in-out',
+                                        activeImage === i ? 'opacity-100 z-10' : 'pointer-events-none opacity-0 z-0',
+                                    )}
+                                    style={{
+                                        transformOrigin: zoomOrigin,
+                                        transform: zoomed && activeImage === i ? 'scale(1.6)' : 'scale(1)',
+                                        transitionProperty: 'opacity, transform',
+                                    }}
+                                />
+                            ))}
+
+                            {images.length > 1 && (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            showPreviousImage();
+                                        }}
+                                        className="absolute left-3 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-background/80 text-on-surface opacity-0 shadow-sm backdrop-blur-sm transition-opacity duration-200 hover:bg-background group-hover:opacity-100"
+                                        aria-label="Previous image"
+                                    >
+                                        <ChevronLeft className="h-5 w-5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            showNextImage();
+                                        }}
+                                        className="absolute right-3 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-background/80 text-on-surface opacity-0 shadow-sm backdrop-blur-sm transition-opacity duration-200 hover:bg-background group-hover:opacity-100"
+                                        aria-label="Next image"
+                                    >
+                                        <ChevronRight className="h-5 w-5" />
+                                    </button>
+                                </>
+                            )}
                         </div>
 
                         {images.length > 1 && (
                             <div className="mt-4 flex gap-2 overflow-x-auto">
                                 {images.map((img, i) => (
                                     <button
-                                        key={img.id}
+                                        key={img.id || i}
                                         type="button"
-                                        onClick={() => showImage(i)}
+                                        onClick={() => handleThumbnailClick(i)}
                                         className={cn(
-                                            'h-20 w-16 shrink-0 overflow-hidden border-2',
-                                            activeImage === i ? 'border-warm-brown' : 'border-transparent',
+                                            'h-20 w-16 shrink-0 overflow-hidden border-2 transition-colors',
+                                            activeImage === i ? 'border-warm-brown' : 'border-transparent hover:border-outline-variant',
                                         )}
                                     >
                                         <img
                                             src={storageUrl(img.thumb_path ?? img.image_path)}
                                             alt=""
+                                            onError={(e) => {
+                                                e.currentTarget.src = '/images/placeholder-product.svg';
+                                            }}
                                             className="h-full w-full object-cover"
                                         />
                                     </button>
@@ -343,7 +556,10 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                         )}
 
                         {product.description && (
-                            <p className="mt-6 text-sm leading-relaxed text-secondary">{product.description}</p>
+                            <div
+                                className="mt-6 text-sm leading-relaxed text-secondary font-sans space-y-2 [&_b]:font-semibold [&_strong]:font-semibold [&_h1]:text-lg [&_h1]:font-semibold [&_h2]:text-base [&_h2]:font-semibold [&_h3]:text-sm [&_h3]:font-semibold [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1 [&_a]:text-warm-brown [&_a]:underline"
+                                dangerouslySetInnerHTML={{ __html: product.description }}
+                            />
                         )}
 
                         {product.colors && product.colors.length > 0 && (
@@ -354,10 +570,7 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                                         <button
                                             key={color}
                                             type="button"
-                                            onClick={() => {
-                                                setSelectedColor(color);
-                                                setData('color', color);
-                                            }}
+                                            onClick={() => handleColorClick(color)}
                                             className={cn(
                                                 'border px-4 py-2 text-sm transition-colors',
                                                 selectedColor === color

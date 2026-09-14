@@ -37,6 +37,9 @@ export default function CollectionsIndex({ collections }: CollectionsIndexProps)
                                     <img
                                         src={storageUrl(collection.banner_image)}
                                         alt={collection.name}
+                                        onError={(e) => {
+                                            e.currentTarget.src = '/images/placeholder-product.svg';
+                                        }}
                                         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                                     />
                                 </div>

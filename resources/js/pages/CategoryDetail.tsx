@@ -74,7 +74,14 @@ export default function CategoryDetail({ category, products }: CategoryDetailPro
             <div className="mx-auto max-w-[var(--container-max)] px-4 py-10 md:px-[var(--spacing-margin-desktop)] md:py-16">
                 {category.image && (
                     <div className="mb-10 aspect-[21/9] overflow-hidden bg-surface-container">
-                        <img src={storageUrl(category.image)} alt={category.name} className="h-full w-full object-cover" />
+                        <img
+                            src={storageUrl(category.image)}
+                            alt={category.name}
+                            onError={(e) => {
+                                e.currentTarget.src = '/images/placeholder-product.svg';
+                            }}
+                            className="h-full w-full object-cover"
+                        />
                     </div>
                 )}
                 <h1 className="mb-2 font-serif text-4xl tracking-tight">{category.name}</h1>

@@ -121,7 +121,14 @@ function CartLineItem({ item }: { item: CartItem }) {
     return (
         <li className="flex gap-4 py-6">
             <Link href={`/products/${item.product.slug}`} className="h-28 w-20 shrink-0 overflow-hidden bg-surface-container">
-                <img src={storageUrl(image)} alt={item.product.name} className="h-full w-full object-cover" />
+                <img
+                    src={storageUrl(image)}
+                    alt={item.product.name}
+                    onError={(e) => {
+                        e.currentTarget.src = '/images/placeholder-product.svg';
+                    }}
+                    className="h-full w-full object-cover"
+                />
             </Link>
             <div className="flex flex-1 flex-col justify-between">
                 <div>

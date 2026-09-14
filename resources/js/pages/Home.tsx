@@ -261,6 +261,9 @@ export default function Home({
                                         <img
                                             src={storageUrl(card.product.image)}
                                             alt={`${card.title} - Koleksi Busana Muslimah Lurus Store`}
+                                            onError={(e) => {
+                                                e.currentTarget.src = '/images/placeholder-product.svg';
+                                            }}
                                             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent" />
@@ -310,6 +313,9 @@ export default function Home({
                                             <img
                                                 src={storageUrl(category.image)}
                                                 alt={`Koleksi busana muslimah ${category.name} - Lurus Store`}
+                                                onError={(e) => {
+                                                    e.currentTarget.src = '/images/placeholder-product.svg';
+                                                }}
                                                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                                             />
                                         ) : (

@@ -49,6 +49,11 @@ class Product extends Model implements Sitemapable
         'embedding',
     ];
 
+    protected $appends = [
+        'image',
+        'hover_image',
+    ];
+
     protected $casts = [
         'price' => 'decimal:2',
         'discount_percent' => 'decimal:2',
@@ -168,6 +173,20 @@ class Product extends Model implements Sitemapable
     {
         return Url::create(route('products.show', $this->slug))
             ->setLastModificationDate($this->updated_at);
+    }
+
+    public function getImageAttribute(): ?string
+    {
+        return $this->relationLoaded('images')
+            ? $this->images->first()?->image_path
+            : $this->images()->first()?->image_path;
+    }
+
+    public function getHoverImageAttribute(): ?string
+    {
+        return $this->relationLoaded('images')
+            ? $this->images->skip(1)->first()?->image_path
+            : $this->images()->skip(1)->first()?->image_path;
     }
 
     public function images(): HasMany

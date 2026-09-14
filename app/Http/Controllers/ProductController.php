@@ -26,7 +26,31 @@ class ProductController extends Controller
             }
         }
 
-        $products = $query->latest()->paginate(12);
+        $products = $query->latest()->paginate(12)->withQueryString();
+
+        $products->getCollection()->transform(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'slug' => $product->slug,
+                'price' => (float) $product->price,
+                'discount_percent' => (float) ($product->discount_percent ?? 0),
+                'effective_price' => $product->effectiveUnitPrice(),
+                'stock' => $product->publishedVariants->isNotEmpty()
+                    ? $product->publishedVariants->sum('stock')
+                    : $product->stock,
+                'category' => $product->category
+                    ? ['name' => $product->category->name, 'slug' => $product->category->slug]
+                    : null,
+                'image' => $product->images->first()?->image_path,
+                'hover_image' => $product->images->skip(1)->first()?->image_path,
+                'images' => $product->images->map(fn ($img) => [
+                    'image_path' => $img->image_path,
+                    'thumb_path' => $img->thumb_path,
+                ])->values()->all(),
+                'is_new' => $product->created_at && $product->created_at->diffInDays(now()) <= 30,
+            ];
+        });
 
         $categories = Category::where('is_active', true)
             ->orderBy('name')

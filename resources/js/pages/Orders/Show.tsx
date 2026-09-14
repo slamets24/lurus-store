@@ -63,6 +63,9 @@ export default function OrdersShow({
                                             <img
                                                 src={storageUrl(item.product.images[0].image_path)}
                                                 alt=""
+                                                onError={(e) => {
+                                                    e.currentTarget.src = '/images/placeholder-product.svg';
+                                                }}
                                                 className="h-20 w-16 object-cover"
                                             />
                                         )}

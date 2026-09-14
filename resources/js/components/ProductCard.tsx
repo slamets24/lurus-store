@@ -6,7 +6,9 @@ import { cn, formatCurrency, storageUrl } from '@/lib/utils';
 import type { AuthProps, ProductCard as ProductCardType } from '@/types';
 
 interface ProductCardProps {
-    product: ProductCardType;
+    product: ProductCardType & {
+        images?: Array<{ image_path?: string; thumb_path?: string | null }>;
+    };
     className?: string;
 }
 
@@ -20,7 +22,8 @@ export function ProductCard({ product, className }: ProductCardProps) {
     const isSoldOut = product.stock !== undefined && product.stock <= 0;
     const displayPrice = product.effective_price ?? product.price;
     const isWishlisted = Boolean(wishlistMap?.[product.id]);
-    const hoverImage = product.hover_image;
+    const mainImage = product.image ?? product.images?.[0]?.image_path;
+    const hoverImage = product.hover_image ?? product.images?.[1]?.image_path;
 
     const toggleWishlist = (e: MouseEvent) => {
         e.preventDefault();
@@ -43,8 +46,11 @@ export function ProductCard({ product, className }: ProductCardProps) {
         <Link href={`/products/${product.slug}`} className={cn('group flex flex-col', className)}>
             <div className="relative mb-3 aspect-[3/4] overflow-hidden bg-surface-container">
                 <img
-                    src={storageUrl(product.image)}
+                    src={storageUrl(mainImage)}
                     alt={product.name}
+                    onError={(e) => {
+                        e.currentTarget.src = '/images/placeholder-product.svg';
+                    }}
                     className={cn(
                         'h-full w-full object-cover transition-opacity duration-500',
                         hoverImage && 'group-hover:opacity-0',
@@ -57,6 +63,9 @@ export function ProductCard({ product, className }: ProductCardProps) {
                         src={storageUrl(hoverImage)}
                         alt=""
                         aria-hidden
+                        onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                        }}
                         className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                         loading="lazy"
                     />
