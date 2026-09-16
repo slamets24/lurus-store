@@ -11,6 +11,7 @@ interface OrdersIndexProps {
 
 const statusLabels: Record<string, string> = {
     pending: 'Pending',
+    preorder: 'Pre-Order (Dalam Produksi)',
     stock_confirmation: 'Confirming Stock',
     ready_to_ship: 'Ready to Ship',
     shipped: 'Shipped',

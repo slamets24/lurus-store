@@ -40,6 +40,10 @@ class Product extends Model implements Sitemapable
         'tiktok_url',
         'is_active',
         'is_featured',
+        'is_preorder',
+        'preorder_estimate_days',
+        'preorder_release_date',
+        'preorder_note',
         'embedding',
         'last_posted_to_fb_at',
         'fb_post_count',
@@ -63,10 +67,30 @@ class Product extends Model implements Sitemapable
         'color_hexes' => 'array',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
+        'is_preorder' => 'boolean',
+        'preorder_estimate_days' => 'integer',
+        'preorder_release_date' => 'date',
         'embedding' => 'array',
         'last_posted_to_fb_at' => 'datetime',
         'fb_post_count' => 'integer',
     ];
+
+    public function preorderEstimateLabel(): ?string
+    {
+        if (! $this->is_preorder) {
+            return null;
+        }
+
+        if ($this->preorder_release_date) {
+            return 'Estimasi pengiriman: '.$this->preorder_release_date->format('d M Y');
+        }
+
+        if ($this->preorder_estimate_days) {
+            return "Estimasi pengiriman: {$this->preorder_estimate_days} hari kerja";
+        }
+
+        return $this->preorder_note ?: 'Pre-Order';
+    }
 
     private static ?string $pgvectorType = null;
 

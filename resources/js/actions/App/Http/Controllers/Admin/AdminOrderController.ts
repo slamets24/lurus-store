@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::show
- * @see app/Http/Controllers/Admin/AdminOrderController.php:53
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:55
  * @route '/admin/orders/{order}'
  */
 export const show = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::show
- * @see app/Http/Controllers/Admin/AdminOrderController.php:53
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:55
  * @route '/admin/orders/{order}'
  */
 show.url = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions) => {
@@ -127,7 +127,7 @@ show.url = (args: { order: string | { order_number: string } } | [order: string 
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::show
- * @see app/Http/Controllers/Admin/AdminOrderController.php:53
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:55
  * @route '/admin/orders/{order}'
  */
 show.get = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -136,7 +136,7 @@ show.get = (args: { order: string | { order_number: string } } | [order: string 
 })
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::show
- * @see app/Http/Controllers/Admin/AdminOrderController.php:53
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:55
  * @route '/admin/orders/{order}'
  */
 show.head = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -146,7 +146,7 @@ show.head = (args: { order: string | { order_number: string } } | [order: string
 
     /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::show
- * @see app/Http/Controllers/Admin/AdminOrderController.php:53
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:55
  * @route '/admin/orders/{order}'
  */
     const showForm = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -156,7 +156,7 @@ show.head = (args: { order: string | { order_number: string } } | [order: string
 
             /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::show
- * @see app/Http/Controllers/Admin/AdminOrderController.php:53
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:55
  * @route '/admin/orders/{order}'
  */
         showForm.get = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -165,7 +165,7 @@ show.head = (args: { order: string | { order_number: string } } | [order: string
         })
             /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::show
- * @see app/Http/Controllers/Admin/AdminOrderController.php:53
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:55
  * @route '/admin/orders/{order}'
  */
         showForm.head = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -181,7 +181,7 @@ show.head = (args: { order: string | { order_number: string } } | [order: string
     show.form = showForm
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::updateStatus
- * @see app/Http/Controllers/Admin/AdminOrderController.php:115
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:146
  * @route '/admin/orders/{order}/status'
  */
 export const updateStatus = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -196,7 +196,7 @@ updateStatus.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::updateStatus
- * @see app/Http/Controllers/Admin/AdminOrderController.php:115
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:146
  * @route '/admin/orders/{order}/status'
  */
 updateStatus.url = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions) => {
@@ -229,7 +229,7 @@ updateStatus.url = (args: { order: string | { order_number: string } } | [order:
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::updateStatus
- * @see app/Http/Controllers/Admin/AdminOrderController.php:115
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:146
  * @route '/admin/orders/{order}/status'
  */
 updateStatus.patch = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -239,7 +239,7 @@ updateStatus.patch = (args: { order: string | { order_number: string } } | [orde
 
     /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::updateStatus
- * @see app/Http/Controllers/Admin/AdminOrderController.php:115
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:146
  * @route '/admin/orders/{order}/status'
  */
     const updateStatusForm = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -254,7 +254,7 @@ updateStatus.patch = (args: { order: string | { order_number: string } } | [orde
 
             /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::updateStatus
- * @see app/Http/Controllers/Admin/AdminOrderController.php:115
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:146
  * @route '/admin/orders/{order}/status'
  */
         updateStatusForm.patch = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -269,8 +269,97 @@ updateStatus.patch = (args: { order: string | { order_number: string } } | [orde
     
     updateStatus.form = updateStatusForm
 /**
+* @see \App\Http\Controllers\Admin\AdminOrderController::markReadyToShip
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:122
+ * @route '/admin/orders/{order}/mark-ready-to-ship'
+ */
+export const markReadyToShip = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: markReadyToShip.url(args, options),
+    method: 'patch',
+})
+
+markReadyToShip.definition = {
+    methods: ["patch"],
+    url: '/admin/orders/{order}/mark-ready-to-ship',
+} satisfies RouteDefinition<["patch"]>
+
+/**
+* @see \App\Http\Controllers\Admin\AdminOrderController::markReadyToShip
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:122
+ * @route '/admin/orders/{order}/mark-ready-to-ship'
+ */
+markReadyToShip.url = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { order: args }
+    }
+
+            if (typeof args === 'object' && !Array.isArray(args) && 'order_number' in args) {
+            args = { order: args.order_number }
+        }
+    
+    if (Array.isArray(args)) {
+        args = {
+                    order: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        order: typeof args.order === 'object'
+                ? args.order.order_number
+                : args.order,
+                }
+
+    return markReadyToShip.definition.url
+            .replace('{order}', parsedArgs.order.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Admin\AdminOrderController::markReadyToShip
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:122
+ * @route '/admin/orders/{order}/mark-ready-to-ship'
+ */
+markReadyToShip.patch = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: markReadyToShip.url(args, options),
+    method: 'patch',
+})
+
+    /**
+* @see \App\Http\Controllers\Admin\AdminOrderController::markReadyToShip
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:122
+ * @route '/admin/orders/{order}/mark-ready-to-ship'
+ */
+    const markReadyToShipForm = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: markReadyToShip.url(args, {
+                    [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                        _method: 'PATCH',
+                        ...(options?.query ?? options?.mergeQuery ?? {}),
+                    }
+                }),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Http\Controllers\Admin\AdminOrderController::markReadyToShip
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:122
+ * @route '/admin/orders/{order}/mark-ready-to-ship'
+ */
+        markReadyToShipForm.patch = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: markReadyToShip.url(args, {
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'PATCH',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'post',
+        })
+    
+    markReadyToShip.form = markReadyToShipForm
+/**
 * @see \App\Http\Controllers\Admin\AdminOrderController::proof
- * @see app/Http/Controllers/Admin/AdminOrderController.php:172
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:203
  * @route '/admin/orders/{order}/payment-proof'
  */
 export const proof = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -285,7 +374,7 @@ proof.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::proof
- * @see app/Http/Controllers/Admin/AdminOrderController.php:172
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:203
  * @route '/admin/orders/{order}/payment-proof'
  */
 proof.url = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions) => {
@@ -318,7 +407,7 @@ proof.url = (args: { order: string | { order_number: string } } | [order: string
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::proof
- * @see app/Http/Controllers/Admin/AdminOrderController.php:172
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:203
  * @route '/admin/orders/{order}/payment-proof'
  */
 proof.get = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -327,7 +416,7 @@ proof.get = (args: { order: string | { order_number: string } } | [order: string
 })
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::proof
- * @see app/Http/Controllers/Admin/AdminOrderController.php:172
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:203
  * @route '/admin/orders/{order}/payment-proof'
  */
 proof.head = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -337,7 +426,7 @@ proof.head = (args: { order: string | { order_number: string } } | [order: strin
 
     /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::proof
- * @see app/Http/Controllers/Admin/AdminOrderController.php:172
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:203
  * @route '/admin/orders/{order}/payment-proof'
  */
     const proofForm = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -347,7 +436,7 @@ proof.head = (args: { order: string | { order_number: string } } | [order: strin
 
             /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::proof
- * @see app/Http/Controllers/Admin/AdminOrderController.php:172
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:203
  * @route '/admin/orders/{order}/payment-proof'
  */
         proofForm.get = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -356,7 +445,7 @@ proof.head = (args: { order: string | { order_number: string } } | [order: strin
         })
             /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::proof
- * @see app/Http/Controllers/Admin/AdminOrderController.php:172
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:203
  * @route '/admin/orders/{order}/payment-proof'
  */
         proofForm.head = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -372,7 +461,7 @@ proof.head = (args: { order: string | { order_number: string } } | [order: strin
     proof.form = proofForm
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::approvePayment
- * @see app/Http/Controllers/Admin/AdminOrderController.php:179
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:210
  * @route '/admin/orders/{order}/payment/approve'
  */
 export const approvePayment = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -387,7 +476,7 @@ approvePayment.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::approvePayment
- * @see app/Http/Controllers/Admin/AdminOrderController.php:179
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:210
  * @route '/admin/orders/{order}/payment/approve'
  */
 approvePayment.url = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions) => {
@@ -420,7 +509,7 @@ approvePayment.url = (args: { order: string | { order_number: string } } | [orde
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::approvePayment
- * @see app/Http/Controllers/Admin/AdminOrderController.php:179
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:210
  * @route '/admin/orders/{order}/payment/approve'
  */
 approvePayment.patch = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -430,7 +519,7 @@ approvePayment.patch = (args: { order: string | { order_number: string } } | [or
 
     /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::approvePayment
- * @see app/Http/Controllers/Admin/AdminOrderController.php:179
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:210
  * @route '/admin/orders/{order}/payment/approve'
  */
     const approvePaymentForm = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -445,7 +534,7 @@ approvePayment.patch = (args: { order: string | { order_number: string } } | [or
 
             /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::approvePayment
- * @see app/Http/Controllers/Admin/AdminOrderController.php:179
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:210
  * @route '/admin/orders/{order}/payment/approve'
  */
         approvePaymentForm.patch = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -461,7 +550,7 @@ approvePayment.patch = (args: { order: string | { order_number: string } } | [or
     approvePayment.form = approvePaymentForm
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::rejectPayment
- * @see app/Http/Controllers/Admin/AdminOrderController.php:197
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:228
  * @route '/admin/orders/{order}/payment/reject'
  */
 export const rejectPayment = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -476,7 +565,7 @@ rejectPayment.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::rejectPayment
- * @see app/Http/Controllers/Admin/AdminOrderController.php:197
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:228
  * @route '/admin/orders/{order}/payment/reject'
  */
 rejectPayment.url = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions) => {
@@ -509,7 +598,7 @@ rejectPayment.url = (args: { order: string | { order_number: string } } | [order
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::rejectPayment
- * @see app/Http/Controllers/Admin/AdminOrderController.php:197
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:228
  * @route '/admin/orders/{order}/payment/reject'
  */
 rejectPayment.patch = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -519,7 +608,7 @@ rejectPayment.patch = (args: { order: string | { order_number: string } } | [ord
 
     /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::rejectPayment
- * @see app/Http/Controllers/Admin/AdminOrderController.php:197
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:228
  * @route '/admin/orders/{order}/payment/reject'
  */
     const rejectPaymentForm = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -534,7 +623,7 @@ rejectPayment.patch = (args: { order: string | { order_number: string } } | [ord
 
             /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::rejectPayment
- * @see app/Http/Controllers/Admin/AdminOrderController.php:197
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:228
  * @route '/admin/orders/{order}/payment/reject'
  */
         rejectPaymentForm.patch = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -550,7 +639,7 @@ rejectPayment.patch = (args: { order: string | { order_number: string } } | [ord
     rejectPayment.form = rejectPaymentForm
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::createBiteshipShipment
- * @see app/Http/Controllers/Admin/AdminOrderController.php:219
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:250
  * @route '/admin/orders/{order}/biteship-shipment'
  */
 export const createBiteshipShipment = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -565,7 +654,7 @@ createBiteshipShipment.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::createBiteshipShipment
- * @see app/Http/Controllers/Admin/AdminOrderController.php:219
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:250
  * @route '/admin/orders/{order}/biteship-shipment'
  */
 createBiteshipShipment.url = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions) => {
@@ -598,7 +687,7 @@ createBiteshipShipment.url = (args: { order: string | { order_number: string } }
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::createBiteshipShipment
- * @see app/Http/Controllers/Admin/AdminOrderController.php:219
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:250
  * @route '/admin/orders/{order}/biteship-shipment'
  */
 createBiteshipShipment.post = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -608,7 +697,7 @@ createBiteshipShipment.post = (args: { order: string | { order_number: string } 
 
     /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::createBiteshipShipment
- * @see app/Http/Controllers/Admin/AdminOrderController.php:219
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:250
  * @route '/admin/orders/{order}/biteship-shipment'
  */
     const createBiteshipShipmentForm = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -618,7 +707,7 @@ createBiteshipShipment.post = (args: { order: string | { order_number: string } 
 
             /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::createBiteshipShipment
- * @see app/Http/Controllers/Admin/AdminOrderController.php:219
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:250
  * @route '/admin/orders/{order}/biteship-shipment'
  */
         createBiteshipShipmentForm.post = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -629,7 +718,7 @@ createBiteshipShipment.post = (args: { order: string | { order_number: string } 
     createBiteshipShipment.form = createBiteshipShipmentForm
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::updateWaybill
- * @see app/Http/Controllers/Admin/AdminOrderController.php:232
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:263
  * @route '/admin/orders/{order}/waybill'
  */
 export const updateWaybill = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -644,7 +733,7 @@ updateWaybill.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::updateWaybill
- * @see app/Http/Controllers/Admin/AdminOrderController.php:232
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:263
  * @route '/admin/orders/{order}/waybill'
  */
 updateWaybill.url = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions) => {
@@ -677,7 +766,7 @@ updateWaybill.url = (args: { order: string | { order_number: string } } | [order
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::updateWaybill
- * @see app/Http/Controllers/Admin/AdminOrderController.php:232
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:263
  * @route '/admin/orders/{order}/waybill'
  */
 updateWaybill.patch = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -687,7 +776,7 @@ updateWaybill.patch = (args: { order: string | { order_number: string } } | [ord
 
     /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::updateWaybill
- * @see app/Http/Controllers/Admin/AdminOrderController.php:232
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:263
  * @route '/admin/orders/{order}/waybill'
  */
     const updateWaybillForm = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -702,7 +791,7 @@ updateWaybill.patch = (args: { order: string | { order_number: string } } | [ord
 
             /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::updateWaybill
- * @see app/Http/Controllers/Admin/AdminOrderController.php:232
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:263
  * @route '/admin/orders/{order}/waybill'
  */
         updateWaybillForm.patch = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -718,7 +807,7 @@ updateWaybill.patch = (args: { order: string | { order_number: string } } | [ord
     updateWaybill.form = updateWaybillForm
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::shippingLabel
- * @see app/Http/Controllers/Admin/AdminOrderController.php:243
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:274
  * @route '/admin/orders/{order}/shipping-label'
  */
 export const shippingLabel = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -733,7 +822,7 @@ shippingLabel.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::shippingLabel
- * @see app/Http/Controllers/Admin/AdminOrderController.php:243
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:274
  * @route '/admin/orders/{order}/shipping-label'
  */
 shippingLabel.url = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions) => {
@@ -766,7 +855,7 @@ shippingLabel.url = (args: { order: string | { order_number: string } } | [order
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::shippingLabel
- * @see app/Http/Controllers/Admin/AdminOrderController.php:243
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:274
  * @route '/admin/orders/{order}/shipping-label'
  */
 shippingLabel.get = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -775,7 +864,7 @@ shippingLabel.get = (args: { order: string | { order_number: string } } | [order
 })
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::shippingLabel
- * @see app/Http/Controllers/Admin/AdminOrderController.php:243
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:274
  * @route '/admin/orders/{order}/shipping-label'
  */
 shippingLabel.head = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -785,7 +874,7 @@ shippingLabel.head = (args: { order: string | { order_number: string } } | [orde
 
     /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::shippingLabel
- * @see app/Http/Controllers/Admin/AdminOrderController.php:243
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:274
  * @route '/admin/orders/{order}/shipping-label'
  */
     const shippingLabelForm = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -795,7 +884,7 @@ shippingLabel.head = (args: { order: string | { order_number: string } } | [orde
 
             /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::shippingLabel
- * @see app/Http/Controllers/Admin/AdminOrderController.php:243
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:274
  * @route '/admin/orders/{order}/shipping-label'
  */
         shippingLabelForm.get = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -804,7 +893,7 @@ shippingLabel.head = (args: { order: string | { order_number: string } } | [orde
         })
             /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::shippingLabel
- * @see app/Http/Controllers/Admin/AdminOrderController.php:243
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:274
  * @route '/admin/orders/{order}/shipping-label'
  */
         shippingLabelForm.head = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -820,7 +909,7 @@ shippingLabel.head = (args: { order: string | { order_number: string } } | [orde
     shippingLabel.form = shippingLabelForm
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::testimonialReminder
- * @see app/Http/Controllers/Admin/AdminOrderController.php:277
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:308
  * @route '/admin/orders/{order}/testimonial-reminder'
  */
 export const testimonialReminder = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -835,7 +924,7 @@ testimonialReminder.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::testimonialReminder
- * @see app/Http/Controllers/Admin/AdminOrderController.php:277
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:308
  * @route '/admin/orders/{order}/testimonial-reminder'
  */
 testimonialReminder.url = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions) => {
@@ -868,7 +957,7 @@ testimonialReminder.url = (args: { order: string | { order_number: string } } | 
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::testimonialReminder
- * @see app/Http/Controllers/Admin/AdminOrderController.php:277
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:308
  * @route '/admin/orders/{order}/testimonial-reminder'
  */
 testimonialReminder.post = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -878,7 +967,7 @@ testimonialReminder.post = (args: { order: string | { order_number: string } } |
 
     /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::testimonialReminder
- * @see app/Http/Controllers/Admin/AdminOrderController.php:277
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:308
  * @route '/admin/orders/{order}/testimonial-reminder'
  */
     const testimonialReminderForm = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -888,7 +977,7 @@ testimonialReminder.post = (args: { order: string | { order_number: string } } |
 
             /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::testimonialReminder
- * @see app/Http/Controllers/Admin/AdminOrderController.php:277
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:308
  * @route '/admin/orders/{order}/testimonial-reminder'
  */
         testimonialReminderForm.post = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -899,7 +988,7 @@ testimonialReminder.post = (args: { order: string | { order_number: string } } |
     testimonialReminder.form = testimonialReminderForm
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::destroy
- * @see app/Http/Controllers/Admin/AdminOrderController.php:292
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:323
  * @route '/admin/orders/{order}'
  */
 export const destroy = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -914,7 +1003,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::destroy
- * @see app/Http/Controllers/Admin/AdminOrderController.php:292
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:323
  * @route '/admin/orders/{order}'
  */
 destroy.url = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions) => {
@@ -947,7 +1036,7 @@ destroy.url = (args: { order: string | { order_number: string } } | [order: stri
 
 /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::destroy
- * @see app/Http/Controllers/Admin/AdminOrderController.php:292
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:323
  * @route '/admin/orders/{order}'
  */
 destroy.delete = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -957,7 +1046,7 @@ destroy.delete = (args: { order: string | { order_number: string } } | [order: s
 
     /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::destroy
- * @see app/Http/Controllers/Admin/AdminOrderController.php:292
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:323
  * @route '/admin/orders/{order}'
  */
     const destroyForm = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -972,7 +1061,7 @@ destroy.delete = (args: { order: string | { order_number: string } } | [order: s
 
             /**
 * @see \App\Http\Controllers\Admin\AdminOrderController::destroy
- * @see app/Http/Controllers/Admin/AdminOrderController.php:292
+ * @see app/Http/Controllers/Admin/AdminOrderController.php:323
  * @route '/admin/orders/{order}'
  */
         destroyForm.delete = (args: { order: string | { order_number: string } } | [order: string | { order_number: string } ] | string | { order_number: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -986,6 +1075,6 @@ destroy.delete = (args: { order: string | { order_number: string } } | [order: s
         })
     
     destroy.form = destroyForm
-const AdminOrderController = { index, show, updateStatus, proof, approvePayment, rejectPayment, createBiteshipShipment, updateWaybill, shippingLabel, testimonialReminder, destroy }
+const AdminOrderController = { index, show, updateStatus, markReadyToShip, proof, approvePayment, rejectPayment, createBiteshipShipment, updateWaybill, shippingLabel, testimonialReminder, destroy }
 
 export default AdminOrderController

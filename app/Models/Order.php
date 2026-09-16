@@ -18,6 +18,8 @@ class Order extends Model
 
     public const STATUS_PENDING = 'pending';
 
+    public const STATUS_PREORDER = 'preorder';
+
     public const STATUS_READY_TO_SHIP = 'ready_to_ship';
 
     public const STATUS_STOCK_CONFIRMATION = 'stock_confirmation';
@@ -55,6 +57,8 @@ class Order extends Model
         'shipping_cost',
         'total_amount',
         'status',
+        'has_preorder',
+        'preorder_release_date',
         'shipping_address',
         'biteship_order_id',
         'waybill_id',
@@ -82,6 +86,8 @@ class Order extends Model
         'discount_amount' => 'decimal:2',
         'shipping_cost' => 'decimal:2',
         'total_amount' => 'decimal:2',
+        'has_preorder' => 'boolean',
+        'preorder_release_date' => 'date',
         'shipping_address' => 'array',
         'shipping_history' => 'array',
         'payment_expires_at' => 'datetime',

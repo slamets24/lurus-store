@@ -35,6 +35,8 @@ class AdminOrderController extends Controller
             'status' => $order->status,
             'payment_status' => $order->payment_status,
             'payment_method' => $order->payment_method,
+            'has_preorder' => (bool) $order->has_preorder,
+            'preorder_release_date' => $order->preorder_release_date?->format('d M Y'),
             'created_at' => $order->created_at->toISOString(),
             'customer' => [
                 'name' => $order->user?->name ?? $order->shipping_address['name'],
@@ -76,8 +78,11 @@ class AdminOrderController extends Controller
                 'shipping_history' => $order->shipping_history ?? [],
                 'shipped_at' => $order->shipped_at?->toISOString(),
                 'delivered_at' => $order->delivered_at?->toISOString(),
+                'has_preorder' => (bool) $order->has_preorder,
+                'preorder_release_date' => $order->preorder_release_date?->format('d M Y'),
                 'can_create_biteship_shipment' => $order->payment_status === Order::PAYMENT_PAID
-                    && ! $order->biteship_order_id,
+                    && ! $order->biteship_order_id
+                    && $order->status !== Order::STATUS_PREORDER,
                 'can_print_shipping_label' => (bool) $order->waybill_id,
                 'notes' => $order->notes,
                 'created_at' => $order->created_at->toISOString(),
@@ -100,6 +105,8 @@ class AdminOrderController extends Controller
                     'price' => (float) $item->price,
                     'size' => $item->size,
                     'color' => $item->color,
+                    'is_preorder' => (bool) $item->is_preorder,
+                    'preorder_estimate' => $item->preorder_estimate,
                     'image' => $item->product?->images?->first()?->image_path,
                     'testimonial' => $item->testimonial ? [
                         'id' => $item->testimonial->id,
@@ -112,10 +119,34 @@ class AdminOrderController extends Controller
         ]);
     }
 
+    public function markReadyToShip(Order $order): RedirectResponse
+    {
+        if ($order->status !== Order::STATUS_PREORDER) {
+            throw ValidationException::withMessages([
+                'status' => 'Hanya pesanan Pre-Order yang dapat ditandai Siap Dikirim.',
+            ]);
+        }
+
+        $order->update([
+            'status' => Order::STATUS_READY_TO_SHIP,
+        ]);
+
+        $order->notifyCustomer(
+            'Pesanan Pre-Order Siap Dikirim — '.$order->order_number,
+            [
+                'Kabar baik! Produk Pre-Order untuk pesanan '.$order->order_number.' telah selesai diproduksi dan siap dikirim.',
+                'Admin kami sedang menyiapkan paket Anda untuk diserahkan ke pihak kurir.',
+            ],
+            $order->customerOrderUrl(),
+        );
+
+        return back()->with('success', 'Status pesanan berhasil diubah menjadi Siap Dikirim.');
+    }
+
     public function updateStatus(Request $request, Order $order, OrderService $orders)
     {
         $validated = $request->validate([
-            'status' => ['required', 'in:pending,stock_confirmation,ready_to_ship,shipped,delivered,cancelled'],
+            'status' => ['required', 'in:pending,preorder,stock_confirmation,ready_to_ship,shipped,delivered,cancelled'],
         ]);
         $status = $validated['status'];
 
@@ -218,6 +249,10 @@ class AdminOrderController extends Controller
 
     public function createBiteshipShipment(Request $request, Order $order, BiteshipService $biteship)
     {
+        if ($order->status === Order::STATUS_PREORDER) {
+            return back()->with('error', 'Pesanan masih dalam status Pre-Order. Tandai sebagai Siap Dikirim terlebih dahulu sebelum membuat pengiriman.');
+        }
+
         $validated = $request->validate([
             'courier_code' => ['nullable', 'string', 'max:50'],
             'courier_service_code' => ['nullable', 'string', 'max:50'],

@@ -278,7 +278,15 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
         };
     }, [images.length, isHovered, zoomed]);
 
-    const addLabel = sizeMissing ? 'Select a size' : isSoldOut ? 'Sold Out' : 'Add to Cart';
+    const addLabel = sizeMissing
+        ? 'Select a size'
+        : isSoldOut
+          ? product.is_preorder
+              ? 'Kuota Pre-Order Penuh'
+              : 'Sold Out'
+          : product.is_preorder
+            ? 'Pre-Order Sekarang'
+            : 'Add to Cart';
 
     const productDescription = useMemo(() => {
         if (product.description) {
@@ -551,8 +559,32 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                             )}
                         </div>
 
+                        {product.is_preorder && (
+                            <div className="mt-5 rounded-xl border border-warm-brown/30 bg-[#faf8f5] p-4 text-stone-800">
+                                <div className="flex items-center gap-2">
+                                    <span className="inline-flex items-center rounded bg-stone-900 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-white">
+                                        Pre-Order
+                                    </span>
+                                    <span className="text-xs font-semibold text-warm-brown">
+                                        {product.preorder_release_date
+                                            ? `Estimasi Pengiriman: Mulai ${product.preorder_release_date}`
+                                            : product.preorder_estimate_days
+                                              ? `Estimasi Pengiriman: ${product.preorder_estimate_days} hari kerja`
+                                              : 'Produk Pre-Order'}
+                                    </span>
+                                </div>
+                                {product.preorder_note && (
+                                    <p className="mt-2 text-xs text-stone-600 leading-relaxed">
+                                        {product.preorder_note}
+                                    </p>
+                                )}
+                            </div>
+                        )}
+
                         {isSoldOut && (
-                            <Badge variant="secondary" className="mt-4">Sold Out</Badge>
+                            <Badge variant="secondary" className="mt-4">
+                                {product.is_preorder ? 'Kuota Pre-Order Penuh' : 'Sold Out'}
+                            </Badge>
                         )}
 
                         {product.description && (
@@ -645,7 +677,9 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                                 </button>
                             </div>
                             {!isSoldOut && !sizeMissing && variantStock > 0 && (
-                                <p className="text-xs text-secondary">{variantStock} in stock</p>
+                                <p className="text-xs text-secondary">
+                                    {product.is_preorder ? `Sisa Kuota: ${variantStock}` : `${variantStock} in stock`}
+                                </p>
                             )}
                         </div>
 

@@ -1,4 +1,5 @@
 import { Link, useForm } from '@inertiajs/react';
+import { Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SeoHead } from '@/components/SeoHead';
@@ -16,6 +17,7 @@ interface OrdersShowProps {
 
 const statusLabels: Record<string, string> = {
     pending: 'Pending',
+    preorder: 'Pre-Order (Dalam Produksi)',
     stock_confirmation: 'Confirming Stock',
     ready_to_ship: 'Ready to Ship',
     shipped: 'Shipped',
@@ -47,10 +49,24 @@ export default function OrdersShow({
                             Placed on {new Date(order.created_at).toLocaleDateString('id-ID')}
                         </p>
                     </div>
-                    <span className="border border-outline-variant px-3 py-1 text-sm">
+                    <span className="border border-outline-variant px-3 py-1 text-sm font-medium">
                         {statusLabels[order.status] ?? order.status}
                     </span>
                 </div>
+
+                {order.has_preorder && (
+                    <div className="mb-8 flex items-start gap-3 border border-amber-500/30 bg-amber-500/10 p-4 text-amber-900 dark:text-amber-200">
+                        <Clock className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+                        <div>
+                            <p className="font-semibold">Pesanan ini Mengandung Produk Pre-Order</p>
+                            <p className="mt-1 text-sm text-amber-850 dark:text-amber-300">
+                                {order.preorder_release_date
+                                    ? `Estimasi siap dikirim / rilis: ${new Date(order.preorder_release_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}. Seluruh produk dalam pesanan ini akan dikirim bersamaan begitu produk Pre-Order siap.`
+                                    : 'Pesanan Anda sedang kami persiapkan dan akan dikirim bersamaan begitu produk Pre-Order selesai diproduksi.'}
+                            </p>
+                        </div>
+                    </div>
+                )}
 
                 <div className="grid gap-10 lg:grid-cols-3">
                     <div className="space-y-8 lg:col-span-2">
@@ -70,12 +86,24 @@ export default function OrdersShow({
                                             />
                                         )}
                                         <div className="flex-1">
-                                            {item.product ? (
-                                                <Link href={`/products/${item.product.slug}`} className="text-sm font-medium hover:text-warm-brown">
-                                                    {item.product_name}
-                                                </Link>
-                                            ) : (
-                                                <p className="text-sm font-medium">{item.product_name}</p>
+                                            <div className="flex items-center gap-2">
+                                                {item.product ? (
+                                                    <Link href={`/products/${item.product.slug}`} className="text-sm font-medium hover:text-warm-brown">
+                                                        {item.product_name}
+                                                    </Link>
+                                                ) : (
+                                                    <p className="text-sm font-medium">{item.product_name}</p>
+                                                )}
+                                                {item.is_preorder && (
+                                                    <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-300">
+                                                        Pre-Order
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {item.preorder_estimate && (
+                                                <p className="mt-0.5 text-xs text-amber-600 dark:text-amber-400">
+                                                    Estimasi: {item.preorder_estimate}
+                                                </p>
                                             )}
                                             {(item.size || item.color) && (
                                                 <p className="text-xs text-secondary">

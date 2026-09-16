@@ -72,7 +72,12 @@ export function ProductCard({ product, className }: ProductCardProps) {
                 )}
 
                 <div className="absolute left-2 top-2 flex flex-col gap-1">
-                    {product.is_new && !isSoldOut && (
+                    {product.is_preorder && (
+                        <Badge className="bg-stone-900 text-white font-semibold text-[10px] tracking-wider uppercase shadow-sm">
+                            Pre-Order
+                        </Badge>
+                    )}
+                    {product.is_new && !isSoldOut && !product.is_preorder && (
                         <Badge className="bg-warm-brown text-white">New</Badge>
                     )}
                     {hasDiscount && (
@@ -82,7 +87,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
                 {isSoldOut && (
                     <Badge variant="secondary" className="absolute right-2 top-2 bg-on-surface/80 text-white">
-                        Sold Out
+                        {product.is_preorder ? 'PO Penuh' : 'Sold Out'}
                     </Badge>
                 )}
 

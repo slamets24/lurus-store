@@ -55,6 +55,7 @@ class AdminProductController extends Controller
                 'status' => $product->is_active ? 'published' : 'draft',
                 'is_active' => $product->is_active,
                 'is_featured' => $product->is_featured,
+                'is_preorder' => (bool) $product->is_preorder,
                 'category' => $product->category ? ['id' => $product->category->id, 'name' => $product->category->name] : null,
                 'images' => $product->images->map(fn ($img) => [
                     'id' => $img->id,
@@ -121,6 +122,10 @@ class AdminProductController extends Controller
             'related_fit_product_id' => 'nullable|exists:products,id',
             'is_active' => 'nullable',
             'is_featured' => 'nullable',
+            'is_preorder' => 'nullable|boolean',
+            'preorder_estimate_days' => 'nullable|integer|min:1|max:365',
+            'preorder_release_date' => 'nullable|date',
+            'preorder_note' => 'nullable|string|max:255',
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
             'image_colors' => 'nullable|array',
@@ -135,6 +140,7 @@ class AdminProductController extends Controller
         $validated['sku'] = ($validated['sku'] ?? null) ?: $this->makeArticleCode($validated['name']);
         $validated['is_active'] = $request->boolean('is_active', true);
         $validated['is_featured'] = $request->boolean('is_featured', false);
+        $validated['is_preorder'] = $request->boolean('is_preorder', false);
 
         $product = Product::create($this->productPayload($validated));
         $this->syncVariants($product, $validated);
@@ -188,6 +194,10 @@ class AdminProductController extends Controller
                 'status' => $product->is_active ? 'published' : 'draft',
                 'is_active' => $product->is_active,
                 'is_featured' => $product->is_featured,
+                'is_preorder' => (bool) $product->is_preorder,
+                'preorder_estimate_days' => $product->preorder_estimate_days,
+                'preorder_release_date' => $product->preorder_release_date?->format('Y-m-d'),
+                'preorder_note' => $product->preorder_note,
                 'category_id' => $product->category_id,
                 'images' => $product->images->map(fn ($img) => [
                     'id' => $img->id,
@@ -229,6 +239,10 @@ class AdminProductController extends Controller
             'related_fit_product_id' => 'nullable|exists:products,id',
             'is_active' => 'nullable',
             'is_featured' => 'nullable',
+            'is_preorder' => 'nullable|boolean',
+            'preorder_estimate_days' => 'nullable|integer|min:1|max:365',
+            'preorder_release_date' => 'nullable|date',
+            'preorder_note' => 'nullable|string|max:255',
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
             'image_colors' => 'nullable|array',
@@ -245,6 +259,7 @@ class AdminProductController extends Controller
         $validated['sku'] = ($validated['sku'] ?? null) ?: $product->sku ?: $this->makeArticleCode($validated['name'], $product->id);
         $validated['is_active'] = $request->boolean('is_active');
         $validated['is_featured'] = $request->boolean('is_featured');
+        $validated['is_preorder'] = $request->boolean('is_preorder', false);
 
         $product->update($this->productPayload($validated));
         $this->syncVariants($product, $validated);

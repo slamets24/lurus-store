@@ -45,6 +45,10 @@ export interface AdminProduct {
     status?: string;
     is_active: boolean;
     is_featured?: boolean;
+    is_preorder?: boolean;
+    preorder_estimate_days?: number | null;
+    preorder_release_date?: string | null;
+    preorder_note?: string | null;
     category?: { id: number; name: string } | null;
     category_id?: number | null;
     category_name?: string;
@@ -62,6 +66,8 @@ export interface AdminOrder {
     order_number: string;
     total_amount: number;
     status: string;
+    has_preorder?: boolean;
+    preorder_release_date?: string | null;
     payment_status?: string;
     payment_method?: string;
     payment_channel?: string | null;
@@ -103,6 +109,8 @@ export interface AdminOrderItem {
     price: number;
     size?: string | null;
     color?: string | null;
+    is_preorder?: boolean;
+    preorder_estimate?: string | null;
     image?: string | null;
     testimonial?: {
         id: number;
@@ -114,6 +122,7 @@ export interface AdminOrderItem {
 
 export const ORDER_STATUS_LABELS: Record<string, string> = {
     pending: 'Pending',
+    preorder: 'Pre-Order / Dalam Produksi',
     stock_confirmation: 'Stock Confirmation',
     ready_to_ship: 'Ready to Ship',
     shipped: 'Shipped',

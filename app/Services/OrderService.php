@@ -81,6 +81,14 @@ class OrderService
             $shippingCost = $shippingRate['price'];
             $isMidtrans = $data['payment_method'] === Order::PAYMENT_METHOD_MIDTRANS;
 
+            $hasPreorder = $locked->contains(fn ($row) => (bool) $row['product']->is_preorder);
+            $preorderReleaseDate = $hasPreorder
+                ? $locked
+                    ->filter(fn ($row) => (bool) $row['product']->is_preorder && $row['product']->preorder_release_date)
+                    ->map(fn ($row) => $row['product']->preorder_release_date)
+                    ->max()
+                : null;
+
             $guestToken = $request->user() ? null : Str::random(40);
             $order = Order::create([
                 'user_id' => $request->user()?->id,
@@ -93,6 +101,8 @@ class OrderService
                 'shipping_cost' => $shippingCost,
                 'total_amount' => $payable + $shippingCost,
                 'status' => Order::STATUS_PENDING,
+                'has_preorder' => $hasPreorder,
+                'preorder_release_date' => $preorderReleaseDate,
                 'shipping_address' => [
                     'name' => $data['name'],
                     'email' => strtolower($data['email']),
@@ -128,6 +138,8 @@ class OrderService
                     'quantity' => $cartItem->quantity,
                     'size' => $variant?->size ?? $cartItem->size,
                     'color' => $variant?->color ?? $cartItem->color,
+                    'is_preorder' => (bool) $product->is_preorder,
+                    'preorder_estimate' => $product->preorderEstimateLabel(),
                 ]);
 
             }
@@ -193,10 +205,16 @@ class OrderService
                 }
             }
 
+            $finalStatus = match (true) {
+                $shortages !== [] => Order::STATUS_STOCK_CONFIRMATION,
+                (bool) $locked->has_preorder => Order::STATUS_PREORDER,
+                default => Order::STATUS_READY_TO_SHIP,
+            };
+
             $locked->forceFill([
                 'payment_status' => Order::PAYMENT_PAID,
                 'payment_verified_at' => now(),
-                'status' => $shortages === [] ? Order::STATUS_READY_TO_SHIP : Order::STATUS_STOCK_CONFIRMATION,
+                'status' => $finalStatus,
             ])->save();
 
             if ($shortages === []) {

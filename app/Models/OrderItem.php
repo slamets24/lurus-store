@@ -18,11 +18,14 @@ class OrderItem extends Model
         'price',
         'size',
         'color',
+        'is_preorder',
+        'preorder_estimate',
     ];
 
     protected $casts = [
         'quantity' => 'integer',
         'price' => 'decimal:2',
+        'is_preorder' => 'boolean',
     ];
 
     public function order(): BelongsTo

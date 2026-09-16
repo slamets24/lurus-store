@@ -1,12 +1,12 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { ChevronLeft, Loader2, Trash2, Upload } from 'lucide-react';
+import { ChevronLeft, Loader2, Plus, Trash2, Upload } from 'lucide-react';
 import * as React from 'react';
 import { CategoryCombobox } from '@/components/admin/CategoryCombobox';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { VariantStockMatrix } from '@/components/admin/VariantStockMatrix';
 import AdminLayout from '@/layouts/AdminLayout';
 import { storageUrl } from '@/lib/utils';
-import type { AdminCategory, AdminProduct, ProductVariant } from '@/types/admin';
+import type { AdminCategory, AdminProduct } from '@/types/admin';
 
 interface ProductsFormProps {
     product?: AdminProduct | null;
@@ -42,6 +42,10 @@ export default function ProductsForm({
         related_fit_product_id: product?.related_fit_product_id ? String(product.related_fit_product_id) : '',
         is_active: product?.is_active ?? true,
         is_featured: product?.is_featured ?? false,
+        is_preorder: Boolean(product?.is_preorder),
+        preorder_estimate_days: product?.preorder_estimate_days ?? ('' as unknown as number),
+        preorder_release_date: product?.preorder_release_date ?? '',
+        preorder_note: product?.preorder_note ?? '',
         variants: (product?.variants?.length
             ? product.variants.filter((v) => v.color?.trim() && v.size?.trim())
             : []
@@ -108,38 +112,166 @@ export default function ProductsForm({
             return;
         }
 
-        form.post('/admin/products', { forceFormData: true });
+        form.post('/admin/products', {
+            forceFormData: true,
+            preserveScroll: true,
+        });
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(e.target.files ?? []);
-        if (files.length === 0) return;
+    const [isDragging, setIsDragging] = React.useState(false);
+    const [clientImageError, setClientImageError] = React.useState<string | null>(null);
 
-        const newPreviews = files.map((file) => ({
+    React.useEffect(() => {
+        return () => {
+            imagePreviews.forEach((preview) => URL.revokeObjectURL(preview.url));
+        };
+    }, []);
+
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+
+    const addFiles = (files: File[]) => {
+        setClientImageError(null);
+        const imageFiles = files.filter((file) =>
+            file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|svg)$/i.test(file.name),
+        );
+
+        if (imageFiles.length === 0) {
+            if (files.length > 0) {
+                setClientImageError('File yang dipilih bukan format gambar yang didukung (JPG, PNG, WEBP).');
+            }
+            return;
+        }
+
+        const validFiles: File[] = [];
+        const oversizedNames: string[] = [];
+
+        for (const file of imageFiles) {
+            if (file.size > MAX_FILE_SIZE) {
+                oversizedNames.push(file.name);
+            } else {
+                validFiles.push(file);
+            }
+        }
+
+        if (oversizedNames.length > 0) {
+            setClientImageError(
+                `Foto berikut melebihi batas 2MB: ${oversizedNames.join(', ')}. Silakan pilih foto dengan ukuran maksimal 2MB.`,
+            );
+        }
+
+        if (validFiles.length === 0) return;
+
+        const newPreviews = validFiles.map((file) => ({
+            id: `${file.name}-${file.size}-${file.lastModified}-${Math.random().toString(36).slice(2, 7)}`,
             file,
             url: URL.createObjectURL(file),
         }));
 
-        const updatedFiles = [...form.data.images, ...files];
-        const updatedColors = [...form.data.image_colors, ...files.map(() => '')];
-
         setImagePreviews((prev) => [...prev, ...newPreviews]);
-        form.setData('images', updatedFiles);
-        form.setData('image_colors', updatedColors);
+        form.setData((prev) => ({
+            ...prev,
+            images: [...prev.images, ...validFiles],
+            image_colors: [...prev.image_colors, ...validFiles.map(() => '')],
+        }));
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files ?? []);
+        addFiles(files);
+        e.target.value = '';
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!isDragging) setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+
+        if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+            addFiles(Array.from(e.dataTransfer.files));
+        }
     };
 
     const removeNewImage = (index: number) => {
-        const updatedFiles = form.data.images.filter((_, i) => i !== index);
-        const updatedColors = form.data.image_colors.filter((_, i) => i !== index);
         setImagePreviews((prev) => {
-            URL.revokeObjectURL(prev[index].url);
+            if (prev[index]) {
+                URL.revokeObjectURL(prev[index].url);
+            }
             return prev.filter((_, i) => i !== index);
         });
-        form.setData('images', updatedFiles);
-        form.setData('image_colors', updatedColors);
+        form.setData((prev) => ({
+            ...prev,
+            images: prev.images.filter((_, i) => i !== index),
+            image_colors: prev.image_colors.filter((_, i) => i !== index),
+        }));
     };
 
-    const totalStock = form.data.variants.reduce((sum, v) => sum + (Number(v.stock) || 0), 0);
+    const makeCoverImage = (index: number) => {
+        if (index === 0) return;
+        setImagePreviews((prev) => {
+            const target = prev[index];
+            if (!target) return prev;
+            return [target, ...prev.filter((_, i) => i !== index)];
+        });
+        form.setData((prev) => {
+            const targetFile = prev.images[index];
+            const targetColor = prev.image_colors[index];
+            if (!targetFile) return prev;
+            return {
+                ...prev,
+                images: [targetFile, ...prev.images.filter((_, i) => i !== index)],
+                image_colors: [targetColor, ...prev.image_colors.filter((_, i) => i !== index)],
+            };
+        });
+    };
+
+    const renderUploadTile = () => (
+        <label
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`group relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed transition cursor-pointer min-h-[190px] h-full p-4 text-center ${
+                isDragging
+                    ? 'border-warm-brown bg-warm-brown/10 ring-2 ring-warm-brown/30 scale-[0.98]'
+                    : 'border-[#e5e1dc] bg-[#faf8f5] hover:border-warm-brown hover:bg-stone-50'
+            }`}
+        >
+            <div className="pointer-events-none flex flex-col items-center justify-center">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-200/70 text-stone-600 group-hover:bg-warm-brown group-hover:text-white group-hover:scale-110 transition-all mb-2 shadow-sm">
+                    <Plus className="h-5 w-5" />
+                </div>
+                <span className="font-sans text-xs font-semibold text-stone-700 group-hover:text-stone-900">
+                    Tambah Foto
+                </span>
+                <span className="mt-1 font-sans text-[11px] text-stone-400">
+                    atau seret ke sini
+                </span>
+                <span className="mt-1 font-sans text-[10px] text-stone-400">
+                    Maks 2MB
+                </span>
+            </div>
+            <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/jpg,image/*"
+                multiple
+                onChange={handleFileChange}
+                onClick={(e) => e.stopPropagation()}
+                className="sr-only"
+            />
+        </label>
+    );
 
     return (
         <AdminLayout title={isEdit ? 'Edit Product' : 'Create Product'}>
@@ -227,7 +359,9 @@ export default function ProductsForm({
                                         type="text"
                                         placeholder="0"
                                         value={
-                                            form.data.price !== '' && form.data.price !== null && form.data.price !== undefined
+                                            form.data.price !== null &&
+                                            form.data.price !== undefined &&
+                                            String(form.data.price) !== ''
                                                 ? formatNumber(Number(form.data.price))
                                                 : ''
                                         }
@@ -255,9 +389,9 @@ export default function ProductsForm({
                                     max="100"
                                     placeholder="0"
                                     value={
-                                        form.data.discount_percent !== '' &&
                                         form.data.discount_percent !== null &&
-                                        form.data.discount_percent !== undefined
+                                        form.data.discount_percent !== undefined &&
+                                        String(form.data.discount_percent) !== ''
                                             ? form.data.discount_percent
                                             : ''
                                     }
@@ -392,7 +526,16 @@ export default function ProductsForm({
                     />
 
                     {/* SECTION: PRODUCT IMAGES */}
-                    <div className="rounded-2xl border border-[#e5e1dc] bg-white p-6 sm:p-8 shadow-sm space-y-6">
+                    <div
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => {
+                            e.preventDefault();
+                            if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+                                addFiles(Array.from(e.dataTransfer.files));
+                            }
+                        }}
+                        className="rounded-2xl border border-[#e5e1dc] bg-white p-6 sm:p-8 shadow-sm space-y-6"
+                    >
                         <div>
                             <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-stone-800">
                                 FOTO PRODUK
@@ -461,6 +604,7 @@ export default function ProductsForm({
                                             </div>
                                         </div>
                                     ))}
+                                    {imagePreviews.length === 0 && renderUploadTile()}
                                 </div>
                             </div>
                         )}
@@ -472,15 +616,28 @@ export default function ProductsForm({
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                                     {imagePreviews.map((item, idx) => (
                                         <div
-                                            key={idx}
+                                            key={item.id}
                                             className="relative rounded-xl border border-warm-brown/30 bg-[#faf8f5] p-2.5 space-y-2"
                                         >
                                             <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-stone-100">
                                                 <img
                                                     src={item.url}
-                                                    alt="Preview"
+                                                    alt={`Preview ${idx + 1}`}
                                                     className="h-full w-full object-cover"
                                                 />
+                                                {idx === 0 ? (
+                                                    <span className="absolute left-2 top-2 rounded bg-stone-900/85 px-2 py-0.5 text-[10px] font-semibold text-white uppercase tracking-wider shadow-xs">
+                                                        Cover Utama
+                                                    </span>
+                                                ) : (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => makeCoverImage(idx)}
+                                                        className="absolute left-2 top-2 rounded bg-white/90 backdrop-blur-xs px-2 py-0.5 text-[10px] font-medium text-stone-700 hover:bg-stone-900 hover:text-white transition shadow-xs"
+                                                    >
+                                                        Jadikan Cover
+                                                    </button>
+                                                )}
                                                 <button
                                                     type="button"
                                                     onClick={() => removeNewImage(idx)}
@@ -500,45 +657,73 @@ export default function ProductsForm({
                                                     placeholder="e.g. Putih"
                                                     value={form.data.image_colors[idx] ?? ''}
                                                     onChange={(e) => {
-                                                        const updated = [...form.data.image_colors];
-                                                        updated[idx] = e.target.value;
-                                                        form.setData('image_colors', updated);
+                                                        const val = e.target.value;
+                                                        form.setData((prev) => {
+                                                            const updated = [...prev.image_colors];
+                                                            updated[idx] = val;
+                                                            return { ...prev, image_colors: updated };
+                                                        });
                                                     }}
                                                     className="h-8 w-full rounded border border-[#e5e1dc] bg-white px-2 text-xs text-stone-800 focus:border-warm-brown focus:outline-none"
                                                 />
                                             </div>
                                         </div>
                                     ))}
+                                    {renderUploadTile()}
                                 </div>
                             </div>
                         )}
 
-                        {/* Upload Dropzone */}
-                        <label className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#e5e1dc] bg-[#faf8f5]/80 p-8 text-center hover:border-warm-brown hover:bg-[#faf8f5] transition cursor-pointer">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-stone-200/60 text-stone-600 mb-3">
-                                <Upload className="h-5 w-5" />
-                            </div>
-                            <p className="font-sans text-sm font-semibold text-stone-800">
-                                Klik untuk memilih foto atau seret foto ke sini
-                            </p>
-                            <p className="mt-1 font-sans text-xs text-stone-500">
-                                Mendukung format JPG, PNG, WEBP hingga 2MB
-                            </p>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                onChange={handleFileChange}
-                                className="sr-only"
-                            />
-                        </label>
+                        {/* Empty State Dropzone: Only when no existing images and no previews */}
+                        {(!product?.images || product.images.length === 0) && imagePreviews.length === 0 && (
+                            <label
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
+                                className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center transition cursor-pointer ${
+                                    isDragging
+                                        ? 'border-warm-brown bg-warm-brown/10 ring-2 ring-warm-brown/30 scale-[0.99]'
+                                        : 'border-[#e5e1dc] bg-[#faf8f5]/80 hover:border-warm-brown hover:bg-[#faf8f5]'
+                                }`}
+                            >
+                                <div className="pointer-events-none flex flex-col items-center justify-center">
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-stone-200/60 text-stone-600 mb-3">
+                                        <Upload className="h-5 w-5" />
+                                    </div>
+                                    <p className="font-sans text-sm font-semibold text-stone-800">
+                                        Klik untuk memilih foto atau seret foto ke sini
+                                    </p>
+                                    <p className="mt-1 font-sans text-xs text-stone-500">
+                                        Mendukung format JPG, PNG, WEBP hingga 2MB
+                                    </p>
+                                </div>
+                                <input
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp,image/jpg,image/*"
+                                    multiple
+                                    onChange={handleFileChange}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="sr-only"
+                                />
+                            </label>
+                        )}
 
                         {/* Image validation error messages */}
-                        {form.errors.images && (
-                            <p className="text-xs text-red-500 font-medium">{form.errors.images}</p>
+                        {(clientImageError ||
+                            form.errors.images ||
+                            Object.entries(form.errors).find(([k]) => k.startsWith('images.'))?.[1]) && (
+                            <p className="text-xs text-red-500 font-medium">
+                                {clientImageError ||
+                                    form.errors.images ||
+                                    Object.entries(form.errors).find(([k]) => k.startsWith('images.'))?.[1]}
+                            </p>
                         )}
-                        {form.errors.image_colors && (
-                            <p className="text-xs text-red-500 font-medium">{form.errors.image_colors}</p>
+                        {(form.errors.image_colors ||
+                            Object.entries(form.errors).find(([k]) => k.startsWith('image_colors.'))?.[1]) && (
+                            <p className="text-xs text-red-500 font-medium">
+                                {form.errors.image_colors ||
+                                    Object.entries(form.errors).find(([k]) => k.startsWith('image_colors.'))?.[1]}
+                            </p>
                         )}
                         {form.errors.existing_image_colors && (
                             <p className="text-xs text-red-500 font-medium">{form.errors.existing_image_colors}</p>
@@ -550,6 +735,100 @@ export default function ProductsForm({
                                 <option key={color} value={color} />
                             ))}
                         </datalist>
+                    </div>
+
+                    {/* SECTION: PRE-ORDER SETTINGS */}
+                    <div className="rounded-2xl border border-[#e5e1dc] bg-white p-6 sm:p-8 shadow-sm space-y-5">
+                        <div>
+                            <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-stone-800">
+                                SISTEM PRE-ORDER
+                            </h2>
+                            <p className="mt-1 font-sans text-xs text-stone-500">
+                                Aktifkan jika produk ini dijual dengan sistem Pre-Order (PO).
+                            </p>
+                        </div>
+
+                        <label className="flex items-start gap-3 rounded-xl border border-[#ece8e3] bg-[#faf8f5] p-4 cursor-pointer hover:bg-[#f5f3ef] transition">
+                            <input
+                                type="checkbox"
+                                checked={form.data.is_preorder}
+                                onChange={(e) => form.setData('is_preorder', e.target.checked)}
+                                className="mt-1 h-4 w-4 rounded border-stone-300 text-warm-brown focus:ring-warm-brown"
+                            />
+                            <div>
+                                <span className="block font-sans text-sm font-semibold text-stone-800">
+                                    Aktifkan Mode Pre-Order untuk Produk Ini
+                                </span>
+                                <span className="block font-sans text-xs text-stone-500 mt-0.5">
+                                    Tombol pembelian akan berubah menjadi "Pre-Order Sekarang" dan pesanan yang lunas akan masuk antrean Pre-Order / Dalam Produksi. Stok pada matriks varian akan menjadi kuota maksimal PO.
+                                </span>
+                            </div>
+                        </label>
+
+                        {form.data.is_preorder && (
+                            <div className="space-y-4 rounded-xl border border-warm-brown/25 bg-[#faf8f5]/60 p-5">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    {/* ESTIMASI HARI KERJA */}
+                                    <div>
+                                        <label className="block font-sans text-xs font-bold uppercase tracking-wide text-stone-700 mb-2">
+                                            ESTIMASI PRODUKSI (HARI KERJA)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            placeholder="e.g. 14"
+                                            value={form.data.preorder_estimate_days !== '' && form.data.preorder_estimate_days !== null && form.data.preorder_estimate_days !== undefined ? form.data.preorder_estimate_days : ''}
+                                            onChange={(e) =>
+                                                form.setData('preorder_estimate_days', e.target.value ? Number(e.target.value) : ('' as unknown as number))
+                                            }
+                                            className="flex h-11 w-full rounded-md border border-[#e5e1dc] bg-white px-3.5 text-sm text-stone-800 placeholder:text-stone-400 focus:border-warm-brown focus:outline-none focus:ring-1 focus:ring-warm-brown transition-colors"
+                                        />
+                                        <p className="mt-1 font-sans text-[11px] text-stone-500">
+                                            Contoh: 14 (akan tampil: "Estimasi pengiriman: 14 hari kerja").
+                                        </p>
+                                        {form.errors.preorder_estimate_days && (
+                                            <p className="mt-1 text-xs text-red-500">{form.errors.preorder_estimate_days}</p>
+                                        )}
+                                    </div>
+
+                                    {/* TANGGAL RILIS SPESIFIK */}
+                                    <div>
+                                        <label className="block font-sans text-xs font-bold uppercase tracking-wide text-stone-700 mb-2">
+                                            TANGGAL RILIS / MULAI KIRIM (OPSIONAL)
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={form.data.preorder_release_date ?? ''}
+                                            onChange={(e) => form.setData('preorder_release_date', e.target.value)}
+                                            className="flex h-11 w-full rounded-md border border-[#e5e1dc] bg-white px-3.5 text-sm text-stone-800 focus:border-warm-brown focus:outline-none focus:ring-1 focus:ring-warm-brown transition-colors"
+                                        />
+                                        <p className="mt-1 font-sans text-[11px] text-stone-500">
+                                            Isi jika ada tanggal pasti (akan tampil: "Estimasi pengiriman: Mulai [Tanggal]").
+                                        </p>
+                                        {form.errors.preorder_release_date && (
+                                            <p className="mt-1 text-xs text-red-500">{form.errors.preorder_release_date}</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* CATATAN PO */}
+                                <div>
+                                    <label className="block font-sans text-xs font-bold uppercase tracking-wide text-stone-700 mb-2">
+                                        CATATAN KHUSUS PRE-ORDER (OPSIONAL)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. Batch 1 diproduksi terbatas, pengiriman berurutan sesuai invoice"
+                                        value={form.data.preorder_note ?? ''}
+                                        onChange={(e) => form.setData('preorder_note', e.target.value)}
+                                        className="flex h-11 w-full rounded-md border border-[#e5e1dc] bg-white px-3.5 text-sm text-stone-800 placeholder:text-stone-400 focus:border-warm-brown focus:outline-none focus:ring-1 focus:ring-warm-brown transition-colors"
+                                    />
+                                    {form.errors.preorder_note && (
+                                        <p className="mt-1 text-xs text-red-500">{form.errors.preorder_note}</p>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* SECTION: PUBLICATION & SETTINGS */}

@@ -147,6 +147,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
+    Route::patch('/orders/{order}/mark-ready-to-ship', [AdminOrderController::class, 'markReadyToShip'])->name('orders.mark-ready-to-ship');
     Route::get('/orders/{order}/payment-proof', [AdminOrderController::class, 'proof'])->name('orders.payment-proof');
     Route::patch('/orders/{order}/payment/approve', [AdminOrderController::class, 'approvePayment'])->name('orders.payment.approve');
     Route::patch('/orders/{order}/payment/reject', [AdminOrderController::class, 'rejectPayment'])->name('orders.payment.reject');

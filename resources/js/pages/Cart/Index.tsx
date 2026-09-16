@@ -16,6 +16,7 @@ interface CartIndexProps {
 
 export default function CartIndex({ cartItems, subtotal, discount_amount, total }: CartIndexProps) {
     const { commerce } = usePage().props as unknown as { commerce: CommerceProps };
+    const hasPreorder = cartItems.some((item) => Boolean(item.product.is_preorder));
 
     return (
         <StorefrontLayout>
@@ -56,6 +57,17 @@ export default function CartIndex({ cartItems, subtotal, discount_amount, total 
 
                         <div className="h-fit border border-outline-variant p-6">
                             <h2 className="mb-6 font-serif text-xl">Order Summary</h2>
+                            {hasPreorder && (
+                                <div className="mb-5 rounded-xl border border-warm-brown/30 bg-[#faf8f5] p-3 text-xs text-stone-700">
+                                    <p className="font-semibold text-warm-brown flex items-center gap-1.5">
+                                        <span className="inline-block h-2 w-2 rounded-full bg-warm-brown" />
+                                        Pesanan Pre-Order
+                                    </p>
+                                    <p className="mt-1 text-[11px] text-stone-600 leading-normal">
+                                        Pesanan Anda mengandung produk Pre-Order. Pengiriman akan diproses mengikuti jadwal rilis Pre-Order.
+                                    </p>
+                                </div>
+                            )}
                             <dl className="space-y-3 text-sm">
                                 <div className="flex justify-between">
                                     <dt className="text-secondary">Subtotal</dt>
@@ -132,9 +144,25 @@ function CartLineItem({ item }: { item: CartItem }) {
             </Link>
             <div className="flex flex-1 flex-col justify-between">
                 <div>
-                    <Link href={`/products/${item.product.slug}`} className="text-sm font-medium hover:text-warm-brown">
-                        {item.product.name}
-                    </Link>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Link href={`/products/${item.product.slug}`} className="text-sm font-medium hover:text-warm-brown">
+                            {item.product.name}
+                        </Link>
+                        {item.product.is_preorder && (
+                            <span className="rounded bg-stone-900 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white">
+                                Pre-Order
+                            </span>
+                        )}
+                    </div>
+                    {item.product.is_preorder && (
+                        <p className="mt-1 text-[11px] font-medium text-warm-brown">
+                            {item.product.preorder_release_date
+                                ? `Estimasi rilis: ${item.product.preorder_release_date}`
+                                : item.product.preorder_estimate_days
+                                  ? `Estimasi kirim: ${item.product.preorder_estimate_days} hari kerja`
+                                  : 'Item Pre-Order'}
+                        </p>
+                    )}
                     {(item.size || item.color) && (
                         <p className="mt-1 text-xs text-secondary">
                             {[item.color, item.size].filter(Boolean).join(' / ')}

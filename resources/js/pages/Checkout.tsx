@@ -285,7 +285,18 @@ export default function Checkout({
                     </div>
 
                     <div className="h-fit border border-outline-variant p-6">
-                        <h2 className="mb-6 font-serif text-xl">Your Order</h2>
+                        <h2 className="mb-4 font-serif text-xl">Your Order</h2>
+                        {cartItems.some((item) => Boolean(item.product.is_preorder)) && (
+                            <div className="mb-4 rounded-xl border border-warm-brown/30 bg-[#faf8f5] p-3 text-xs text-stone-700">
+                                <p className="font-semibold text-warm-brown flex items-center gap-1.5">
+                                    <span className="inline-block h-2 w-2 rounded-full bg-warm-brown" />
+                                    Pesanan Pre-Order
+                                </p>
+                                <p className="mt-1 text-[11px] text-stone-600 leading-normal">
+                                    Pengiriman akan diproses serentak sesuai jadwal rilis Pre-Order.
+                                </p>
+                            </div>
+                        )}
                         <ul className="mb-6 max-h-64 space-y-4 overflow-y-auto">
                             {cartItems.map((item) => (
                                 <li key={item.id} className="flex gap-3 text-sm">
@@ -298,8 +309,24 @@ export default function Checkout({
                                         className="h-16 w-12 object-cover"
                                     />
                                     <div className="flex-1">
-                                        <p>{item.product.name}</p>
-                                        <p className="text-secondary">Qty: {item.quantity}</p>
+                                        <div className="flex flex-wrap items-center gap-1.5">
+                                            <p>{item.product.name}</p>
+                                            {item.product.is_preorder && (
+                                                <span className="rounded bg-stone-900 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white">
+                                                    PO
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="text-secondary text-xs">Qty: {item.quantity}</p>
+                                        {item.product.is_preorder && (
+                                            <p className="text-[11px] text-warm-brown font-medium">
+                                                {item.product.preorder_release_date
+                                                    ? `Rilis: ${item.product.preorder_release_date}`
+                                                    : item.product.preorder_estimate_days
+                                                      ? `Estimasi: ${item.product.preorder_estimate_days} hari`
+                                                      : 'Pre-Order'}
+                                            </p>
+                                        )}
                                     </div>
                                     <p>{formatCurrency((item.unit_price ?? item.product.price) * item.quantity)}</p>
                                 </li>

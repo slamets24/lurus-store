@@ -66,6 +66,15 @@ export default function OrdersSuccess({
                     )}
                 </div>
 
+                {order.has_preorder && (
+                    <div className="mt-6 border border-amber-500/30 bg-amber-500/10 p-4 text-left text-sm text-amber-900 dark:text-amber-200">
+                        <p className="font-semibold">Informasi Pre-Order</p>
+                        <p className="mt-1 text-xs text-amber-800 dark:text-amber-300">
+                            Pesanan Anda berisi produk Pre-Order. Kami akan mulai memproses pesanan dan pesanan akan dikirimkan secara bersamaan begitu seluruh produk selesai diproduksi.
+                        </p>
+                    </div>
+                )}
+
                 <ul className="mt-8 space-y-3 text-left">
                     {order.items.map((item) => (
                         <li key={item.id} className="flex gap-3 text-sm">
@@ -80,7 +89,14 @@ export default function OrdersSuccess({
                                 />
                             )}
                             <div>
-                                <p>{item.product_name}</p>
+                                <div className="flex items-center gap-2">
+                                    <p className="font-medium">{item.product_name}</p>
+                                    {item.is_preorder && (
+                                        <span className="rounded bg-amber-500/15 px-1.5 py-0.2 text-[10px] font-semibold text-amber-800 dark:text-amber-300">
+                                            PO
+                                        </span>
+                                    )}
+                                </div>
                                 <p className="text-secondary">Qty: {item.quantity}</p>
                             </div>
                         </li>

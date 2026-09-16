@@ -89,7 +89,14 @@ export default function OrdersIndex({ orders, filters }: OrdersIndexProps) {
                             {orders.data.map((order) => (
                                 <tr key={order.id} className="hover:bg-surface-container/30">
                                     <td className="px-4 py-3">
-                                        <p className="font-medium">{order.order_number}</p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="font-medium">{order.order_number}</p>
+                                            {order.has_preorder ? (
+                                                <span className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                                                    PO
+                                                </span>
+                                            ) : null}
+                                        </div>
                                         <p className="text-xs text-on-surface-variant">{order.items_count} items</p>
                                     </td>
                                     <td className="px-4 py-3">

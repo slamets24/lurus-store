@@ -73,6 +73,10 @@ export interface ProductCard {
     hover_image?: string | null;
     is_new?: boolean;
     stock?: number;
+    is_preorder?: boolean;
+    preorder_estimate_days?: number | null;
+    preorder_release_date?: string | null;
+    preorder_note?: string | null;
 }
 
 export interface CartPreviewItem {
@@ -176,6 +180,10 @@ export interface ProductDetailData {
     discount_percent?: number;
     description?: string | null;
     stock: number;
+    is_preorder?: boolean;
+    preorder_estimate_days?: number | null;
+    preorder_release_date?: string | null;
+    preorder_note?: string | null;
     sizes?: string[];
     colors?: string[];
     color_hexes?: Record<string, string>;
@@ -207,6 +215,10 @@ export interface CartItem {
         price: number;
         image?: string | null;
         images?: Array<{ image_path: string }>;
+        is_preorder?: boolean;
+        preorder_estimate_days?: number | null;
+        preorder_release_date?: string | null;
+        preorder_note?: string | null;
     };
 }
 
@@ -217,6 +229,8 @@ export interface OrderItem {
     unit_price: number;
     size?: string | null;
     color?: string | null;
+    is_preorder?: boolean;
+    preorder_estimate?: string | null;
     product?: {
         id: number;
         name: string;
@@ -229,6 +243,8 @@ export interface Order {
     id: number;
     order_number: string;
     status: string;
+    has_preorder?: boolean;
+    preorder_release_date?: string | null;
     payment_status: string;
     payment_method: string;
     subtotal: number;

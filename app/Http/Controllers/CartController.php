@@ -71,7 +71,7 @@ class CartController extends Controller
         $availableStock = $variant?->stock ?? $product->stock;
 
         if ($availableStock < $quantity) {
-            return back()->with('error', 'Insufficient stock.');
+            return back()->with('error', $product->is_preorder ? 'Kuota Pre-Order telah habis.' : 'Insufficient stock.');
         }
 
         if ($cartItem) {

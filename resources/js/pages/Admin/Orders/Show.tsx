@@ -1,12 +1,12 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { ExternalLink, Printer } from 'lucide-react';
+import { Clock, ExternalLink, Printer } from 'lucide-react';
 import { useState } from 'react';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/AdminLayout';
-import { formatDateTime, formatPrice } from '@/lib/format';
+import { formatDate, formatDateTime, formatPrice } from '@/lib/format';
 import { storageUrl } from '@/lib/utils';
 import type { AuthProps } from '@/types';
 import {
@@ -55,6 +55,20 @@ export default function OrdersShow({ order }: OrdersShowProps) {
                     </Button>
                 </AdminPageHeader>
 
+                {order.has_preorder && (
+                    <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-amber-900 dark:text-amber-200">
+                        <Clock className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+                        <div>
+                            <p className="font-semibold">Pesanan ini mengandung produk Pre-Order</p>
+                            <p className="mt-0.5 text-xs text-amber-800 dark:text-amber-300">
+                                {order.preorder_release_date
+                                    ? `Estimasi rilis / siap kirim: ${formatDate(order.preorder_release_date)}`
+                                    : 'Pesanan ini menunggu produksi selesai sebelum dapat dikirimkan.'}
+                            </p>
+                        </div>
+                    </div>
+                )}
+
                 <div className="grid gap-6 lg:grid-cols-3">
                     <div className="space-y-6 lg:col-span-2">
                         <section className="rounded-xl border border-outline-variant/15 bg-surface-container-lowest p-6">
@@ -75,7 +89,19 @@ export default function OrdersShow({ order }: OrdersShowProps) {
                                             <div className="h-16 w-16 rounded-sm bg-surface-container" />
                                         )}
                                         <div className="flex-1">
-                                            <p className="font-medium">{item.product_name}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="font-medium">{item.product_name}</p>
+                                                {item.is_preorder ? (
+                                                    <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-300">
+                                                        Pre-Order
+                                                    </span>
+                                                ) : null}
+                                            </div>
+                                            {item.preorder_estimate ? (
+                                                <p className="mt-0.5 text-xs font-medium text-amber-600 dark:text-amber-400">
+                                                    Estimasi: {item.preorder_estimate}
+                                                </p>
+                                            ) : null}
                                             <p className="text-sm text-on-surface-variant">
                                                 {item.sku} · Qty {item.quantity}
                                                 {item.color || item.size
@@ -182,6 +208,20 @@ export default function OrdersShow({ order }: OrdersShowProps) {
                                 Update Status
                             </Button>
 
+                            {order.status === 'preorder' ? (
+                                <Button
+                                    type="button"
+                                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+                                    onClick={() => {
+                                        if (confirm('Apakah stok produk Pre-Order sudah siap dan pesanan siap dikirim? Status akan diubah menjadi "Ready to Ship".')) {
+                                            router.patch(`/admin/orders/${order.id}/mark-ready-to-ship`, {}, { preserveScroll: true });
+                                        }
+                                    }}
+                                >
+                                    Tandai Siap Dikirim (Barang PO Siap)
+                                </Button>
+                            ) : null}
+
                             {order.payment_status === 'pending_verification' ? (
                                 <div className="flex gap-2">
                                     <Button
@@ -214,6 +254,12 @@ export default function OrdersShow({ order }: OrdersShowProps) {
 
                         <section className="rounded-xl border border-outline-variant/15 bg-surface-container-lowest p-6 space-y-4">
                             <h2 className="font-serif text-xl text-primary">Fulfillment</h2>
+
+                            {order.status === 'preorder' ? (
+                                <div className="rounded-lg border border-amber-500/20 bg-amber-50/50 p-3 text-xs text-amber-800 dark:bg-amber-950/20 dark:text-amber-300">
+                                    Pesanan masih dalam status <strong>Pre-Order</strong>. Pengiriman kurir Biteship dapat dibuat setelah pesanan ditandai <em>Siap Dikirim</em> di atas.
+                                </div>
+                            ) : null}
 
                             {order.can_create_biteship_shipment ? (
                                 <form

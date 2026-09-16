@@ -11,6 +11,7 @@ const STATUS_STYLES: Record<string, string> = {
     published: 'bg-emerald-100 text-emerald-900 border-emerald-200',
     draft: 'bg-surface-container-high text-on-surface-variant border-outline-variant/30',
     paid: 'bg-emerald-100 text-emerald-900 border-emerald-200',
+    preorder: 'bg-purple-100 text-purple-900 border-purple-200',
     pending_verification: 'bg-amber-100 text-amber-900 border-amber-200',
     failed: 'bg-red-100 text-red-900 border-red-200',
     expired: 'bg-surface-container-high text-on-surface-variant border-outline-variant/30',

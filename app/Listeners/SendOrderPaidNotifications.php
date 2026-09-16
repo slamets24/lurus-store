@@ -16,6 +16,35 @@ class SendOrderPaidNotifications
             return;
         }
 
+        if ($order->status === Order::STATUS_PREORDER) {
+            $order->notifyCustomer(
+                'Payment Received (Pre-Order) — '.$order->order_number,
+                [
+                    'We have received payment for order '.$order->order_number.'.',
+                    'Your order contains Pre-Order items and is scheduled for production/release.',
+                    $order->preorder_release_date
+                        ? 'Estimated shipping: '.$order->preorder_release_date->format('d M Y')
+                        : 'Your order will be shipped once production is complete.',
+                    'Total: Rp '.number_format((float) $order->total_amount, 0, ',', '.'),
+                ],
+                $order->customerOrderUrl(),
+            );
+
+            if ($event->notifyAdmin) {
+                $order->notifyAdmin(
+                    'Payment Received (Pre-Order) — '.$order->order_number,
+                    [
+                        'Customer: '.($order->shipping_address['name'] ?? '-'),
+                        'Email: '.(string) $order->customer_email,
+                        'Total: Rp '.number_format((float) $order->total_amount, 0, ',', '.'),
+                        'Status: Pre-Order (in production)',
+                    ],
+                );
+            }
+
+            return;
+        }
+
         if ($order->status === Order::STATUS_READY_TO_SHIP) {
             $order->notifyCustomer(
                 'Payment Received — '.$order->order_number,

@@ -49,6 +49,10 @@ class ProductController extends Controller
                     'thumb_path' => $img->thumb_path,
                 ])->values()->all(),
                 'is_new' => $product->created_at && $product->created_at->diffInDays(now()) <= 30,
+                'is_preorder' => (bool) $product->is_preorder,
+                'preorder_estimate_days' => $product->preorder_estimate_days,
+                'preorder_release_date' => $product->preorder_release_date?->format('d M Y'),
+                'preorder_note' => $product->preorder_note,
             ];
         });
 
@@ -93,6 +97,10 @@ class ProductController extends Controller
             'published_variants' => $item->publishedVariants->map(fn ($variant) => [
                 'stock' => $variant->stock,
             ])->values(),
+            'is_preorder' => (bool) $item->is_preorder,
+            'preorder_estimate_days' => $item->preorder_estimate_days,
+            'preorder_release_date' => $item->preorder_release_date?->format('d M Y'),
+            'preorder_note' => $item->preorder_note,
         ];
 
         $recommendedProducts = Product::with(['category', 'images', 'publishedVariants'])
@@ -121,6 +129,10 @@ class ProductController extends Controller
                 'discount_percent' => (float) ($product->discount_percent ?? 0),
                 'description' => $product->description,
                 'stock' => $product->stock,
+                'is_preorder' => (bool) $product->is_preorder,
+                'preorder_estimate_days' => $product->preorder_estimate_days,
+                'preorder_release_date' => $product->preorder_release_date?->format('d M Y'),
+                'preorder_note' => $product->preorder_note,
                 'sizes' => $product->sizes ?? [],
                 'colors' => $product->colors ?? [],
                 'color_hexes' => $product->color_hexes ?? [],
