@@ -13,6 +13,26 @@ use Inertia\Inertia;
 
 class HomeController extends Controller
 {
+    /** @var array<int, array{question: string, answer: string}> */
+    private const FAQS = [
+        [
+            'question' => 'Bahan apa saja yang digunakan pada busana muslimah Lurus Store?',
+            'answer' => 'Lurus Store mengutamakan kenyamanan dengan material pilihan berkualitas tinggi seperti katun premium alami, serat linen breathable, rayon adem, dan silk blend. Seluruh kain dipilih secara cermat agar sejuk, lembut di kulit, tahan lama, dan tidak menerawang saat dikenakan.',
+        ],
+        [
+            'question' => 'Bagaimana panduan memilih ukuran yang tepat di Lurus Store?',
+            'answer' => 'Setiap produk dilengkapi dengan panduan size chart detail (lingkar dada, panjang baju, lingkar pinggang, dan panjang lengan). Anda juga dapat membaca panduan pada halaman Size Guide atau berkonsultasi langsung melalui customer service kami untuk rekomendasi ukuran terbaik.',
+        ],
+        [
+            'question' => 'Apakah Lurus Store melayani pengiriman ke seluruh Indonesia?',
+            'answer' => 'Ya, kami melayani pengiriman ke seluruh wilayah Indonesia dengan mitra ekspedisi terpercaya. Setiap pesanan dilengkapi nomor resi pelacakan real-time agar Anda dapat memantau pesanan dengan aman.',
+        ],
+        [
+            'question' => 'Bagaimana kebijakan penukaran jika ukuran tidak pas?',
+            'answer' => 'Kami menyediakan garansi penukaran ukuran dalam waktu 7 hari kerja setelah paket diterima. Ketentuannya adalah produk belum dicuci, label/tag masih terpasang rapi, dan kondisi produk masih sama seperti saat diterima.',
+        ],
+    ];
+
     public function __construct(private readonly HomePageService $homePage) {}
 
     public function __invoke()
@@ -50,6 +70,11 @@ class HomeController extends Controller
                 ])
                 ->values()
                 ->all(),
+
+            // Rendered in the FAQ accordion and mirrored into FAQPage JSON-LD by
+            // both Home.tsx and App\Support\SeoMeta — keep it server-side so the
+            // markup a crawler reads always matches the copy a visitor sees.
+            'faqs' => self::FAQS,
 
             'featuredProducts' => $this->featuredProducts($featuredProductIds),
             'featuredCollectionCards' => $this->featuredCollectionCards(),

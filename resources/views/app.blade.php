@@ -6,31 +6,6 @@
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/logo.svg" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/logo.png">
-
-        {{-- ponytail: static crawl fallback; page-accurate meta needs Inertia SSR --}}
-        <title>{{ config('app.name', 'Lurus Store') }} | Modest Fashion & Muslimah Elegance</title>
-        <meta name="description" content="{{ config('app.name', 'Lurus Store') }} — modest fashion for Muslim women. Blouses, dresses, hijab, scarves, and everyday essentials with elegant, comfortable design.">
-        <link rel="canonical" href="{{ url()->current() }}">
-
-        <!-- Search Engine & Author Directives -->
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-        <meta name="keywords" content="Lurus Store, modest fashion, busana muslim wanita, dress muslim, hijab, scarf, gamis modern, pakaian muslimah elegan, brand lokal muslimah">
-        <meta name="author" content="{{ config('app.name', 'Lurus Store') }}">
-
-        <!-- Open Graph / Facebook / WhatsApp Preview -->
-        <meta property="og:title" content="{{ config('app.name', 'Lurus Store') }} | Modest Fashion & Muslimah Elegance">
-        <meta property="og:description" content="{{ config('app.name', 'Lurus Store') }} — modest fashion for Muslim women. Blouses, dresses, hijab, scarves, and everyday essentials with elegant, comfortable design.">
-        <meta property="og:type" content="website">
-        <meta property="og:url" content="{{ url()->current() }}">
-        <meta property="og:image" content="{{ asset('logo.png') }}">
-        <meta property="og:site_name" content="{{ config('app.name', 'Lurus Store') }}">
-
-        <!-- Twitter Meta Tags -->
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="{{ config('app.name', 'Lurus Store') }} | Modest Fashion & Muslimah Elegance">
-        <meta name="twitter:description" content="{{ config('app.name', 'Lurus Store') }} — modest fashion for Muslim women. Blouses, dresses, hijab, scarves, and everyday essentials with elegant, comfortable design.">
-        <meta name="twitter:image" content="{{ asset('logo.png') }}">
 
         @php
             $googleTagId = config('services.google.tag_id');
@@ -44,7 +19,6 @@
             <meta name="google-site-verification" content="{{ $googleSiteVerification }}">
         @endif
 
-        <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
         @if ($loadGoogleTag)
             <link rel="preconnect" href="https://www.googletagmanager.com">
             <script>
@@ -99,8 +73,34 @@
             </script>
         @endif
 
+        {{--
+            Emits the @font-face rules and preload links for the Manrope /
+            Libre Caslon Text families declared in vite.config.ts. @vite does not
+            include them, so without this the brand typography in app.css
+            (--font-sans / --font-serif) silently falls back to system fonts.
+        --}}
+        @fonts
+
         @vite(['resources/css/app.css', 'resources/js/app.tsx'])
+
+        {{-- Head rendered by the Inertia SSR server, when one is answering. --}}
         <x-inertia::head />
+
+        {{--
+            Otherwise emit the head ourselves. App\Support\SeoMeta mirrors SeoHead.tsx
+            so crawlers and social scrapers — which never run our JS — still receive
+            page-accurate title/description/canonical/OG tags and JSON-LD.
+
+            These sit outside <x-inertia::head> on purpose: component slot contents are
+            compiled as a Blade template, which would turn the "@context"/"@type" keys
+            of the JSON-LD into Blade directives. dispatch() is memoised per request,
+            so asking here does not trigger a second SSR call.
+        --}}
+        @unless (app(\Inertia\Ssr\SsrState::class)->dispatch())
+            @foreach (\App\Support\SeoMeta::tags($page ?? []) as $tag)
+                {!! $tag !!}
+            @endforeach
+        @endunless
     </head>
     <body class="font-sans antialiased">
         <x-inertia::app />

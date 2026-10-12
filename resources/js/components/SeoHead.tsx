@@ -1,13 +1,24 @@
 import { Head, usePage } from '@inertiajs/react';
 import { useMemo } from 'react';
 
+/**
+ * Head tags for a storefront page.
+ *
+ * Every element carries a `head-key`, which Inertia turns into a `data-inertia`
+ * attribute. App\Support\SeoMeta renders the same tags with the same keys into
+ * the initial HTML response, so on hydration these replace the server-rendered
+ * ones in place rather than duplicating them. Keep the two files in sync.
+ */
 export interface SeoHeadProps {
     title: string;
     description?: string;
     keywords?: string;
     author?: string;
     image?: string;
+    /** LCP image to preload. Paired with `preloadImageMobile` for art direction. */
     preloadImage?: string;
+    /** Art-directed source actually painted below 769px, when it differs. */
+    preloadImageMobile?: string;
     canonical?: string;
     type?: string;
     noindex?: boolean;
@@ -18,6 +29,11 @@ const DEFAULT_KEYWORDS =
     'Lurus Store, modest fashion, busana muslim wanita, dress muslim, hijab, scarf, gamis modern, pakaian muslimah elegan, brand lokal muslimah';
 const DEFAULT_AUTHOR = 'Lurus Store';
 
+/** 1200x630 social preview shipped in public/ — mirrors SeoMeta::DEFAULT_IMAGE. */
+const DEFAULT_IMAGE = '/og-image.jpg';
+const DEFAULT_IMAGE_WIDTH = '1200';
+const DEFAULT_IMAGE_HEIGHT = '630';
+
 export function SeoHead({
     title,
     description,
@@ -25,6 +41,7 @@ export function SeoHead({
     author = DEFAULT_AUTHOR,
     image,
     preloadImage,
+    preloadImageMobile,
     canonical,
     type = 'website',
     noindex = false,
@@ -72,19 +89,36 @@ export function SeoHead({
         [noindex],
     );
 
-    const ogImage = useMemo(() => {
-        if (image) {
-            return absoluteUrl(image);
-        }
-        return absoluteUrl('/logo.png');
-    }, [image, appUrl]);
+    const usesDefaultImage = !image;
 
-    const lcpPreload = useMemo(() => {
-        if (preloadImage) {
-            return absoluteUrl(preloadImage);
+    const ogImage = useMemo(
+        () => absoluteUrl(image || DEFAULT_IMAGE),
+        [image, appUrl],
+    );
+
+    /**
+     * Preloading a single source breaks art direction: below 769px the <picture>
+     * paints the mobile file, so preloading the desktop one both misses the LCP
+     * candidate and downloads a second image. Emit one media-scoped link per
+     * source whenever the two differ.
+     */
+    const lcpPreloads = useMemo(() => {
+        const desktop = preloadImage ? absoluteUrl(preloadImage) : undefined;
+        const mobile = preloadImageMobile ? absoluteUrl(preloadImageMobile) : undefined;
+
+        if (!desktop && !mobile) {
+            return [];
         }
-        return undefined;
-    }, [preloadImage, appUrl]);
+
+        if (!desktop || !mobile || desktop === mobile) {
+            return [{ key: 'preload-lcp', href: (desktop ?? mobile)!, media: undefined }];
+        }
+
+        return [
+            { key: 'preload-lcp', href: desktop, media: '(min-width: 769px)' },
+            { key: 'preload-lcp-mobile', href: mobile, media: '(max-width: 768px)' },
+        ];
+    }, [preloadImage, preloadImageMobile, appUrl]);
 
     const jsonLdText = useMemo(() => {
         if (!jsonLd) return '';
@@ -94,15 +128,17 @@ export function SeoHead({
     return (
         <Head>
             <title>{title}</title>
-            {lcpPreload && (
+            {lcpPreloads.map(({ key, href, media }) => (
                 <link
-                    head-key="preload-lcp"
+                    key={key}
+                    head-key={key}
                     rel="preload"
                     as="image"
-                    href={lcpPreload}
+                    href={href}
                     fetchPriority="high"
+                    media={media}
                 />
-            )}
+            ))}
             {metaDescription && (
                 <meta head-key="description" name="description" content={metaDescription} />
             )}
@@ -123,7 +159,23 @@ export function SeoHead({
             <meta head-key="og:type" property="og:type" content={type} />
             <meta head-key="og:url" property="og:url" content={canonicalUrl} />
             {ogImage && <meta head-key="og:image" property="og:image" content={ogImage} />}
+            {ogImage && <meta head-key="og:image:alt" property="og:image:alt" content={title} />}
+            {usesDefaultImage && (
+                <meta
+                    head-key="og:image:width"
+                    property="og:image:width"
+                    content={DEFAULT_IMAGE_WIDTH}
+                />
+            )}
+            {usesDefaultImage && (
+                <meta
+                    head-key="og:image:height"
+                    property="og:image:height"
+                    content={DEFAULT_IMAGE_HEIGHT}
+                />
+            )}
             <meta head-key="og:site_name" property="og:site_name" content="Lurus Store" />
+            <meta head-key="og:locale" property="og:locale" content="id_ID" />
 
             {/* Twitter Card */}
             <meta head-key="twitter:card" name="twitter:card" content="summary_large_image" />

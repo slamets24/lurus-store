@@ -30,3 +30,9 @@ Thumbs.db
 .vercel
 .env*
 .agents
+
+# Laravel IDE extension helper
+/storage/framework/lsp-*.php
+
+# SEO audit: raw data & screenshots (reports in docs/seo-audit are tracked)
+/docs

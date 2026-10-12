@@ -26,40 +26,28 @@ import type {
     Testimonial,
 } from '@/types';
 
+interface Faq {
+    question: string;
+    answer: string;
+}
+
 interface HomeProps {
     categories: Category[];
     announcementBar: AnnouncementBar;
     homeSections: HomeSectionType[];
     heroBanners: HeroBanner[];
+    faqs: Faq[];
     featuredProducts: ProductCardType[];
     featuredCollectionCards: FeaturedCollectionCard[];
     testimonials: Testimonial[];
 }
-
-const FAQS = [
-    {
-        question: 'Bahan apa saja yang digunakan pada busana muslimah Lurus Store?',
-        answer: 'Lurus Store mengutamakan kenyamanan dengan material pilihan berkualitas tinggi seperti katun premium alami, serat linen breathable, rayon adem, dan silk blend. Seluruh kain dipilih secara cermat agar sejuk, lembut di kulit, tahan lama, dan tidak menerawang saat dikenakan.',
-    },
-    {
-        question: 'Bagaimana panduan memilih ukuran yang tepat di Lurus Store?',
-        answer: 'Setiap produk dilengkapi dengan panduan size chart detail (lingkar dada, panjang baju, lingkar pinggang, dan panjang lengan). Anda juga dapat membaca panduan pada halaman Size Guide atau berkonsultasi langsung melalui customer service kami untuk rekomendasi ukuran terbaik.',
-    },
-    {
-        question: 'Apakah Lurus Store melayani pengiriman ke seluruh Indonesia?',
-        answer: 'Ya, kami melayani pengiriman ke seluruh wilayah Indonesia dengan mitra ekspedisi terpercaya. Setiap pesanan dilengkapi nomor resi pelacakan real-time agar Anda dapat memantau pesanan dengan aman.',
-    },
-    {
-        question: 'Bagaimana kebijakan penukaran jika ukuran tidak pas?',
-        answer: 'Kami menyediakan garansi penukaran ukuran dalam waktu 7 hari kerja setelah paket diterima. Ketentuannya adalah produk belum dicuci, label/tag masih terpasang rapi, dan kondisi produk masih sama seperti saat diterima.',
-    },
-];
 
 export default function Home({
     categories,
     announcementBar,
     homeSections,
     heroBanners,
+    faqs,
     featuredProducts,
     featuredCollectionCards,
     testimonials,
@@ -89,12 +77,12 @@ export default function Home({
             '@type': 'Organization',
             name: 'Lurus Store',
             url: baseUrl || undefined,
-            logo: baseUrl ? `${baseUrl}/logo.png` : undefined,
+            logo: baseUrl ? `${baseUrl}/logo.svg` : undefined,
         },
         {
             '@context': 'https://schema.org',
             '@type': 'FAQPage',
-            mainEntity: FAQS.map((faq) => ({
+            mainEntity: faqs.map((faq) => ({
                 '@type': 'Question',
                 name: faq.question,
                 acceptedAnswer: {
@@ -112,6 +100,7 @@ export default function Home({
                 description="Belanja koleksi busana muslimah elegan, modern, dan nyaman di Lurus Store. Tersedia dress muslim, hijab, blouse, skirt, dan daily wear muslimah berkualitas."
                 image={hero?.desktopImage ?? hero?.mobileImage ?? undefined}
                 preloadImage={hero?.desktopImage ?? hero?.mobileImage ?? undefined}
+                preloadImageMobile={hero?.mobileImage ?? undefined}
                 canonical="/"
                 jsonLd={homeJsonLd}
             />
@@ -126,6 +115,9 @@ export default function Home({
                                 src={hero.desktopImage ?? hero.mobileImage ?? ''}
                                 alt={hero.title ? `${hero.title} - Lurus Store Modest Fashion` : 'Lurus Store Hero Banner'}
                                 className="aspect-[4/5] w-full object-cover sm:aspect-[16/9] md:aspect-[21/9]"
+                                loading="eager"
+                                fetchPriority="high"
+                                decoding="async"
                             />
                         </picture>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
@@ -159,6 +151,9 @@ export default function Home({
                             src="/images/productplaceholder/hero.jpg"
                             alt="Lurus Store - Busana Muslimah Elegan & Modest Wear"
                             className="aspect-[4/5] w-full object-cover sm:aspect-[16/9] md:aspect-[21/9]"
+                            loading="eager"
+                            fetchPriority="high"
+                            decoding="async"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                         <div className="absolute inset-0 flex items-end justify-start p-6 md:items-center md:justify-center md:p-12">
@@ -420,7 +415,7 @@ export default function Home({
                     </Reveal>
 
                     <div className="mx-auto mt-8 max-w-3xl space-y-4">
-                        {FAQS.map((faq, index) => (
+                        {faqs.map((faq, index) => (
                             <Reveal key={faq.question} delayMs={index * 50}>
                                 <details className="group border border-outline-variant bg-surface-container-lowest p-5 transition-all hover:border-warm-brown/30 [&_summary::-webkit-details-marker]:hidden">
                                     <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left">

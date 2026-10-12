@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Pagination } from '@/components/Pagination';
 import { ProductCard } from '@/components/ProductCard';
 import { SeoHead } from '@/components/SeoHead';
@@ -12,9 +12,11 @@ interface ProductsProps {
 }
 
 export default function Products({ products, categories }: ProductsProps) {
-    const activeCategory = typeof window !== 'undefined'
-        ? new URLSearchParams(window.location.search).get('category')
-        : null;
+    // Read the filter from the Inertia page URL rather than window.location: it is
+    // available on the very first render (and under SSR), so the canonical link and
+    // title below are correct in the HTML a crawler receives.
+    const pageUrl = usePage().url;
+    const activeCategory = new URLSearchParams(pageUrl.split('?')[1] ?? '').get('category');
     const currentCategory = categories.find((c) => c.slug === activeCategory);
 
     const title = currentCategory
@@ -97,8 +99,8 @@ export default function Products({ products, categories }: ProductsProps) {
                 {products.data.length > 0 ? (
                     <>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
-                            {products.data.map((product) => (
-                                <ProductCard key={product.id} product={product} />
+                            {products.data.map((product, index) => (
+                                <ProductCard key={product.id} product={product} priority={index < 4} />
                             ))}
                         </div>
                         <Pagination pagination={products} className="mt-12" />

@@ -71,6 +71,8 @@ export interface ProductCard {
     effective_price?: number;
     image?: string | null;
     hover_image?: string | null;
+    /** Stored variants of each shot; `thumb_path` feeds the card's srcset. */
+    images?: Array<{ image_path?: string; thumb_path?: string | null }>;
     is_new?: boolean;
     stock?: number;
     is_preorder?: boolean;

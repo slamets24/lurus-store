@@ -27,8 +27,8 @@
       "dest": "/logo.svg"
     },
     {
-      "src": "/robots.txt",
-      "dest": "/robots.txt"
+      "src": "/og-image.jpg",
+      "dest": "/og-image.jpg"
     },
     {
       "src": "/(.*)",

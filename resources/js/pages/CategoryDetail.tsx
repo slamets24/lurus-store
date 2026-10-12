@@ -8,7 +8,7 @@ import type { Category, Paginated, ProductCard as ProductCardType } from '@/type
 
 interface CategoryDetailProps {
     category: Category;
-    products: Paginated<ProductCardType & { images?: Array<{ image_path: string }> }>;
+    products: Paginated<ProductCardType & { images?: Array<{ image_path: string; thumb_path?: string | null }> }>;
 }
 
 function toCard(product: CategoryDetailProps['products']['data'][0]): ProductCardType {
@@ -20,6 +20,7 @@ function toCard(product: CategoryDetailProps['products']['data'][0]): ProductCar
         discount_percent: product.discount_percent,
         effective_price: product.effective_price,
         image: product.image ?? product.images?.[0]?.image_path,
+        images: product.images,
         hover_image: product.hover_image ?? product.images?.[1]?.image_path,
         is_new: product.is_new,
         stock: product.stock,
@@ -92,8 +93,8 @@ export default function CategoryDetail({ category, products }: CategoryDetailPro
                 {products.data.length > 0 ? (
                     <>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
-                            {products.data.map((product) => (
-                                <ProductCard key={product.id} product={toCard(product)} />
+                            {products.data.map((product, index) => (
+                                <ProductCard key={product.id} product={toCard(product)} priority={index < 4} />
                             ))}
                         </div>
                         <Pagination pagination={products} className="mt-12" />

@@ -49,6 +49,13 @@ class SitemapTest extends TestCase
         $response->assertSee('Disallow: /checkout', false);
     }
 
+    public function test_no_static_robots_file_shadows_the_route(): void
+    {
+        // A public/robots.txt is served by the web server before Laravel ever runs,
+        // which silently discarded every rule above — including the Sitemap line.
+        $this->assertFileDoesNotExist(public_path('robots.txt'));
+    }
+
     public function test_llms_txt_describes_public_store(): void
     {
         $response = $this->get(route('llms'));

@@ -11,11 +11,11 @@ import type { AuthProps, ProductCard as ProductCardType, ProductDetailData } fro
 
 interface ProductDetailProps {
     product: ProductDetailData;
-    recommendedProducts: Array<ProductCardType & { images?: Array<{ image_path: string }> }>;
-    latestProducts: Array<ProductCardType & { images?: Array<{ image_path: string }> }>;
+    recommendedProducts: Array<ProductCardType & { images?: Array<{ image_path: string; thumb_path?: string | null }> }>;
+    latestProducts: Array<ProductCardType & { images?: Array<{ image_path: string; thumb_path?: string | null }> }>;
 }
 
-function toCard(product: ProductCardType & { images?: Array<{ image_path: string }> }): ProductCardType {
+function toCard(product: ProductCardType & { images?: Array<{ image_path: string; thumb_path?: string | null }> }): ProductCardType {
     return {
         id: product.id,
         name: product.name,
@@ -24,6 +24,7 @@ function toCard(product: ProductCardType & { images?: Array<{ image_path: string
         discount_percent: product.discount_percent,
         effective_price: product.effective_price,
         image: product.image ?? product.images?.[0]?.image_path,
+        images: product.images,
         hover_image: product.hover_image ?? product.images?.[1]?.image_path,
         is_new: product.is_new,
         stock: product.stock,

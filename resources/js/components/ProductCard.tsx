@@ -5,14 +5,46 @@ import { Badge } from '@/components/ui/badge';
 import { cn, formatCurrency, storageUrl } from '@/lib/utils';
 import type { AuthProps, ProductCard as ProductCardType } from '@/types';
 
+/**
+ * Every card sits in a 2 / 3 / 4-column grid, so its rendered width tracks the
+ * viewport rather than a fixed pixel size.
+ */
+const CARD_SIZES = '(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw';
+
+/**
+ * Intrinsic widths of the two stored variants for a 3:4 portrait shot — thumbs
+ * are capped at a 400px edge (WebpImage::THUMB_EDGE) and originals at 2000px
+ * (WebpImage::MAX_EDGE). Under-claiming is safe: the browser then errs toward
+ * the sharper file rather than upscaling a small one.
+ */
+const THUMB_WIDTH = 300;
+const FULL_WIDTH = 1500;
+
+function buildSrcSet(thumbPath?: string | null, fullPath?: string | null): string | undefined {
+    if (!thumbPath || !fullPath) {
+        return undefined;
+    }
+
+    const thumb = storageUrl(thumbPath);
+    const full = storageUrl(fullPath);
+
+    // thumbUrl() falls back to the original when no thumb could be generated.
+    return thumb === full ? undefined : `${thumb} ${THUMB_WIDTH}w, ${full} ${FULL_WIDTH}w`;
+}
+
 interface ProductCardProps {
     product: ProductCardType & {
         images?: Array<{ image_path?: string; thumb_path?: string | null }>;
     };
     className?: string;
+    /**
+     * Set on cards above the fold. Lazy-loading the LCP candidate delays it by a
+     * full network round trip, so the first row of a grid must opt out.
+     */
+    priority?: boolean;
 }
 
-export function ProductCard({ product, className }: ProductCardProps) {
+export function ProductCard({ product, className, priority = false }: ProductCardProps) {
     const { auth, wishlistMap } = usePage().props as unknown as {
         auth: AuthProps;
         wishlistMap?: Record<number, number>;
@@ -24,6 +56,8 @@ export function ProductCard({ product, className }: ProductCardProps) {
     const isWishlisted = Boolean(wishlistMap?.[product.id]);
     const mainImage = product.image ?? product.images?.[0]?.image_path;
     const hoverImage = product.hover_image ?? product.images?.[1]?.image_path;
+    const mainSrcSet = buildSrcSet(product.images?.[0]?.thumb_path, mainImage);
+    const hoverSrcSet = buildSrcSet(product.images?.[1]?.thumb_path, hoverImage);
 
     const toggleWishlist = (e: MouseEvent) => {
         e.preventDefault();
@@ -47,8 +81,13 @@ export function ProductCard({ product, className }: ProductCardProps) {
             <div className="relative mb-3 aspect-[3/4] overflow-hidden bg-surface-container">
                 <img
                     src={storageUrl(mainImage)}
+                    srcSet={mainSrcSet}
+                    sizes={mainSrcSet ? CARD_SIZES : undefined}
                     alt={product.name}
+                    width={600}
+                    height={800}
                     onError={(e) => {
+                        e.currentTarget.srcset = '';
                         e.currentTarget.src = '/images/placeholder-product.svg';
                     }}
                     className={cn(
@@ -56,18 +95,25 @@ export function ProductCard({ product, className }: ProductCardProps) {
                         hoverImage && 'group-hover:opacity-0',
                         !hoverImage && 'transition-transform duration-500 group-hover:scale-105',
                     )}
-                    loading="lazy"
+                    loading={priority ? 'eager' : 'lazy'}
+                    fetchPriority={priority ? 'high' : 'auto'}
+                    decoding="async"
                 />
                 {hoverImage && (
                     <img
                         src={storageUrl(hoverImage)}
+                        srcSet={hoverSrcSet}
+                        sizes={hoverSrcSet ? CARD_SIZES : undefined}
                         alt=""
                         aria-hidden
+                        width={600}
+                        height={800}
                         onError={(e) => {
                             e.currentTarget.style.display = 'none';
                         }}
                         className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                         loading="lazy"
+                        decoding="async"
                     />
                 )}
 

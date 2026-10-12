@@ -8,6 +8,10 @@ import AdminLayout from '@/layouts/AdminLayout';
 import { formatPrice } from '@/lib/format';
 import { cn, storageUrl } from '@/lib/utils';
 
+// Keep in sync with the `max:4096` rule on hero images in AdminHomepageController.
+const HERO_IMAGE_MAX_MB = 4;
+const HERO_IMAGE_MAX_BYTES = HERO_IMAGE_MAX_MB * 1024 * 1024;
+
 interface HeroBanner {
     id: string;
     desktop_image?: string | null;
@@ -64,6 +68,7 @@ interface HomepageIndexProps {
 
 export default function HomepageIndex({ settings, products, categories }: HomepageIndexProps) {
     const [editingHeroId, setEditingHeroId] = useState<string | null>(null);
+    const [heroSizeError, setHeroSizeError] = useState<string | null>(null);
 
     const heroForm = useForm({
         section: 'hero',
@@ -116,6 +121,24 @@ export default function HomepageIndex({ settings, products, categories }: Homepa
     });
 
     const submitHero = (action: 'save' | 'delete', heroId?: string, link?: string) => {
+        if (action === 'save') {
+            // Catch oversized files here: the raw request would otherwise be rejected by the
+            // web server before Laravel runs, leaving the admin with a bare 413 page.
+            const candidates: Array<[string, File | null]> = [
+                ['Desktop image', heroForm.data.hero_desktop_image],
+                ['Mobile image', heroForm.data.hero_mobile_image],
+            ];
+            const oversized = candidates.filter(([, file]) => file && file.size > HERO_IMAGE_MAX_BYTES);
+
+            if (oversized.length > 0) {
+                const names = oversized.map(([label]) => label).join(' and ');
+                setHeroSizeError(`${names} exceeds ${HERO_IMAGE_MAX_MB} MB. Compress the file and try again.`);
+
+                return;
+            }
+        }
+
+        setHeroSizeError(null);
         heroForm.setData({
             section: 'hero',
             hero_action: action,
@@ -284,14 +307,21 @@ export default function HomepageIndex({ settings, products, categories }: Homepa
                                     submitHero('save', editingHeroId === 'new' ? undefined : editingHeroId);
                                 }}
                             >
-                                <Input
-                                    placeholder="Banner link (optional)"
-                                    value={heroForm.data.hero_link}
-                                    onChange={(event) => heroForm.setData('hero_link', event.target.value)}
-                                />
+                                <div>
+                                    <Input
+                                        placeholder="Banner link (optional)"
+                                        value={heroForm.data.hero_link}
+                                        onChange={(event) => heroForm.setData('hero_link', event.target.value)}
+                                    />
+                                    {heroForm.errors.hero_link ? (
+                                        <p className="mt-1 text-xs text-error">{heroForm.errors.hero_link}</p>
+                                    ) : null}
+                                </div>
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     <label className="text-sm">
-                                        <span className="mb-1 block text-on-surface-variant">Desktop image (1920×800)</span>
+                                        <span className="mb-1 block text-on-surface-variant">
+                                            Desktop image (1920×800, max {HERO_IMAGE_MAX_MB} MB)
+                                        </span>
                                         <Input
                                             type="file"
                                             accept="image/*"
@@ -299,9 +329,14 @@ export default function HomepageIndex({ settings, products, categories }: Homepa
                                                 heroForm.setData('hero_desktop_image', event.target.files?.[0] ?? null)
                                             }
                                         />
+                                        {heroForm.errors.hero_desktop_image ? (
+                                            <p className="mt-1 text-xs text-error">{heroForm.errors.hero_desktop_image}</p>
+                                        ) : null}
                                     </label>
                                     <label className="text-sm">
-                                        <span className="mb-1 block text-on-surface-variant">Mobile image (1619×971)</span>
+                                        <span className="mb-1 block text-on-surface-variant">
+                                            Mobile image (1619×971, max {HERO_IMAGE_MAX_MB} MB)
+                                        </span>
                                         <Input
                                             type="file"
                                             accept="image/*"
@@ -309,8 +344,12 @@ export default function HomepageIndex({ settings, products, categories }: Homepa
                                                 heroForm.setData('hero_mobile_image', event.target.files?.[0] ?? null)
                                             }
                                         />
+                                        {heroForm.errors.hero_mobile_image ? (
+                                            <p className="mt-1 text-xs text-error">{heroForm.errors.hero_mobile_image}</p>
+                                        ) : null}
                                     </label>
                                 </div>
+                                {heroSizeError ? <p className="text-xs text-error">{heroSizeError}</p> : null}
                                 <div className="flex gap-2">
                                     <Button type="submit" variant="accent" disabled={heroForm.processing}>
                                         Save Banner

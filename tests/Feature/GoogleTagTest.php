@@ -24,12 +24,14 @@ class GoogleTagTest extends TestCase
 
     public function test_storefront_html_includes_crawlable_title_and_description(): void
     {
+        // Tags now come from App\Support\SeoMeta and carry the data-inertia keys that
+        // let Inertia's head manager adopt them on hydration instead of duplicating.
         $this->get('/')
             ->assertOk()
-            ->assertSee('<title>', false)
+            ->assertSee('<title data-inertia="">', false)
             ->assertSee('Modest Fashion', false)
             ->assertSee('name="description"', false)
-            ->assertSee('modest fashion for Muslim women', false)
+            ->assertSee('Belanja koleksi busana muslimah elegan', false)
             ->assertSee('rel="canonical"', false)
             ->assertSee('name="robots"', false)
             ->assertSee('max-image-preview:large', false)
