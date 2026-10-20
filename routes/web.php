@@ -118,6 +118,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/homepage', [AdminHomepageController::class, 'index'])->name('homepage.index');
     Route::post('/homepage', [AdminHomepageController::class, 'update'])->name('homepage.update');
+    Route::put('/homepage/seo', [AdminHomepageController::class, 'updateSeo'])->name('homepage.seo');
+    Route::post('/homepage/sections', [AdminHomepageController::class, 'storeSection'])->name('homepage.sections.store');
+    Route::put('/homepage/sections/{homeSection}', [AdminHomepageController::class, 'updateSection'])->name('homepage.sections.update');
+    Route::delete('/homepage/sections/{homeSection}', [AdminHomepageController::class, 'destroySection'])->middleware('super-admin')->name('homepage.sections.destroy');
+    Route::post('/homepage/sections/{homeSection}/items', [AdminHomepageController::class, 'storeItem'])->name('homepage.sections.items.store');
+    Route::put('/homepage/items/{item}', [AdminHomepageController::class, 'updateItem'])->name('homepage.items.update');
+    Route::delete('/homepage/items/{item}', [AdminHomepageController::class, 'destroyItem'])->middleware('super-admin')->name('homepage.items.destroy');
     Route::get('/settings', [AdminStoreSettingsController::class, 'index'])->name('settings.index');
     Route::post('/settings', [AdminStoreSettingsController::class, 'update'])->name('settings.update');
 

@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\StoreContentSetting;
 use App\Models\Testimonial;
 use App\Services\HomePageService;
+use App\Support\HomeSections;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -37,6 +38,14 @@ class HomeController extends Controller
 
     public function __invoke()
     {
+        $pageSections = HomeSections::forStorefront();
+        $messages = HomeSections::announcements();
+        $faqSection = collect($pageSections)->firstWhere('type', 'faq');
+        $faqs = is_array($faqSection['faqs'] ?? null) && $faqSection['faqs'] !== []
+            ? $faqSection['faqs']
+            : self::FAQS;
+        $seo = StoreContentSetting::value('home_seo', []);
+        $seo = is_array($seo) ? $seo : [];
         $featuredProductIds = StoreContentSetting::value('featured_product_ids', []);
         $categories = Category::withCount('products')
             ->with(['products' => fn ($q) => $q->where('is_active', true)->latest()->limit(1)->with('images')])
@@ -55,8 +64,20 @@ class HomeController extends Controller
 
         return Inertia::render('Home', [
             'categories' => $categories,
-            'announcementBar' => $this->homePage->announcementBar(),
+            'announcementBar' => $messages !== []
+                ? [
+                    'enabled' => true,
+                    'text' => implode(' · ', $messages),
+                    'link' => null,
+                ]
+                : $this->homePage->announcementBar(),
             'homeSections' => $this->homePage->sections(),
+            'pageSections' => $pageSections,
+            'homeSeo' => [
+                'title' => (string) ($seo['title'] ?? ''),
+                'description' => (string) ($seo['description'] ?? ''),
+                'keywords' => (string) ($seo['keywords'] ?? ''),
+            ],
             'heroBanners' => collect(StoreContentSetting::heroBanners())
                 ->filter(fn (array $banner) => ! empty($banner['desktop_image']) || ! empty($banner['mobile_image']))
                 ->map(fn (array $banner) => [
@@ -74,7 +95,7 @@ class HomeController extends Controller
             // Rendered in the FAQ accordion and mirrored into FAQPage JSON-LD by
             // both Home.tsx and App\Support\SeoMeta — keep it server-side so the
             // markup a crawler reads always matches the copy a visitor sees.
-            'faqs' => self::FAQS,
+            'faqs' => $faqs,
 
             'featuredProducts' => $this->featuredProducts($featuredProductIds),
             'featuredCollectionCards' => $this->featuredCollectionCards(),

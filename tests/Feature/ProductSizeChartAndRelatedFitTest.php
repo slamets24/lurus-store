@@ -115,6 +115,47 @@ class ProductSizeChartAndRelatedFitTest extends TestCase
                 ->where('product.size_chart_url', '/storage/categories/size-chart.webp'));
     }
 
+    public function test_admin_saves_product_size_guide_cards(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $category = Category::factory()->create(['name' => 'Kaos']);
+
+        $this->actingAs($admin)->post(route('admin.products.store'), [
+            ...$this->productPayload($category, 'Humanoid', 'HUM-GUIDE'),
+            'size_guide_order' => ['new:0', 'new:1'],
+            'new_size_guides' => [
+                UploadedFile::fake()->image('dada.jpg', 600, 800),
+                UploadedFile::fake()->image('panjang.png', 600, 800),
+            ],
+        ])->assertRedirect(route('admin.products.index'));
+
+        $product = Product::where('sku', 'HUM-GUIDE')->firstOrFail();
+        $this->assertCount(2, $product->size_guide_images);
+        $this->assertStringStartsWith('products/size-guides/', $product->size_guide_images[0]);
+        $this->assertStringEndsWith('.webp', $product->size_guide_images[1]);
+        Storage::disk('public')->assertExists($product->size_guide_images[0]);
+        Storage::disk('public')->assertExists($product->size_guide_images[1]);
+
+        $removed = $product->size_guide_images[0];
+        $kept = $product->size_guide_images[1];
+
+        $this->actingAs($admin)->put(route('admin.products.update', $product), [
+            ...$this->productPayload($category, 'Humanoid', 'HUM-GUIDE'),
+            'size_guide_order' => ['existing:1'],
+        ])->assertRedirect(route('admin.products.index'));
+
+        $product->refresh();
+        $this->assertSame([$kept], $product->size_guide_images);
+        Storage::disk('public')->assertMissing($removed);
+
+        $this->get(route('products.show', $product->slug))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('ProductDetail')
+                ->where('product.size_guide_images', [Storage::url($kept)]));
+    }
+
     private function productPayload(Category $category, string $name, string $sku): array
     {
         return [

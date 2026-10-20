@@ -12,13 +12,17 @@ class CartItem extends Model
         'session_id',
         'product_id',
         'product_variant_id',
+        'product_offer_id',
         'quantity',
         'size',
         'color',
+        'selections',
+        'selection_key',
     ];
 
     protected $casts = [
         'quantity' => 'integer',
+        'selections' => 'array',
     ];
 
     public function user(): BelongsTo
@@ -34,5 +38,10 @@ class CartItem extends Model
     public function variant(): BelongsTo
     {
         return $this->belongsTo(ProductVariant::class, 'product_variant_id');
+    }
+
+    public function offer(): BelongsTo
+    {
+        return $this->belongsTo(ProductOffer::class, 'product_offer_id');
     }
 }

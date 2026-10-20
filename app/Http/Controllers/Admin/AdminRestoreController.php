@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Collection;
+use App\Models\HomeSection;
+use App\Models\HomeSectionItem;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Promo;
@@ -26,6 +28,8 @@ class AdminRestoreController extends Controller
         'promos' => Promo::class,
         'testimonials' => Testimonial::class,
         'orders' => Order::class,
+        'beranda' => HomeSection::class,
+        'isi-beranda' => HomeSectionItem::class,
     ];
 
     public function index(Request $request): Response

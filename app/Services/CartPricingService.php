@@ -10,9 +10,40 @@ class CartPricingService
 {
     public function effectiveUnitPrice(Product $product): float
     {
-        $percent = min(100.0, max(0.0, (float) ($product->discount_percent ?? 0)));
+        return $this->priceFor($product);
+    }
 
-        return round((float) $product->price * (1 - ($percent / 100)), 2);
+    public function priceFor(Product $product, ?float $listPrice = null): float
+    {
+        $percent = min(100.0, max(0.0, (float) ($product->discount_percent ?? 0)));
+        $base = $listPrice ?? (float) $product->price;
+
+        return round($base * (1 - ($percent / 100)), 2);
+    }
+
+    /**
+     * @param  Collection<int, object>  $cartItems
+     * @return array{subtotal: float, discount_amount: float, payable: float, unit_prices: array<int, float>}
+     */
+    public function quoteCart(Collection $cartItems): array
+    {
+        return $this->quote($cartItems->map(function ($item) {
+            $listPrice = null;
+            $pricedPieces = collect($item->selections ?? [])
+                ->filter(fn ($row) => is_array($row) && array_key_exists('price', $row) && $row['price'] !== null);
+            if ($pricedPieces->isNotEmpty()) {
+                $listPrice = (float) $pricedPieces->sum(fn ($row) => (float) $row['price']);
+            } elseif ($item->product_offer_id) {
+                $item->loadMissing('offer');
+                $listPrice = $item->offer ? (float) $item->offer->price : null;
+            }
+
+            return (object) [
+                'product' => $item->product,
+                'quantity' => (int) $item->quantity,
+                'list_price' => $listPrice,
+            ];
+        }));
     }
 
     /**
@@ -25,7 +56,8 @@ class CartPricingService
         $subtotal = 0.0;
 
         foreach ($rows as $index => $row) {
-            $unit = $this->effectiveUnitPrice($row->product);
+            $listPrice = isset($row->list_price) ? $row->list_price : null;
+            $unit = $this->priceFor($row->product, $listPrice !== null ? (float) $listPrice : null);
             $unitPrices[$index] = $unit;
             $subtotal += $unit * (int) $row->quantity;
         }

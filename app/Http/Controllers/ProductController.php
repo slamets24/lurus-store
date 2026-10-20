@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class ProductController extends Controller
@@ -68,7 +70,7 @@ class ProductController extends Controller
 
     public function show($slug)
     {
-        $product = Product::with(['category', 'images', 'publishedVariants', 'relatedFitProduct'])
+        $product = Product::with(['category', 'images', 'publishedVariants', 'relatedFitProduct', 'offers.components'])
             ->where('slug', $slug)
             ->where('is_active', true)
             ->firstOrFail();
@@ -142,6 +144,10 @@ class ProductController extends Controller
                 'tokopedia_url' => $product->tokopedia_url,
                 'tiktok_url' => $product->tiktok_url,
                 'size_chart_url' => $product->category?->sizeChartUrl(),
+                'size_guide_images' => collect($product->size_guide_images ?? [])
+                    ->filter(fn ($path) => is_string($path) && $path !== '')
+                    ->map(fn (string $path) => Str::startsWith($path, ['http://', 'https://', '/']) ? $path : Storage::url($path))
+                    ->values(),
                 'related_fit' => $relatedFit
                     ? [
                         'id' => $relatedFit->id,
@@ -159,9 +165,20 @@ class ProductController extends Controller
                     'color' => $image->color,
                 ])->values(),
                 'published_variants' => $product->publishedVariants->map(fn ($variant) => [
+                    'component_id' => $variant->component_id,
                     'color' => $variant->color,
                     'size' => $variant->size,
                     'stock' => $variant->stock,
+                    'price' => $variant->price !== null ? (float) $variant->price : null,
+                ])->values(),
+                'offers' => $product->offers->map(fn ($offer) => [
+                    'id' => $offer->id,
+                    'name' => $offer->name,
+                    'price' => (float) $offer->price,
+                    'components' => $offer->components->map(fn ($component) => [
+                        'id' => $component->id,
+                        'name' => $component->name,
+                    ])->values(),
                 ])->values(),
             ],
             'recommendedProducts' => $recommendedProducts,

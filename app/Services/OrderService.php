@@ -9,10 +9,8 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\StoreContentSetting;
-use App\Notifications\StockConfirmationNeededNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -31,7 +29,7 @@ class OrderService
 
         return DB::transaction(function () use ($request, $data) {
             $cartItems = $this->carts->query($request)
-                ->with(['product', 'variant'])
+                ->with(['product', 'variant', 'offer'])
                 ->lockForUpdate()
                 ->get();
 
@@ -39,29 +37,18 @@ class OrderService
                 throw ValidationException::withMessages(['cart' => 'Your cart is empty.']);
             }
 
+            $this->inventory->reserve($cartItems);
+
             $locked = $cartItems->map(function ($cartItem) {
                 $product = Product::lockForUpdate()->findOrFail($cartItem->product_id);
                 $variant = $cartItem->product_variant_id
                     ? ProductVariant::lockForUpdate()->find($cartItem->product_variant_id)
                     : null;
-                $available = max(0, ($variant?->stock ?? $product->stock) - ($variant?->stock_reserved ?? $product->stock_reserved ?? 0));
-
-                if ($available < $cartItem->quantity) {
-                    throw ValidationException::withMessages([
-                        'cart' => "Insufficient stock for {$product->name}.",
-                    ]);
-                }
 
                 return compact('cartItem', 'product', 'variant');
             });
 
-            $this->inventory->reserve($locked);
-
-            $pricingRows = $locked->values()->map(fn ($row) => (object) [
-                'product' => $row['product'],
-                'quantity' => (int) $row['cartItem']->quantity,
-            ]);
-            $quote = $this->pricing->quote($pricingRows);
+            $quote = $this->pricing->quoteCart($locked->map(fn ($row) => $row['cartItem']));
             $subtotal = $quote['subtotal'];
             $discountAmount = $quote['discount_amount'];
             $payable = $quote['payable'];
@@ -128,16 +115,20 @@ class OrderService
                 $product = $row['product'];
                 $variant = $row['variant'];
 
+                $selectionSkus = collect($cartItem->selections ?? [])->pluck('sku')->filter()->implode(', ');
+
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $product->id,
                     'product_variant_id' => $variant?->id,
-                    'product_name' => $product->name,
-                    'sku' => $variant?->sku ?? $product->sku,
+                    'product_offer_id' => $cartItem->product_offer_id,
+                    'product_name' => $cartItem->offer ? $product->name.' — '.$cartItem->offer->name : $product->name,
+                    'sku' => $selectionSkus !== '' ? $selectionSkus : ($variant?->sku ?? $product->sku),
                     'price' => $quote['unit_prices'][$index],
                     'quantity' => $cartItem->quantity,
-                    'size' => $variant?->size ?? $cartItem->size,
-                    'color' => $variant?->color ?? $cartItem->color,
+                    'size' => $cartItem->size ?? $variant?->size,
+                    'color' => $cartItem->color ?? $variant?->color,
+                    'selections' => $cartItem->selections,
                     'is_preorder' => (bool) $product->is_preorder,
                     'preorder_estimate' => $product->preorderEstimateLabel(),
                 ]);
@@ -191,19 +182,7 @@ class OrderService
             // Skip owner email when admin just approved a transfer proof (they already know).
             $notifyAdminPaid = $locked->payment_status !== Order::PAYMENT_PENDING_VERIFICATION;
 
-            $shortages = [];
-
-            foreach ($locked->items as $item) {
-                $product = Product::whereKey($item->product_id)->lockForUpdate()->first();
-                $variant = $item->product_variant_id
-                    ? ProductVariant::whereKey($item->product_variant_id)->lockForUpdate()->first()
-                    : null;
-                $available = (int) ($variant?->stock ?? $product?->stock ?? 0);
-
-                if ($available < $item->quantity) {
-                    $shortages[] = $item->product_name;
-                }
-            }
+            $shortages = $this->inventory->shortages($locked->items);
 
             $finalStatus = match (true) {
                 $shortages !== [] => Order::STATUS_STOCK_CONFIRMATION,

@@ -15,6 +15,8 @@ interface ProductDetailProps {
     latestProducts: Array<ProductCardType & { images?: Array<{ image_path: string; thumb_path?: string | null }> }>;
 }
 
+const DESCRIPTION_COLLAPSED_HEIGHT = 160;
+
 function toCard(product: ProductCardType & { images?: Array<{ image_path: string; thumb_path?: string | null }> }): ProductCardType {
     return {
         id: product.id,
@@ -48,23 +50,112 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
     });
     const [selectedSize, setSelectedSize] = useState('');
     const [selectedColor, setSelectedColor] = useState(product.colors?.[0] ?? '');
+    const offers = product.offers ?? [];
+    const hasOffers = offers.length > 0;
+    const pieceMode = hasOffers && offers.every((offer) => offer.components.length === 1);
+    const [selectedOfferId, setSelectedOfferId] = useState<number | null>(offers[0]?.id ?? null);
+    const [pieceSizes, setPieceSizes] = useState<Record<number, string>>({});
+    const selectedOffer = offers.find((offer) => offer.id === selectedOfferId) ?? null;
     const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+    const [guideIndex, setGuideIndex] = useState(0);
+    const sizeGuides = product.size_guide_images?.length
+        ? product.size_guide_images
+        : product.size_chart_url
+            ? [product.size_chart_url]
+            : [];
     const [zoomOrigin, setZoomOrigin] = useState('50% 50%');
     const [zoomed, setZoomed] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [descExpanded, setDescExpanded] = useState(false);
+    const [descOverflows, setDescOverflows] = useState(false);
+    const descRef = useRef<HTMLDivElement>(null);
     const galleryRef = useRef<HTMLDivElement>(null);
     const isInteractingRef = useRef(false);
     const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const isProgrammaticScroll = useRef(false);
 
-    const needsSize = (product.sizes?.length ?? 0) > 0;
-    const sizeMissing = needsSize && selectedSize === '';
+    const needsSize = !hasOffers && (product.sizes?.length ?? 0) > 0;
+    const offerColors = useMemo(() => {
+        if (pieceMode) {
+            return [
+                ...new Set(
+                    product.published_variants
+                        .map((variant) => variant.color)
+                        .filter((color): color is string => Boolean(color)),
+                ),
+            ];
+        }
+
+        if (!selectedOffer) {
+            return [] as string[];
+        }
+
+        let shared: string[] | null = null;
+        for (const component of selectedOffer.components) {
+            const colors = [
+                ...new Set(
+                    product.published_variants
+                        .filter((variant) => variant.component_id === component.id && variant.color)
+                        .map((variant) => variant.color as string),
+                ),
+            ];
+            shared = shared === null ? colors : shared.filter((color) => colors.includes(color));
+        }
+
+        return shared ?? [];
+    }, [pieceMode, product.published_variants, selectedOffer]);
+    const activeColor = hasOffers ? (offerColors.includes(selectedColor) ? selectedColor : (offerColors[0] ?? '')) : selectedColor;
+    const sizesForPiece = (componentId: number) => [
+        ...new Set(
+            product.published_variants
+                .filter((variant) => variant.component_id === componentId && (!activeColor || variant.color === activeColor) && variant.size)
+                .map((variant) => variant.size as string),
+        ),
+    ];
+    const pieceComponentId = pieceMode ? selectedOffer?.components[0]?.id : undefined;
+    const pieceSize = pieceComponentId ? (pieceSizes[pieceComponentId] ?? '') : '';
+    const pieceSizeOptions = pieceMode
+        ? [
+            ...new Set(
+                product.published_variants
+                    .filter((variant) => variant.size && (!activeColor || variant.color === activeColor))
+                    .map((variant) => variant.size as string),
+            ),
+        ]
+        : [];
+    const sizeMissing = pieceMode
+        ? pieceSize === ''
+        : hasOffers
+            ? (selectedOffer?.components ?? []).some((component) => !pieceSizes[component.id])
+            : needsSize && selectedSize === '';
+    const matchedPiece = pieceMode && pieceComponentId && pieceSize
+        ? product.published_variants.find(
+            (variant) => variant.component_id === pieceComponentId
+                && (!activeColor || variant.color === activeColor)
+                && variant.size === pieceSize,
+        )
+        : null;
+    const listPrice = matchedPiece?.price != null
+        ? matchedPiece.price
+        : selectedOffer
+            ? selectedOffer.price
+            : product.price;
     const hasDiscount = (product.discount_percent ?? 0) > 0;
     const effectivePrice = hasDiscount
-        ? product.price * (1 - (product.discount_percent ?? 0) / 100)
-        : product.price;
+        ? listPrice * (1 - (product.discount_percent ?? 0) / 100)
+        : listPrice;
 
     const colorHasStock = useMemo(() => {
+        if (hasOffers && selectedOffer) {
+            return selectedOffer.components.every((component) =>
+                product.published_variants.some(
+                    (variant) => variant.component_id === component.id
+                        && (!activeColor || variant.color === activeColor)
+                        && variant.stock > 0,
+                ),
+            );
+        }
+
         if (product.published_variants.length === 0) {
             return product.stock > 0;
         }
@@ -72,9 +163,27 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
         return product.published_variants.some(
             (variant) => variant.stock > 0 && (!selectedColor || variant.color === selectedColor),
         );
-    }, [product, selectedColor]);
+    }, [activeColor, hasOffers, product, selectedColor, selectedOffer]);
 
     const variantStock = useMemo(() => {
+        if (hasOffers && selectedOffer) {
+            if (sizeMissing) {
+                return 0;
+            }
+
+            const stocks = selectedOffer.components.map((component) => {
+                const match = product.published_variants.find(
+                    (variant) => variant.component_id === component.id
+                        && (!activeColor || variant.color === activeColor)
+                        && variant.size === pieceSizes[component.id],
+                );
+
+                return match?.stock ?? 0;
+            });
+
+            return stocks.length > 0 ? Math.min(...stocks) : 0;
+        }
+
         if (product.published_variants.length === 0) {
             return product.stock;
         }
@@ -86,7 +195,7 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
         );
 
         return match?.stock ?? 0;
-    }, [needsSize, product, selectedColor, selectedSize]);
+    }, [activeColor, hasOffers, needsSize, pieceSizes, product, selectedColor, selectedOffer, selectedSize, sizeMissing]);
 
     const isSoldOut = !colorHasStock || (!sizeMissing && variantStock <= 0);
     const isWishlisted = Boolean(wishlistMap[product.id]);
@@ -97,7 +206,38 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
         quantity: 1,
         size: null as string | null,
         color: selectedColor || null,
+        offer_id: offers[0]?.id ?? null,
+        sizes: {} as Record<number, string>,
     });
+
+    useEffect(() => {
+        setData((current) => ({
+            ...current,
+            color: activeColor || null,
+            offer_id: selectedOffer?.id ?? null,
+            sizes: pieceSizes,
+            size: hasOffers ? null : (selectedSize || null),
+        }));
+    }, [activeColor, hasOffers, pieceSizes, selectedOffer, selectedSize]);
+
+    useEffect(() => {
+        const el = descRef.current;
+        if (!el) {
+            return;
+        }
+
+        const measure = () => setDescOverflows(el.scrollHeight > DESCRIPTION_COLLAPSED_HEIGHT + 24);
+        measure();
+
+        const observer = new ResizeObserver(measure);
+        observer.observe(el);
+
+        return () => observer.disconnect();
+    }, [product.description]);
+
+    useEffect(() => {
+        setDescExpanded(false);
+    }, [product.id]);
 
     useEffect(() => {
         if (!sizeGuideOpen) {
@@ -108,12 +248,21 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
             if (event.key === 'Escape') {
                 setSizeGuideOpen(false);
             }
+            if (sizeGuides.length < 2) {
+                return;
+            }
+            if (event.key === 'ArrowLeft') {
+                setGuideIndex((index) => (index + sizeGuides.length - 1) % sizeGuides.length);
+            }
+            if (event.key === 'ArrowRight') {
+                setGuideIndex((index) => (index + 1) % sizeGuides.length);
+            }
         };
 
         document.addEventListener('keydown', onKey);
 
         return () => document.removeEventListener('keydown', onKey);
-    }, [sizeGuideOpen]);
+    }, [sizeGuideOpen, sizeGuides.length]);
 
     const handleAddToCart = () => {
         if (!canAdd) {
@@ -200,6 +349,9 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
     const handleColorClick = (color: string) => {
         setSelectedColor(color);
         setData('color', color);
+        if (hasOffers) {
+            setPieceSizes({});
+        }
 
         const targetIndex = findImageIndexForColor(color);
         if (targetIndex !== -1) {
@@ -412,8 +564,8 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                     <span className="text-on-surface">{product.name}</span>
                 </nav>
 
-                <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-                    <div>
+                <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
+                    <div className="min-w-0">
                         <div className="relative">
                             <div
                                 ref={galleryRef}
@@ -542,7 +694,7 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                         )}
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                         {product.category && (
                             <p className="text-xs tracking-widest text-secondary">{product.category.name.toUpperCase()}</p>
                         )}
@@ -553,7 +705,7 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                             {hasDiscount && (
                                 <>
                                     <span className="text-sm text-secondary line-through">
-                                        {formatCurrency(product.price)}
+                                        {formatCurrency(listPrice)}
                                     </span>
                                     <Badge variant="sale">-{Math.round(product.discount_percent!)}%</Badge>
                                 </>
@@ -589,24 +741,78 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                         )}
 
                         {product.description && (
-                            <div
-                                className="mt-6 text-sm leading-relaxed text-secondary font-sans space-y-2 [&_b]:font-semibold [&_strong]:font-semibold [&_h1]:text-lg [&_h1]:font-semibold [&_h2]:text-base [&_h2]:font-semibold [&_h3]:text-sm [&_h3]:font-semibold [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1 [&_a]:text-warm-brown [&_a]:underline"
-                                dangerouslySetInnerHTML={{ __html: product.description }}
-                            />
+                            <div className="mt-6">
+                                <div
+                                    className={cn(
+                                        'relative',
+                                        descOverflows && !descExpanded && 'overflow-hidden',
+                                    )}
+                                    style={
+                                        descOverflows && !descExpanded
+                                            ? { maxHeight: DESCRIPTION_COLLAPSED_HEIGHT }
+                                            : undefined
+                                    }
+                                >
+                                    <div
+                                        ref={descRef}
+                                        className="break-words text-sm leading-relaxed text-secondary font-sans space-y-2 [&_img]:h-auto [&_img]:max-w-full [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto [&_b]:font-semibold [&_strong]:font-semibold [&_h1]:text-lg [&_h1]:font-semibold [&_h2]:text-base [&_h2]:font-semibold [&_h3]:text-sm [&_h3]:font-semibold [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1 [&_a]:text-warm-brown [&_a]:underline"
+                                        dangerouslySetInnerHTML={{ __html: product.description }}
+                                    />
+                                    {descOverflows && !descExpanded && (
+                                        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background to-transparent" />
+                                    )}
+                                </div>
+                                {descOverflows && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setDescExpanded((value) => !value)}
+                                        className="mt-2 text-xs font-medium text-warm-brown hover:underline"
+                                        aria-expanded={descExpanded}
+                                    >
+                                        {descExpanded ? 'Tampilkan lebih sedikit' : 'Lihat selengkapnya'}
+                                    </button>
+                                )}
+                            </div>
                         )}
 
-                        {product.colors && product.colors.length > 0 && (
+                        {hasOffers && selectedOffer && !pieceMode && (
                             <div className="mt-8">
-                                <p className="mb-3 text-sm font-medium">Color: {selectedColor}</p>
+                                <p className="mb-3 text-sm font-medium">Opsi: {selectedOffer.name}</p>
                                 <div className="flex flex-wrap gap-2">
-                                    {product.colors.map((color) => (
+                                    {offers.map((offer) => (
+                                        <button
+                                            key={offer.id}
+                                            type="button"
+                                            onClick={() => {
+                                                setSelectedOfferId(offer.id);
+                                                setPieceSizes({});
+                                            }}
+                                            className={cn(
+                                                'border px-4 py-2 text-sm transition-colors',
+                                                selectedOffer.id === offer.id
+                                                    ? 'border-warm-brown text-warm-brown'
+                                                    : 'border-outline-variant hover:border-warm-brown',
+                                            )}
+                                        >
+                                            {offer.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {(hasOffers ? offerColors.length > 0 : (product.colors?.length ?? 0) > 0) && (
+                            <div className="mt-8">
+                                <p className="mb-3 text-sm font-medium">Color: {activeColor}</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {(hasOffers ? offerColors : product.colors ?? []).map((color) => (
                                         <button
                                             key={color}
                                             type="button"
                                             onClick={() => handleColorClick(color)}
                                             className={cn(
                                                 'border px-4 py-2 text-sm transition-colors',
-                                                selectedColor === color
+                                                activeColor === color
                                                     ? 'border-warm-brown text-warm-brown'
                                                     : 'border-outline-variant hover:border-warm-brown',
                                             )}
@@ -618,16 +824,139 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                             </div>
                         )}
 
-                        {product.sizes && product.sizes.length > 0 && (
+                        {pieceMode && selectedOffer && (
+                            <div className="mt-6 space-y-5">
+                                <div>
+                                    <div className="mb-3 flex items-center justify-between">
+                                        <p className="text-sm font-medium">
+                                            Size{pieceSize ? `: ${pieceSize}` : ''}
+                                        </p>
+                                        {sizeGuides.length > 0 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setGuideIndex(0);
+                                                    setSizeGuideOpen(true);
+                                                }}
+                                                className="text-xs text-warm-brown hover:underline"
+                                            >
+                                                Size Guide
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {pieceSizeOptions.map((size) => (
+                                            <button
+                                                key={size}
+                                                type="button"
+                                                onClick={() => {
+                                                    const componentId = selectedOffer.components[0]?.id;
+                                                    if (!componentId) {
+                                                        return;
+                                                    }
+                                                    setPieceSizes({ [componentId]: size });
+                                                }}
+                                                className={cn(
+                                                    'min-w-12 border px-3 py-2 text-sm transition-colors',
+                                                    pieceSize === size
+                                                        ? 'border-warm-brown text-warm-brown'
+                                                        : 'border-outline-variant hover:border-warm-brown',
+                                                )}
+                                            >
+                                                {size}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div>
+                                    <p className="mb-3 text-sm font-medium">Tipe: {selectedOffer.name}</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {offers.map((offer) => (
+                                            <button
+                                                key={offer.id}
+                                                type="button"
+                                                onClick={() => {
+                                                    const componentId = offer.components[0]?.id;
+                                                    const sizeStillFits = componentId
+                                                        ? product.published_variants.some(
+                                                            (variant) => variant.component_id === componentId
+                                                                && (!activeColor || variant.color === activeColor)
+                                                                && variant.size === pieceSize,
+                                                        )
+                                                        : false;
+                                                    setSelectedOfferId(offer.id);
+                                                    setPieceSizes(componentId && pieceSize && sizeStillFits ? { [componentId]: pieceSize } : {});
+                                                }}
+                                                className={cn(
+                                                    'border px-4 py-2 text-sm transition-colors',
+                                                    selectedOffer.id === offer.id
+                                                        ? 'border-warm-brown text-warm-brown'
+                                                        : 'border-outline-variant hover:border-warm-brown',
+                                                )}
+                                            >
+                                                {offer.name}
+                                                {offer.price ? ` · ${formatCurrency(offer.price)}` : ''}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {hasOffers && selectedOffer && !pieceMode && (
+                            <div className="mt-6 space-y-5">
+                                {selectedOffer.components.map((component) => (
+                                    <div key={component.id}>
+                                        <p className="mb-3 text-sm font-medium">
+                                            {component.name}{pieceSizes[component.id] ? `: ${pieceSizes[component.id]}` : ''}
+                                        </p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {sizesForPiece(component.id).map((size) => (
+                                                <button
+                                                    key={size}
+                                                    type="button"
+                                                    onClick={() => setPieceSizes((current) => ({ ...current, [component.id]: size }))}
+                                                    className={cn(
+                                                        'min-w-12 border px-3 py-2 text-sm transition-colors',
+                                                        pieceSizes[component.id] === size
+                                                            ? 'border-warm-brown text-warm-brown'
+                                                            : 'border-outline-variant hover:border-warm-brown',
+                                                    )}
+                                                >
+                                                    {size}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                                {sizeGuides.length > 0 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setGuideIndex(0);
+                                            setSizeGuideOpen(true);
+                                        }}
+                                        className="text-xs text-warm-brown hover:underline"
+                                    >
+                                        Size Guide
+                                    </button>
+                                )}
+                            </div>
+                        )}
+
+                        {!hasOffers && product.sizes && product.sizes.length > 0 && (
                             <div className="mt-6">
                                 <div className="mb-3 flex items-center justify-between">
                                     <p className="text-sm font-medium">
                                         Size{selectedSize ? `: ${selectedSize}` : ''}
                                     </p>
-                                    {product.size_chart_url && (
+                                    {sizeGuides.length > 0 && (
                                         <button
                                             type="button"
-                                            onClick={() => setSizeGuideOpen(true)}
+                                            onClick={() => {
+                                                setGuideIndex(0);
+                                                setSizeGuideOpen(true);
+                                            }}
                                             className="text-xs text-warm-brown hover:underline"
                                         >
                                             Size Guide
@@ -762,7 +1091,9 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                     <div className="min-w-0">
                         <p className="text-sm font-medium">{formatCurrency(effectivePrice)}</p>
                         <p className="truncate text-[11px] text-secondary">
-                            {selectedSize || (needsSize ? 'Choose a size' : selectedColor)}
+                            {hasOffers
+                                ? [selectedOffer?.name, activeColor, selectedOffer?.components.map((component) => pieceSizes[component.id]).filter(Boolean).join(' · ')].filter(Boolean).join(' / ')
+                                : (selectedSize || (needsSize ? 'Choose a size' : selectedColor))}
                         </p>
                     </div>
                     <Button
@@ -776,7 +1107,7 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                 </div>
             </div>
 
-            {sizeGuideOpen && product.size_chart_url && (
+            {sizeGuideOpen && sizeGuides.length > 0 && (
                 <div
                     className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-0 md:items-center md:p-8"
                     role="dialog"
@@ -785,7 +1116,7 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                     onClick={() => setSizeGuideOpen(false)}
                 >
                     <div
-                        className="max-h-[90vh] w-full overflow-auto bg-background p-4 md:max-w-lg md:p-6"
+                        className="max-h-[90vh] w-full overflow-auto bg-background p-4 md:max-w-2xl md:p-6"
                         onClick={(event) => event.stopPropagation()}
                     >
                         <div className="mb-4 flex items-center justify-between">
@@ -794,7 +1125,32 @@ export default function ProductDetail({ product, recommendedProducts, latestProd
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
-                        <img src={product.size_chart_url} alt="Size chart" className="w-full" />
+                        <div className="relative overflow-hidden bg-stone-100">
+                            <img src={sizeGuides[guideIndex]} alt={`Size guide ${guideIndex + 1}`} className="max-h-[70vh] w-full object-contain" />
+                            {sizeGuides.length > 1 && (
+                                <>
+                                    <button
+                                        type="button"
+                                        className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-background/90 shadow-sm"
+                                        aria-label="Gambar sebelumnya"
+                                        onClick={() => setGuideIndex((index) => (index + sizeGuides.length - 1) % sizeGuides.length)}
+                                    >
+                                        <ChevronLeft className="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-background/90 shadow-sm"
+                                        aria-label="Gambar berikutnya"
+                                        onClick={() => setGuideIndex((index) => (index + 1) % sizeGuides.length)}
+                                    >
+                                        <ChevronRight className="h-4 w-4" />
+                                    </button>
+                                    <p className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-neutral-950/80 px-2.5 py-1 text-xs text-white">
+                                        {guideIndex + 1} / {sizeGuides.length}
+                                    </p>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}

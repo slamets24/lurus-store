@@ -3,10 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\HomeSectionItemRequest;
+use App\Http\Requests\Admin\HomeSectionRequest;
 use App\Models\Category;
+use App\Models\HomeSection;
+use App\Models\HomeSectionItem;
 use App\Models\Product;
 use App\Models\StoreContentSetting;
 use App\Services\HomePageService;
+use App\Support\HomeSections;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -17,7 +23,21 @@ class AdminHomepageController extends Controller
 {
     public function index(HomePageService $homePage)
     {
+        $seo = StoreContentSetting::value('home_seo', []);
+        $seo = is_array($seo) ? $seo : [];
+
         return Inertia::render('Admin/Homepage/Index', [
+            'types' => HomeSections::types(),
+            'sections' => HomeSection::query()
+                ->where('type', '!=', 'popup')
+                ->with(['items' => fn ($query) => $query->orderBy('sort_order')])
+                ->orderBy('sort_order')
+                ->get(),
+            'homeSeo' => [
+                'title' => (string) ($seo['title'] ?? ''),
+                'description' => (string) ($seo['description'] ?? ''),
+                'keywords' => (string) ($seo['keywords'] ?? ''),
+            ],
             'settings' => [
                 'hero' => StoreContentSetting::heroBanners(),
                 'announcementBar' => $homePage->announcementBar(),
@@ -27,7 +47,7 @@ class AdminHomepageController extends Controller
                 'whatsappNumber' => StoreContentSetting::value('whatsapp_number', StoreContentSetting::DEFAULT_WHATSAPP_NUMBER),
                 'promoPopup' => StoreContentSetting::promoPopupSettings(),
             ],
-            'products' => Product::with('images')
+            'products' => Product::with(['images', 'category:id,slug'])
                 ->where('is_active', true)
                 ->orderBy('name')
                 ->get()
@@ -37,6 +57,7 @@ class AdminHomepageController extends Controller
                     'slug' => $product->slug,
                     'price' => (float) $product->price,
                     'image' => $product->images->first()?->image_path,
+                    'categorySlug' => $product->category?->slug,
                 ]),
             'categories' => Category::query()
                 ->where('is_active', true)
@@ -74,6 +95,112 @@ class AdminHomepageController extends Controller
             'social_media' => 'Social media and WhatsApp saved successfully.',
             'promo_popup' => 'Promo popup saved successfully.',
         });
+    }
+
+    public function updateSeo(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'title' => ['nullable', 'string', 'max:70'],
+            'description' => ['nullable', 'string', 'max:160'],
+            'keywords' => ['nullable', 'string', 'max:300'],
+        ]);
+
+        StoreContentSetting::putValue('home_seo', [
+            'title' => trim((string) ($data['title'] ?? '')),
+            'description' => trim((string) ($data['description'] ?? '')),
+            'keywords' => trim((string) ($data['keywords'] ?? '')),
+        ]);
+
+        return back()->with('success', 'SEO beranda disimpan.');
+    }
+
+    public function storeSection(HomeSectionRequest $request): RedirectResponse
+    {
+        HomeSection::query()->create([
+            ...$request->safe()->only(['type', 'title', 'subtitle', 'content', 'image_path', 'link_url', 'button_label', 'sort_order', 'is_active']),
+            'image_path' => $this->imagePath($request),
+            'sort_order' => $request->integer('sort_order'),
+            'config_json' => $request->sectionConfig(),
+        ]);
+
+        return back()->with('success', 'Bagian beranda disimpan.');
+    }
+
+    public function updateSection(HomeSectionRequest $request, HomeSection $homeSection): RedirectResponse
+    {
+        $homeSection->update([
+            ...$request->safe()->only(['type', 'title', 'subtitle', 'content', 'image_path', 'link_url', 'button_label', 'sort_order', 'is_active']),
+            'image_path' => $this->imagePath($request),
+            'sort_order' => $request->integer('sort_order'),
+            'config_json' => $request->sectionConfig() ?? $homeSection->config_json,
+        ]);
+
+        return back()->with('success', 'Bagian beranda diperbarui.');
+    }
+
+    public function destroySection(HomeSection $homeSection): RedirectResponse
+    {
+        $homeSection->delete();
+
+        return back()->with('success', 'Bagian beranda dipindahkan ke arsip.');
+    }
+
+    public function storeItem(HomeSectionItemRequest $request, HomeSection $homeSection): RedirectResponse
+    {
+        $homeSection->items()->create([
+            ...$request->safe()->only(['item_type', 'product_id', 'category_id', 'title', 'subtitle', 'image_path', 'link_url', 'sort_order', 'is_active']),
+            'image_path' => $this->imagePath($request, 'image', 'image_path'),
+            'sort_order' => $request->integer('sort_order'),
+            'config_json' => $this->itemConfig($request),
+        ]);
+
+        return back()->with('success', 'Isi bagian disimpan.');
+    }
+
+    public function updateItem(HomeSectionItemRequest $request, HomeSectionItem $item): RedirectResponse
+    {
+        $item->update([
+            ...$request->safe()->only(['item_type', 'product_id', 'category_id', 'title', 'subtitle', 'image_path', 'link_url', 'sort_order', 'is_active']),
+            'image_path' => $this->imagePath($request, 'image', 'image_path'),
+            'sort_order' => $request->integer('sort_order'),
+            'config_json' => $this->itemConfig($request),
+        ]);
+
+        return back()->with('success', 'Isi bagian diperbarui.');
+    }
+
+    public function destroyItem(HomeSectionItem $item): RedirectResponse
+    {
+        $item->delete();
+
+        return back()->with('success', 'Isi bagian dipindahkan ke arsip.');
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function itemConfig(HomeSectionItemRequest $request): ?array
+    {
+        $config = $request->itemConfig();
+
+        if ($request->string('item_type')->toString() !== 'slide' || ! is_array($config)) {
+            return $config;
+        }
+
+        $config['mobile_image'] = $this->imagePath($request, 'mobile_image', 'mobile_image_path');
+
+        return $config;
+    }
+
+    private function imagePath(HomeSectionRequest|HomeSectionItemRequest $request, string $fileKey = 'image', string $pathKey = 'image_path'): ?string
+    {
+        if ($request->hasFile($fileKey)) {
+            return $request->file($fileKey)->store('home', 'public');
+        }
+
+        $path = $request->input($pathKey);
+
+        return is_string($path) && $path !== '' ? $path : null;
     }
 
     private function updateHero(Request $request): void

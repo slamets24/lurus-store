@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Admin\AdminRestoreController::index
- * @see app/Http/Controllers/Admin/AdminRestoreController.php:31
+ * @see app/Http/Controllers/Admin/AdminRestoreController.php:35
  * @route '/admin/restore'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminRestoreController::index
- * @see app/Http/Controllers/Admin/AdminRestoreController.php:31
+ * @see app/Http/Controllers/Admin/AdminRestoreController.php:35
  * @route '/admin/restore'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminRestoreController::index
- * @see app/Http/Controllers/Admin/AdminRestoreController.php:31
+ * @see app/Http/Controllers/Admin/AdminRestoreController.php:35
  * @route '/admin/restore'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Admin\AdminRestoreController::index
- * @see app/Http/Controllers/Admin/AdminRestoreController.php:31
+ * @see app/Http/Controllers/Admin/AdminRestoreController.php:35
  * @route '/admin/restore'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Admin\AdminRestoreController::index
- * @see app/Http/Controllers/Admin/AdminRestoreController.php:31
+ * @see app/Http/Controllers/Admin/AdminRestoreController.php:35
  * @route '/admin/restore'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Admin\AdminRestoreController::index
- * @see app/Http/Controllers/Admin/AdminRestoreController.php:31
+ * @see app/Http/Controllers/Admin/AdminRestoreController.php:35
  * @route '/admin/restore'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Admin\AdminRestoreController::index
- * @see app/Http/Controllers/Admin/AdminRestoreController.php:31
+ * @see app/Http/Controllers/Admin/AdminRestoreController.php:35
  * @route '/admin/restore'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Admin\AdminRestoreController::restore
- * @see app/Http/Controllers/Admin/AdminRestoreController.php:56
+ * @see app/Http/Controllers/Admin/AdminRestoreController.php:60
  * @route '/admin/restore/{type}/{id}'
  */
 export const restore = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ restore.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminRestoreController::restore
- * @see app/Http/Controllers/Admin/AdminRestoreController.php:56
+ * @see app/Http/Controllers/Admin/AdminRestoreController.php:60
  * @route '/admin/restore/{type}/{id}'
  */
 restore.url = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions) => {
@@ -120,7 +120,7 @@ restore.url = (args: { type: string | number, id: string | number } | [type: str
 
 /**
 * @see \App\Http\Controllers\Admin\AdminRestoreController::restore
- * @see app/Http/Controllers/Admin/AdminRestoreController.php:56
+ * @see app/Http/Controllers/Admin/AdminRestoreController.php:60
  * @route '/admin/restore/{type}/{id}'
  */
 restore.post = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -130,7 +130,7 @@ restore.post = (args: { type: string | number, id: string | number } | [type: st
 
     /**
 * @see \App\Http\Controllers\Admin\AdminRestoreController::restore
- * @see app/Http/Controllers/Admin/AdminRestoreController.php:56
+ * @see app/Http/Controllers/Admin/AdminRestoreController.php:60
  * @route '/admin/restore/{type}/{id}'
  */
     const restoreForm = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -140,7 +140,7 @@ restore.post = (args: { type: string | number, id: string | number } | [type: st
 
             /**
 * @see \App\Http\Controllers\Admin\AdminRestoreController::restore
- * @see app/Http/Controllers/Admin/AdminRestoreController.php:56
+ * @see app/Http/Controllers/Admin/AdminRestoreController.php:60
  * @route '/admin/restore/{type}/{id}'
  */
         restoreForm.post = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -151,7 +151,7 @@ restore.post = (args: { type: string | number, id: string | number } | [type: st
     restore.form = restoreForm
 /**
 * @see \App\Http\Controllers\Admin\AdminRestoreController::destroy
- * @see app/Http/Controllers/Admin/AdminRestoreController.php:66
+ * @see app/Http/Controllers/Admin/AdminRestoreController.php:70
  * @route '/admin/restore/{type}/{id}'
  */
 export const destroy = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -166,7 +166,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminRestoreController::destroy
- * @see app/Http/Controllers/Admin/AdminRestoreController.php:66
+ * @see app/Http/Controllers/Admin/AdminRestoreController.php:70
  * @route '/admin/restore/{type}/{id}'
  */
 destroy.url = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions) => {
@@ -192,7 +192,7 @@ destroy.url = (args: { type: string | number, id: string | number } | [type: str
 
 /**
 * @see \App\Http\Controllers\Admin\AdminRestoreController::destroy
- * @see app/Http/Controllers/Admin/AdminRestoreController.php:66
+ * @see app/Http/Controllers/Admin/AdminRestoreController.php:70
  * @route '/admin/restore/{type}/{id}'
  */
 destroy.delete = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -202,7 +202,7 @@ destroy.delete = (args: { type: string | number, id: string | number } | [type: 
 
     /**
 * @see \App\Http\Controllers\Admin\AdminRestoreController::destroy
- * @see app/Http/Controllers/Admin/AdminRestoreController.php:66
+ * @see app/Http/Controllers/Admin/AdminRestoreController.php:70
  * @route '/admin/restore/{type}/{id}'
  */
     const destroyForm = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -217,7 +217,7 @@ destroy.delete = (args: { type: string | number, id: string | number } | [type: 
 
             /**
 * @see \App\Http\Controllers\Admin\AdminRestoreController::destroy
- * @see app/Http/Controllers/Admin/AdminRestoreController.php:66
+ * @see app/Http/Controllers/Admin/AdminRestoreController.php:70
  * @route '/admin/restore/{type}/{id}'
  */
         destroyForm.delete = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

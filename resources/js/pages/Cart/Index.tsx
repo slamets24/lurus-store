@@ -163,9 +163,9 @@ function CartLineItem({ item }: { item: CartItem }) {
                                   : 'Item Pre-Order'}
                         </p>
                     )}
-                    {(item.size || item.color) && (
+                    {(item.offer?.name || item.size || item.color) && (
                         <p className="mt-1 text-xs text-secondary">
-                            {[item.color, item.size].filter(Boolean).join(' / ')}
+                            {[item.offer?.name, item.color, item.size].filter(Boolean).join(' / ')}
                         </p>
                     )}
                     <p className="mt-2 text-sm">{formatCurrency(unitPrice)}</p>

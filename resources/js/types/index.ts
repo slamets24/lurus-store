@@ -169,9 +169,11 @@ export interface ProductDetailImage {
 }
 
 export interface ProductVariant {
+    component_id?: number | null;
     color?: string | null;
     size?: string | null;
     stock: number;
+    price?: number | null;
 }
 
 export interface ProductDetailData {
@@ -195,10 +197,17 @@ export interface ProductDetailData {
     tokopedia_url?: string | null;
     tiktok_url?: string | null;
     size_chart_url?: string | null;
+    size_guide_images?: string[];
     related_fit?: { id: number; name: string; slug: string } | null;
     category?: { name: string; slug: string } | null;
     images: ProductDetailImage[];
     published_variants: ProductVariant[];
+    offers?: Array<{
+        id: number;
+        name: string;
+        price: number;
+        components: Array<{ id: number; name: string }>;
+    }>;
 }
 
 export interface CartItem {
@@ -208,6 +217,7 @@ export interface CartItem {
     size?: string | null;
     color?: string | null;
     unit_price?: number;
+    offer?: { id: number; name: string } | null;
     list_price?: number;
     discount_percent?: number;
     product: {

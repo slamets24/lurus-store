@@ -25,11 +25,8 @@ class CartService
      */
     public function preview(Request $request, CartPricingService $pricing): array
     {
-        $cartItems = $this->query($request)->with(['product.images', 'variant'])->get();
-        $quote = $pricing->quote($cartItems->map(fn ($item) => (object) [
-            'product' => $item->product,
-            'quantity' => (int) $item->quantity,
-        ]));
+        $cartItems = $this->query($request)->with(['product.images', 'variant', 'offer'])->get();
+        $quote = $pricing->quoteCart($cartItems);
 
         return [
             'items' => $cartItems->values()->map(function ($item, $index) use ($quote) {
@@ -102,19 +99,28 @@ class CartService
         }
 
         $adjusted = false;
-        $guestItems = CartItem::with(['product', 'variant'])
+        $guestItems = CartItem::with(['product', 'variant', 'offer'])
             ->whereNull('user_id')
             ->where('session_id', $token)
             ->get();
 
         foreach ($guestItems as $guestItem) {
-            $availableStock = $guestItem->variant?->stock ?? $guestItem->product?->stock ?? 0;
             $accountItem = CartItem::where('user_id', $user->id)
                 ->where('product_id', $guestItem->product_id)
                 ->where('product_variant_id', $guestItem->product_variant_id)
+                ->where('product_offer_id', $guestItem->product_offer_id)
+                ->where('selection_key', $guestItem->selection_key)
                 ->where('size', $guestItem->size)
                 ->where('color', $guestItem->color)
                 ->first();
+
+            if (is_array($guestItem->selections) && $guestItem->selections !== []) {
+                $accountItems = CartItem::query()->where('user_id', $user->id)->get();
+                $pieceIds = collect($guestItem->selections)->pluck('product_variant_id')->map(fn ($id) => (int) $id)->all();
+                $availableStock = app(PieceInventory::class)->maxOfferQuantity($accountItems, $pieceIds, $accountItem?->id);
+            } else {
+                $availableStock = $guestItem->variant?->stock ?? $guestItem->product?->stock ?? 0;
+            }
 
             $quantity = min($availableStock, $guestItem->quantity + ($accountItem?->quantity ?? 0));
             $adjusted = $adjusted || $quantity < $guestItem->quantity + ($accountItem?->quantity ?? 0);

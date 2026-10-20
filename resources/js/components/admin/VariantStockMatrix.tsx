@@ -10,6 +10,7 @@ interface VariantStockMatrixProps {
     availableSizes?: string[];
     onChangeVariants: (variants: ProductVariant[]) => void;
     onChangeColorHexes: (colorHexes: Record<string, string>) => void;
+    title?: string;
     error?: string;
 }
 
@@ -45,6 +46,7 @@ export function VariantStockMatrix({
     availableSizes = [],
     onChangeVariants,
     onChangeColorHexes,
+    title = 'STOK VARIAN',
     error,
 }: VariantStockMatrixProps) {
     // Extract unique colors from existing variants (empty array if no colors yet)
@@ -230,7 +232,7 @@ export function VariantStockMatrix({
             {/* Header */}
             <div>
                 <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-stone-800">
-                    STOK VARIAN
+                    {title}
                 </h2>
                 <p className="mt-1 font-sans text-xs text-stone-500">
                     Pilih warna dan ukuran, lalu isi stok pada tabel.

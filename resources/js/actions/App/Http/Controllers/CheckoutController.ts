@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\CheckoutController::searchAreas
- * @see app/Http/Controllers/CheckoutController.php:81
+ * @see app/Http/Controllers/CheckoutController.php:75
  * @route '/checkout/areas'
  */
 export const searchAreas = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ searchAreas.definition = {
 
 /**
 * @see \App\Http\Controllers\CheckoutController::searchAreas
- * @see app/Http/Controllers/CheckoutController.php:81
+ * @see app/Http/Controllers/CheckoutController.php:75
  * @route '/checkout/areas'
  */
 searchAreas.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ searchAreas.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\CheckoutController::searchAreas
- * @see app/Http/Controllers/CheckoutController.php:81
+ * @see app/Http/Controllers/CheckoutController.php:75
  * @route '/checkout/areas'
  */
 searchAreas.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ searchAreas.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\CheckoutController::searchAreas
- * @see app/Http/Controllers/CheckoutController.php:81
+ * @see app/Http/Controllers/CheckoutController.php:75
  * @route '/checkout/areas'
  */
 searchAreas.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ searchAreas.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\CheckoutController::searchAreas
- * @see app/Http/Controllers/CheckoutController.php:81
+ * @see app/Http/Controllers/CheckoutController.php:75
  * @route '/checkout/areas'
  */
     const searchAreasForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ searchAreas.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\CheckoutController::searchAreas
- * @see app/Http/Controllers/CheckoutController.php:81
+ * @see app/Http/Controllers/CheckoutController.php:75
  * @route '/checkout/areas'
  */
         searchAreasForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ searchAreas.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\CheckoutController::searchAreas
- * @see app/Http/Controllers/CheckoutController.php:81
+ * @see app/Http/Controllers/CheckoutController.php:75
  * @route '/checkout/areas'
  */
         searchAreasForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ searchAreas.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     searchAreas.form = searchAreasForm
 /**
 * @see \App\Http\Controllers\CheckoutController::wilayahCities
- * @see app/Http/Controllers/CheckoutController.php:92
+ * @see app/Http/Controllers/CheckoutController.php:86
  * @route '/checkout/wilayah/cities'
  */
 export const wilayahCities = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -172,7 +172,7 @@ wilayahCities.definition = {
 
 /**
 * @see \App\Http\Controllers\CheckoutController::wilayahCities
- * @see app/Http/Controllers/CheckoutController.php:92
+ * @see app/Http/Controllers/CheckoutController.php:86
  * @route '/checkout/wilayah/cities'
  */
 wilayahCities.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ wilayahCities.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\CheckoutController::wilayahCities
- * @see app/Http/Controllers/CheckoutController.php:92
+ * @see app/Http/Controllers/CheckoutController.php:86
  * @route '/checkout/wilayah/cities'
  */
 wilayahCities.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -190,7 +190,7 @@ wilayahCities.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\CheckoutController::wilayahCities
- * @see app/Http/Controllers/CheckoutController.php:92
+ * @see app/Http/Controllers/CheckoutController.php:86
  * @route '/checkout/wilayah/cities'
  */
 wilayahCities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -200,7 +200,7 @@ wilayahCities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 
     /**
 * @see \App\Http\Controllers\CheckoutController::wilayahCities
- * @see app/Http/Controllers/CheckoutController.php:92
+ * @see app/Http/Controllers/CheckoutController.php:86
  * @route '/checkout/wilayah/cities'
  */
     const wilayahCitiesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -210,7 +210,7 @@ wilayahCities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 
             /**
 * @see \App\Http\Controllers\CheckoutController::wilayahCities
- * @see app/Http/Controllers/CheckoutController.php:92
+ * @see app/Http/Controllers/CheckoutController.php:86
  * @route '/checkout/wilayah/cities'
  */
         wilayahCitiesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -219,7 +219,7 @@ wilayahCities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
         })
             /**
 * @see \App\Http\Controllers\CheckoutController::wilayahCities
- * @see app/Http/Controllers/CheckoutController.php:92
+ * @see app/Http/Controllers/CheckoutController.php:86
  * @route '/checkout/wilayah/cities'
  */
         wilayahCitiesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -235,7 +235,7 @@ wilayahCities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
     wilayahCities.form = wilayahCitiesForm
 /**
 * @see \App\Http\Controllers\CheckoutController::wilayahDistricts
- * @see app/Http/Controllers/CheckoutController.php:103
+ * @see app/Http/Controllers/CheckoutController.php:97
  * @route '/checkout/wilayah/districts'
  */
 export const wilayahDistricts = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -250,7 +250,7 @@ wilayahDistricts.definition = {
 
 /**
 * @see \App\Http\Controllers\CheckoutController::wilayahDistricts
- * @see app/Http/Controllers/CheckoutController.php:103
+ * @see app/Http/Controllers/CheckoutController.php:97
  * @route '/checkout/wilayah/districts'
  */
 wilayahDistricts.url = (options?: RouteQueryOptions) => {
@@ -259,7 +259,7 @@ wilayahDistricts.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\CheckoutController::wilayahDistricts
- * @see app/Http/Controllers/CheckoutController.php:103
+ * @see app/Http/Controllers/CheckoutController.php:97
  * @route '/checkout/wilayah/districts'
  */
 wilayahDistricts.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -268,7 +268,7 @@ wilayahDistricts.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => 
 })
 /**
 * @see \App\Http\Controllers\CheckoutController::wilayahDistricts
- * @see app/Http/Controllers/CheckoutController.php:103
+ * @see app/Http/Controllers/CheckoutController.php:97
  * @route '/checkout/wilayah/districts'
  */
 wilayahDistricts.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -278,7 +278,7 @@ wilayahDistricts.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
 
     /**
 * @see \App\Http\Controllers\CheckoutController::wilayahDistricts
- * @see app/Http/Controllers/CheckoutController.php:103
+ * @see app/Http/Controllers/CheckoutController.php:97
  * @route '/checkout/wilayah/districts'
  */
     const wilayahDistrictsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -288,7 +288,7 @@ wilayahDistricts.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
 
             /**
 * @see \App\Http\Controllers\CheckoutController::wilayahDistricts
- * @see app/Http/Controllers/CheckoutController.php:103
+ * @see app/Http/Controllers/CheckoutController.php:97
  * @route '/checkout/wilayah/districts'
  */
         wilayahDistrictsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -297,7 +297,7 @@ wilayahDistricts.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
         })
             /**
 * @see \App\Http\Controllers\CheckoutController::wilayahDistricts
- * @see app/Http/Controllers/CheckoutController.php:103
+ * @see app/Http/Controllers/CheckoutController.php:97
  * @route '/checkout/wilayah/districts'
  */
         wilayahDistrictsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -313,7 +313,7 @@ wilayahDistricts.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
     wilayahDistricts.form = wilayahDistrictsForm
 /**
 * @see \App\Http\Controllers\CheckoutController::shippingRates
- * @see app/Http/Controllers/CheckoutController.php:59
+ * @see app/Http/Controllers/CheckoutController.php:56
  * @route '/checkout/shipping-rates'
  */
 export const shippingRates = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -328,7 +328,7 @@ shippingRates.definition = {
 
 /**
 * @see \App\Http\Controllers\CheckoutController::shippingRates
- * @see app/Http/Controllers/CheckoutController.php:59
+ * @see app/Http/Controllers/CheckoutController.php:56
  * @route '/checkout/shipping-rates'
  */
 shippingRates.url = (options?: RouteQueryOptions) => {
@@ -337,7 +337,7 @@ shippingRates.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\CheckoutController::shippingRates
- * @see app/Http/Controllers/CheckoutController.php:59
+ * @see app/Http/Controllers/CheckoutController.php:56
  * @route '/checkout/shipping-rates'
  */
 shippingRates.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -347,7 +347,7 @@ shippingRates.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => (
 
     /**
 * @see \App\Http\Controllers\CheckoutController::shippingRates
- * @see app/Http/Controllers/CheckoutController.php:59
+ * @see app/Http/Controllers/CheckoutController.php:56
  * @route '/checkout/shipping-rates'
  */
     const shippingRatesForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -357,7 +357,7 @@ shippingRates.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => (
 
             /**
 * @see \App\Http\Controllers\CheckoutController::shippingRates
- * @see app/Http/Controllers/CheckoutController.php:59
+ * @see app/Http/Controllers/CheckoutController.php:56
  * @route '/checkout/shipping-rates'
  */
         shippingRatesForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -368,7 +368,7 @@ shippingRates.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => (
     shippingRates.form = shippingRatesForm
 /**
 * @see \App\Http\Controllers\CheckoutController::store
- * @see app/Http/Controllers/CheckoutController.php:114
+ * @see app/Http/Controllers/CheckoutController.php:108
  * @route '/checkout'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -383,7 +383,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\CheckoutController::store
- * @see app/Http/Controllers/CheckoutController.php:114
+ * @see app/Http/Controllers/CheckoutController.php:108
  * @route '/checkout'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -392,7 +392,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\CheckoutController::store
- * @see app/Http/Controllers/CheckoutController.php:114
+ * @see app/Http/Controllers/CheckoutController.php:108
  * @route '/checkout'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -402,7 +402,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\CheckoutController::store
- * @see app/Http/Controllers/CheckoutController.php:114
+ * @see app/Http/Controllers/CheckoutController.php:108
  * @route '/checkout'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -412,7 +412,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\CheckoutController::store
- * @see app/Http/Controllers/CheckoutController.php:114
+ * @see app/Http/Controllers/CheckoutController.php:108
  * @route '/checkout'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

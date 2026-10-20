@@ -5,7 +5,9 @@ namespace App\Console\Commands;
 use App\Models\CartItem;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductComponent;
 use App\Models\ProductImage;
+use App\Models\ProductOffer;
 use App\Models\ProductVariant;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -30,16 +32,21 @@ class ClearProductsCommand extends Command
         OrderItem::whereNotNull('product_id')->update(['product_id' => null]);
         ProductImage::truncate();
         ProductVariant::truncate();
+        DB::table('product_offer_components')->truncate();
+        ProductOffer::query()->truncate();
+        ProductComponent::query()->truncate();
         Product::truncate();
 
         try {
             DB::table('collection_product')->truncate();
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         if (DB::getDriverName() === 'sqlite') {
             try {
                 DB::statement('DELETE FROM products_vec');
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) {
+            }
         }
 
         Schema::enableForeignKeyConstraints();

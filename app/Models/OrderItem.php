@@ -12,12 +12,14 @@ class OrderItem extends Model
         'order_id',
         'product_id',
         'product_variant_id',
+        'product_offer_id',
         'product_name',
         'sku',
         'quantity',
         'price',
         'size',
         'color',
+        'selections',
         'is_preorder',
         'preorder_estimate',
     ];
@@ -25,6 +27,7 @@ class OrderItem extends Model
     protected $casts = [
         'quantity' => 'integer',
         'price' => 'decimal:2',
+        'selections' => 'array',
         'is_preorder' => 'boolean',
     ];
 
@@ -41,6 +44,11 @@ class OrderItem extends Model
     public function variant(): BelongsTo
     {
         return $this->belongsTo(ProductVariant::class, 'product_variant_id');
+    }
+
+    public function offer(): BelongsTo
+    {
+        return $this->belongsTo(ProductOffer::class, 'product_offer_id');
     }
 
     public function testimonial(): HasOne

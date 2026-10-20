@@ -21,16 +21,13 @@ class CheckoutController extends Controller
     {
         $carts->refreshGuestCookie($request);
 
-        $cartItems = $carts->query($request)->with('product.images', 'variant')->get();
+        $cartItems = $carts->query($request)->with('product.images', 'variant', 'offer')->get();
 
         if ($cartItems->isEmpty()) {
             return redirect()->route('cart.index');
         }
 
-        $quote = $pricing->quote($cartItems->map(fn ($item) => (object) [
-            'product' => $item->product,
-            'quantity' => (int) $item->quantity,
-        ]));
+        $quote = $pricing->quoteCart($cartItems);
         $shippingSettings = StoreContentSetting::shippingSettings();
 
         return Inertia::render('Checkout', [
@@ -62,16 +59,13 @@ class CheckoutController extends Controller
             'postal_code' => ['required', 'string', 'regex:/^\d{5}$/'],
         ]);
 
-        $cartItems = $carts->query($request)->with('product')->get();
+        $cartItems = $carts->query($request)->with('product', 'offer')->get();
 
         if ($cartItems->isEmpty()) {
             throw ValidationException::withMessages(['cart' => 'Your cart is empty.']);
         }
 
-        $quote = $pricing->quote($cartItems->map(fn ($item) => (object) [
-            'product' => $item->product,
-            'quantity' => (int) $item->quantity,
-        ]));
+        $quote = $pricing->quoteCart($cartItems);
 
         return response()->json([
             'rates' => $biteship->ratesForCart($cartItems, $validated['postal_code'], $quote['payable']),

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
-use App\Models\ProductVariant;
+use App\Services\ProductPieceSync;
 use App\Support\Html;
 use App\Support\WebpImage;
 use Illuminate\Http\Request;
@@ -95,7 +95,7 @@ class AdminProductController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, ProductPieceSync $pieces)
     {
         $validated = $request->validate([
             'name' => 'required|max:255',
@@ -115,6 +115,18 @@ class AdminProductController extends Controller
             'variants.*.color' => 'required|string|max:255',
             'variants.*.size' => 'required|string|max:255',
             'variants.*.stock' => 'required|integer|min:0',
+            'variants.*.price' => 'nullable|numeric|min:0',
+            'variants.*.component_key' => 'nullable|string|max:50',
+            'components' => 'nullable|array',
+            'components.*.id' => 'nullable|integer',
+            'components.*.key' => 'required_with:components|string|max:50',
+            'components.*.name' => 'required_with:components|string|max:100',
+            'offers' => 'nullable|array',
+            'offers.*.id' => 'nullable|integer',
+            'offers.*.name' => 'required_with:offers|string|max:120',
+            'offers.*.price' => 'required_with:offers|numeric|min:0',
+            'offers.*.component_keys' => 'required_with:offers|array|min:1',
+            'offers.*.component_keys.*' => 'string|max:50',
             'material' => 'nullable|max:255',
             'shopee_url' => 'nullable|url:http,https|max:500',
             'tokopedia_url' => 'nullable|url:http,https|max:500',
@@ -130,9 +142,14 @@ class AdminProductController extends Controller
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
             'image_colors' => 'nullable|array',
             'image_colors.*' => 'nullable|string|max:255',
+            ...$this->sizeGuideRules(),
         ]);
 
         $this->prepareProductPayload($validated);
+        $pieces->validate($validated);
+        if (! empty($validated['offers'])) {
+            $validated['price'] = collect($validated['offers'])->min(fn ($offer) => (float) $offer['price']);
+        }
         $this->validateImageColors($validated);
         $category = $this->resolveCategory($validated['category_name'] ?? null, $validated['category_id'] ?? null);
         $validated['category_id'] = $category?->id;
@@ -143,7 +160,7 @@ class AdminProductController extends Controller
         $validated['is_preorder'] = $request->boolean('is_preorder', false);
 
         $product = Product::create($this->productPayload($validated));
-        $this->syncVariants($product, $validated);
+        $pieces->sync($product, $validated);
         $this->syncRelatedFit($product, $validated['related_fit_product_id'] ?? null);
 
         if ($request->hasFile('images')) {
@@ -158,13 +175,15 @@ class AdminProductController extends Controller
             }
         }
 
+        $this->syncSizeGuide($product, $request);
+
         return redirect()->route('admin.products.index')
             ->with('success', 'Product created successfully.');
     }
 
     public function edit(Product $product)
     {
-        $product->load('category', 'images', 'variants');
+        $product->load('category', 'images', 'variants', 'components', 'offers.components');
         $categories = Category::where('is_active', true)->orderBy('name')->get(['id', 'name']);
 
         return Inertia::render('Admin/Products/Form', [
@@ -185,6 +204,19 @@ class AdminProductController extends Controller
                     'color' => $variant->color,
                     'size' => $variant->size,
                     'stock' => $variant->stock,
+                    'price' => $variant->price !== null ? (float) $variant->price : null,
+                    'component_key' => $variant->component_id ? (string) $variant->component_id : '',
+                ])->values(),
+                'components' => $product->components->map(fn ($component) => [
+                    'id' => $component->id,
+                    'key' => (string) $component->id,
+                    'name' => $component->name,
+                ])->values(),
+                'offers' => $product->offers->map(fn ($offer) => [
+                    'id' => $offer->id,
+                    'name' => $offer->name,
+                    'price' => (float) $offer->price,
+                    'component_keys' => $offer->components->pluck('id')->map(fn ($id) => (string) $id)->values(),
                 ])->values(),
                 'material' => $product->material,
                 'shopee_url' => $product->shopee_url,
@@ -205,6 +237,7 @@ class AdminProductController extends Controller
                     'color' => $img->color,
                     'is_primary' => $img->is_primary,
                 ]),
+                'size_guide_images' => array_values($product->size_guide_images ?? []),
             ],
             'categories' => $categories,
             'fitProductOptions' => $this->fitProductOptions($product->id),
@@ -212,7 +245,7 @@ class AdminProductController extends Controller
         ]);
     }
 
-    public function update(Request $request, Product $product)
+    public function update(Request $request, Product $product, ProductPieceSync $pieces)
     {
         $validated = $request->validate([
             'name' => 'required|max:255',
@@ -232,6 +265,18 @@ class AdminProductController extends Controller
             'variants.*.color' => 'required|string|max:255',
             'variants.*.size' => 'required|string|max:255',
             'variants.*.stock' => 'required|integer|min:0',
+            'variants.*.price' => 'nullable|numeric|min:0',
+            'variants.*.component_key' => 'nullable|string|max:50',
+            'components' => 'nullable|array',
+            'components.*.id' => 'nullable|integer',
+            'components.*.key' => 'required_with:components|string|max:50',
+            'components.*.name' => 'required_with:components|string|max:100',
+            'offers' => 'nullable|array',
+            'offers.*.id' => 'nullable|integer',
+            'offers.*.name' => 'required_with:offers|string|max:120',
+            'offers.*.price' => 'required_with:offers|numeric|min:0',
+            'offers.*.component_keys' => 'required_with:offers|array|min:1',
+            'offers.*.component_keys.*' => 'string|max:50',
             'material' => 'nullable|max:255',
             'shopee_url' => 'nullable|url:http,https|max:500',
             'tokopedia_url' => 'nullable|url:http,https|max:500',
@@ -249,9 +294,14 @@ class AdminProductController extends Controller
             'image_colors.*' => 'nullable|string|max:255',
             'existing_image_colors' => 'nullable|array',
             'existing_image_colors.*' => 'nullable|string|max:255',
+            ...$this->sizeGuideRules(),
         ]);
 
         $this->prepareProductPayload($validated);
+        $pieces->validate($validated);
+        if (! empty($validated['offers'])) {
+            $validated['price'] = collect($validated['offers'])->min(fn ($offer) => (float) $offer['price']);
+        }
         $this->validateImageColors($validated, $product);
         $category = $this->resolveCategory($validated['category_name'] ?? null, $validated['category_id'] ?? null);
         $validated['category_id'] = $category?->id;
@@ -262,7 +312,7 @@ class AdminProductController extends Controller
         $validated['is_preorder'] = $request->boolean('is_preorder', false);
 
         $product->update($this->productPayload($validated));
-        $this->syncVariants($product, $validated);
+        $pieces->sync($product, $validated);
         $this->syncExistingImageColors($product, $validated['existing_image_colors'] ?? []);
         $this->syncRelatedFit($product, $validated['related_fit_product_id'] ?? null);
 
@@ -277,6 +327,8 @@ class AdminProductController extends Controller
                 ]);
             }
         }
+
+        $this->syncSizeGuide($product, $request);
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Product updated successfully.');
@@ -298,36 +350,6 @@ class AdminProductController extends Controller
             ->with('success', 'Product moved to restore data.');
     }
 
-    private function syncVariants(Product $product, array $validated): void
-    {
-        $rows = collect($validated['variants'] ?? []);
-        $keys = $rows->map(fn ($row) => trim($row['color']).'|'.trim($row['size']))->all();
-        $keptIds = [];
-
-        $product->variants()->get()->each(function (ProductVariant $variant) use ($keys) {
-            if (! in_array(($variant->color ?? '').'|'.($variant->size ?? ''), $keys, true)) {
-                $variant->delete();
-            }
-        });
-
-        foreach ($rows as $row) {
-            $color = trim($row['color']);
-            $size = trim($row['size']);
-            $variant = ProductVariant::updateOrCreate(
-                ['product_id' => $product->id, 'color' => $color, 'size' => $size],
-                [
-                    'sku' => $this->makeVariantSku($product, $color, $size),
-                    'stock' => (int) $row['stock'],
-                    'status' => $product->is_active ? 'published' : 'draft',
-                ]
-            );
-
-            $keptIds[] = $variant->id;
-        }
-
-        $product->variants()->whereNotIn('id', $keptIds)->delete();
-    }
-
     private function prepareProductPayload(array &$validated): void
     {
         $validated['description'] = Html::sanitize($validated['description'] ?? null);
@@ -344,10 +366,14 @@ class AdminProductController extends Controller
         $payload = collect($validated)->except([
             'category_name',
             'variants',
+            'components',
+            'offers',
             'images',
             'image_colors',
             'existing_image_colors',
             'related_fit_product_id',
+            'size_guide_order',
+            'new_size_guides',
         ])->all();
         $payload['discount_percent'] = (float) ($payload['discount_percent'] ?? 0);
 
@@ -539,21 +565,84 @@ class AdminProductController extends Controller
         return $code;
     }
 
-    private function makeVariantSku(Product $product, ?string $color, ?string $size): string
+    /**
+     * @return array<string, mixed>
+     */
+    private function sizeGuideRules(): array
     {
-        $suffix = collect([$color, $size])
-            ->filter()
-            ->map(fn ($value) => Str::upper(Str::slug($value, '')))
-            ->implode('-');
-
-        return $suffix ? $product->sku.'-'.$suffix : $product->sku;
+        return [
+            'size_guide_order' => ['nullable', 'array', 'max:8'],
+            'size_guide_order.*' => ['string', 'regex:/^(existing|new):\d+$/'],
+            'new_size_guides' => ['nullable', 'array', 'max:8'],
+            'new_size_guides.*' => ['file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ];
     }
 
-    private function storeProductImageAsWebp(UploadedFile $image): string
+    private function syncSizeGuide(Product $product, Request $request): void
     {
+        if (! $request->exists('size_guide_order')) {
+            return;
+        }
+
+        $order = $request->input('size_guide_order', []);
+
+        if (! is_array($order)) {
+            return;
+        }
+
+        /** @var array<int, UploadedFile> $files */
+        $files = $request->file('new_size_guides', []);
+        $files = is_array($files) ? $files : [];
+        $current = collect($product->size_guide_images ?? [])->values();
+        $next = [];
+
+        foreach (array_values($order) as $token) {
+            if (! is_string($token) || ! str_contains($token, ':')) {
+                continue;
+            }
+
+            [$kind, $ref] = explode(':', $token, 2);
+            $ref = (int) $ref;
+
+            if ($kind === 'existing') {
+                $path = $current->get($ref);
+
+                if (is_string($path)) {
+                    $next[] = $path;
+                }
+
+                continue;
+            }
+
+            $file = $files[$ref] ?? null;
+
+            if (! $file instanceof UploadedFile) {
+                continue;
+            }
+
+            $next[] = $this->storeProductImageAsWebp($file, 'products/size-guides', 'new_size_guides', false);
+        }
+
+        foreach ($current->diff($next) as $path) {
+            if (is_string($path) && preg_match('#^products/size-guides/[0-9a-f-]{36}\.webp$#i', $path)) {
+                Storage::disk('public')->delete($path);
+            }
+        }
+
+        $product->update([
+            'size_guide_images' => $next === [] ? null : array_values($next),
+        ]);
+    }
+
+    private function storeProductImageAsWebp(
+        UploadedFile $image,
+        string $directory = 'products',
+        string $errorKey = 'images',
+        bool $withThumb = true,
+    ): string {
         if (! function_exists('imagewebp')) {
             throw ValidationException::withMessages([
-                'images' => 'Server does not support WebP conversion.',
+                $errorKey => 'Server does not support WebP conversion.',
             ]);
         }
 
@@ -572,7 +661,7 @@ class AdminProductController extends Controller
 
         if (! $source) {
             throw ValidationException::withMessages([
-                'images' => 'Unsupported image format.',
+                $errorKey => 'Unsupported image format.',
             ]);
         }
 
@@ -581,10 +670,10 @@ class AdminProductController extends Controller
         imagesavealpha($source, true);
         $source = WebpImage::constrain($source);
 
-        Storage::disk('public')->makeDirectory('products');
+        Storage::disk('public')->makeDirectory($directory);
 
         $uuid = (string) Str::uuid();
-        $path = 'products/'.$uuid.'.webp';
+        $path = trim($directory, '/').'/'.$uuid.'.webp';
         $absolute = Storage::disk('public')->path($path);
         $stored = imagewebp($source, $absolute, 82);
 
@@ -592,12 +681,14 @@ class AdminProductController extends Controller
 
         if (! $stored) {
             throw ValidationException::withMessages([
-                'images' => 'Failed to convert image to WebP.',
+                $errorKey => 'Failed to convert image to WebP.',
             ]);
         }
 
-        $thumbRel = 'products/thumbs/'.$uuid.'_e'.WebpImage::THUMB_EDGE.'.webp';
-        WebpImage::writeThumb($absolute, Storage::disk('public')->path($thumbRel));
+        if ($withThumb) {
+            $thumbRel = 'products/thumbs/'.$uuid.'_e'.WebpImage::THUMB_EDGE.'.webp';
+            WebpImage::writeThumb($absolute, Storage::disk('public')->path($thumbRel));
+        }
 
         return $path;
     }

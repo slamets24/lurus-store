@@ -10,6 +10,7 @@ import {
     Truck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ConfiguredHome, type PageSection } from '@/components/home/ConfiguredHome';
 import { HomeSection } from '@/components/HomeSection';
 import { ProductCard } from '@/components/ProductCard';
 import { Reveal } from '@/components/Reveal';
@@ -35,6 +36,8 @@ interface HomeProps {
     categories: Category[];
     announcementBar: AnnouncementBar;
     homeSections: HomeSectionType[];
+    pageSections?: PageSection[];
+    homeSeo?: { title?: string; description?: string; keywords?: string };
     heroBanners: HeroBanner[];
     faqs: Faq[];
     featuredProducts: ProductCardType[];
@@ -46,6 +49,8 @@ export default function Home({
     categories,
     announcementBar,
     homeSections,
+    pageSections = [],
+    homeSeo,
     heroBanners,
     faqs,
     featuredProducts,
@@ -53,6 +58,7 @@ export default function Home({
     testimonials,
 }: HomeProps) {
     const hero = heroBanners[0];
+    const configured = pageSections.length > 0;
     const { appUrl } = usePage().props as unknown as { appUrl?: string };
     const baseUrl = (appUrl || '').replace(/\/$/, '');
 
@@ -96,15 +102,16 @@ export default function Home({
     return (
         <StorefrontLayout announcementBar={announcementBar}>
             <SeoHead
-                title="Lurus Store | Modest Fashion & Muslimah Elegance"
-                description="Belanja koleksi busana muslimah elegan, modern, dan nyaman di Lurus Store. Tersedia dress muslim, hijab, blouse, skirt, dan daily wear muslimah berkualitas."
+                title={homeSeo?.title || 'Lurus Store | Modest Fashion & Muslimah Elegance'}
+                description={homeSeo?.description || 'Belanja koleksi busana muslimah elegan, modern, dan nyaman di Lurus Store. Tersedia dress muslim, hijab, blouse, skirt, dan daily wear muslimah berkualitas.'}
+                keywords={homeSeo?.keywords || undefined}
                 image={hero?.desktopImage ?? hero?.mobileImage ?? undefined}
                 preloadImage={hero?.desktopImage ?? hero?.mobileImage ?? undefined}
                 preloadImageMobile={hero?.mobileImage ?? undefined}
                 canonical="/"
                 jsonLd={homeJsonLd}
             />
-            {hero ? (
+            {configured ? <ConfiguredHome sections={pageSections} /> : hero ? (
                 <section className="relative">
                     <Link href={hero.link ?? '/products'} className="block">
                         <picture>
@@ -180,6 +187,7 @@ export default function Home({
                 </section>
             )}
 
+            {!configured && (
             <div className="border-y border-outline-variant bg-surface-container-low">
                 <div className="mx-auto grid max-w-[var(--container-max)] gap-6 px-4 py-8 sm:grid-cols-3 md:px-[var(--spacing-margin-desktop)]">
                     {[
@@ -197,9 +205,10 @@ export default function Home({
                     ))}
                 </div>
             </div>
+            )}
 
             <div className="mx-auto max-w-[var(--container-max)] px-4 md:px-[var(--spacing-margin-desktop)]">
-                {featuredProducts.length > 0 && (
+                {!configured && featuredProducts.length > 0 && (
                     <section className="py-[var(--spacing-section-gap)]">
                         <Reveal>
                             <div className="mb-8 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
@@ -230,7 +239,7 @@ export default function Home({
                     </section>
                 )}
 
-                {homeSections.map((section) => (
+                {!configured && homeSections.map((section) => (
                     <HomeSection key={section.key} section={section} />
                 ))}
 
@@ -276,7 +285,7 @@ export default function Home({
                     </section>
                 )}
 
-                {categories.length > 0 && (
+                {!configured && categories.length > 0 && (
                     <section className="pb-[var(--spacing-section-gap)]">
                         <Reveal>
                             <div className="mb-8 flex flex-col items-start justify-between gap-3 md:flex-row md:items-end">
@@ -336,7 +345,7 @@ export default function Home({
                     </section>
                 )}
 
-                {/* Editorial Brand Story / SEO Content Section */}
+                {!configured && (
                 <section className="border-t border-outline-variant py-[var(--spacing-section-gap)]">
                     <Reveal>
                         <div className="text-center">
@@ -397,8 +406,9 @@ export default function Home({
                         </Reveal>
                     </div>
                 </section>
+                )}
 
-                {/* FAQ Section */}
+                {!configured && (
                 <section className="border-t border-outline-variant py-[var(--spacing-section-gap)]">
                     <Reveal>
                         <div className="text-center">
@@ -432,6 +442,7 @@ export default function Home({
                         ))}
                     </div>
                 </section>
+                )}
 
                 {testimonials.length > 0 && (
                     <section className="border-t border-outline-variant py-[var(--spacing-section-gap)]">

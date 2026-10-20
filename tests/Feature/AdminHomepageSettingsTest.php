@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\HomeSection;
 use App\Models\StoreContentSetting;
 use App\Models\User;
 use App\Services\HomePageService;
@@ -200,6 +201,31 @@ class AdminHomepageSettingsTest extends TestCase
                 'category_slugs' => [$blouse->slug, $dress->slug],
             ],
         ], StoreContentSetting::value('home_sections'));
+
+        $this->actingAs($admin)->withSession(['_token' => 'test-token'])->post('/admin/homepage/sections', [
+            '_token' => 'test-token',
+            'type' => 'faq',
+            'title' => 'Pertanyaan toko',
+            'sort_order' => 80,
+            'is_active' => '1',
+            'faqs' => [
+                ['question' => 'Berapa lama pengiriman?', 'answer' => 'Dua sampai lima hari.'],
+            ],
+        ])->assertRedirect();
+
+        $section = HomeSection::query()->where('title', 'Pertanyaan toko')->first();
+        $this->assertNotNull($section);
+        $this->assertSame('faq', $section->type);
+        $this->assertSame('Berapa lama pengiriman?', $section->config_json['items'][0]['question']);
+
+        $this->actingAs($admin)->withSession(['_token' => 'test-token'])->put('/admin/homepage/seo', [
+            '_token' => 'test-token',
+            'title' => 'Lurus Modest Wear',
+            'description' => 'Belanja busana muslimah.',
+            'keywords' => 'gamis, hijab',
+        ])->assertRedirect();
+
+        $this->assertSame('Lurus Modest Wear', StoreContentSetting::value('home_seo')['title']);
 
         $sections = app(HomePageService::class)->sections();
         $this->assertCount(1, $sections);

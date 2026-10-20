@@ -29,7 +29,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-    { name: 'Homepage', href: '/admin/homepage', icon: Home },
+    { name: 'Beranda', href: '/admin/homepage', icon: Home },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
     { name: 'Products', href: '/admin/products', icon: Package },
     { name: 'Categories', href: '/admin/categories', icon: FolderTree },

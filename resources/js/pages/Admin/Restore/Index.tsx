@@ -28,6 +28,8 @@ const TYPE_LABELS: Record<string, string> = {
     promos: 'Promos',
     testimonials: 'Testimonials',
     orders: 'Orders',
+    beranda: 'Beranda',
+    'isi-beranda': 'Isi beranda',
 };
 
 export default function RestoreIndex({ activeType, counts, records }: RestoreIndexProps) {

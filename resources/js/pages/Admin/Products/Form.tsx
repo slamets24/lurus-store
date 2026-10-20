@@ -3,6 +3,7 @@ import { ChevronLeft, Loader2, Plus, Trash2, Upload } from 'lucide-react';
 import * as React from 'react';
 import { CategoryCombobox } from '@/components/admin/CategoryCombobox';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
+import { VariantCombinationTable } from '@/components/admin/VariantCombinationTable';
 import { VariantStockMatrix } from '@/components/admin/VariantStockMatrix';
 import AdminLayout from '@/layouts/AdminLayout';
 import { storageUrl } from '@/lib/utils';
@@ -53,6 +54,19 @@ export default function ProductsForm({
             color: variant.color,
             size: variant.size,
             stock: Number(variant.stock) || 0,
+            price: variant.price ?? null,
+            component_key: variant.component_key ?? '',
+        })),
+        components: (product?.components ?? []).map((component) => ({
+            id: component.id,
+            key: component.key,
+            name: component.name,
+        })),
+        offers: (product?.offers ?? []).map((offer) => ({
+            id: offer.id,
+            name: offer.name,
+            price: Number(offer.price) || 0,
+            component_keys: offer.component_keys,
         })),
         color_hexes: (product?.color_hexes ?? {}) as Record<string, string>,
         images: [] as File[],
@@ -63,9 +77,18 @@ export default function ProductsForm({
             }
             return acc;
         }, {}),
+        size_guide_order: [] as string[],
+        new_size_guides: [] as File[],
     });
 
     const [imagePreviews, setImagePreviews] = React.useState<Array<{ file: File; url: string }>>([]);
+    const [sizeGuides, setSizeGuides] = React.useState<Array<{ key: string; preview: string; token: string; file?: File }>>(
+        () => (product?.size_guide_images ?? []).map((path, index) => ({
+            key: `existing-${index}`,
+            preview: storageUrl(path),
+            token: `existing:${index}`,
+        })),
+    );
 
     // Calculate discounted price
     const calculatedDiscountedPrice = React.useMemo(() => {
@@ -100,19 +123,22 @@ export default function ProductsForm({
         return Array.from(new Set(form.data.variants.map((v) => v.color?.trim()).filter(Boolean)));
     }, [form.data.variants]);
 
+    const [pieceEditor, setPieceEditor] = React.useState((product?.components?.length ?? 0) > 0);
+    const hasNamedTypes = form.data.components.some((component) => component.name.trim() !== '');
+
     const submit = (event: React.FormEvent) => {
         event.preventDefault();
 
-        if (isEdit && product?.id) {
-            form.transform((data) => ({ ...data, _method: 'put' }));
-            form.post(`/admin/products/${product.id}`, {
-                forceFormData: true,
-                preserveScroll: true,
-            });
-            return;
-        }
+        const freshGuides = sizeGuides.filter((item) => item.file);
+        const guideIndexes = new Map(freshGuides.map((item, index) => [item.key, index]));
+        form.transform((data) => ({
+            ...data,
+            ...(isEdit ? { _method: 'put' } : {}),
+            size_guide_order: sizeGuides.map((item) => (item.file ? `new:${guideIndexes.get(item.key)}` : item.token)),
+            new_size_guides: freshGuides.map((item) => item.file as File),
+        }));
 
-        form.post('/admin/products', {
+        form.post(isEdit && product?.id ? `/admin/products/${product.id}` : '/admin/products', {
             forceFormData: true,
             preserveScroll: true,
         });
@@ -173,6 +199,55 @@ export default function ProductsForm({
             images: [...prev.images, ...validFiles],
             image_colors: [...prev.image_colors, ...validFiles.map(() => '')],
         }));
+    };
+
+    const addSizeGuides = (files: File[]) => {
+        setClientImageError(null);
+        const imageFiles = files.filter((file) => file.type.startsWith('image/') || /\.(jpe?g|png|webp)$/i.test(file.name));
+        const room = 8 - sizeGuides.length;
+
+        if (room <= 0) {
+            setClientImageError('Panduan ukuran maksimal 8 gambar.');
+            return;
+        }
+
+        const accepted = imageFiles.slice(0, room);
+        const oversized = accepted.filter((file) => file.size > MAX_FILE_SIZE).map((file) => file.name);
+        const valid = accepted.filter((file) => file.size <= MAX_FILE_SIZE);
+
+        if (imageFiles.length > room) {
+            setClientImageError('Panduan ukuran maksimal 8 gambar.');
+        }
+
+        if (oversized.length > 0) {
+            setClientImageError(
+                `Foto berikut melebihi batas 2MB: ${oversized.join(', ')}. Silakan pilih foto dengan ukuran maksimal 2MB.`,
+            );
+        }
+
+        if (valid.length === 0) {
+            return;
+        }
+
+        setSizeGuides((prev) => [
+            ...prev,
+            ...valid.map((file) => ({
+                key: `${file.name}-${file.size}-${file.lastModified}-${Math.random().toString(36).slice(2, 7)}`,
+                preview: URL.createObjectURL(file),
+                token: '',
+                file,
+            })),
+        ]);
+    };
+
+    const removeSizeGuide = (index: number) => {
+        setSizeGuides((prev) => {
+            const item = prev[index];
+            if (item?.file) {
+                URL.revokeObjectURL(item.preview);
+            }
+            return prev.filter((_, itemIndex) => itemIndex !== index);
+        });
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -366,10 +441,16 @@ export default function ProductsForm({
                                                 : ''
                                         }
                                         onChange={(e) => handlePriceChange(e.target.value)}
-                                        className="flex-1 bg-transparent px-3.5 text-sm font-medium text-stone-800 placeholder:text-stone-400 focus:outline-none"
+                                        readOnly={hasNamedTypes || form.data.offers.length > 0}
+                                        className="flex-1 bg-transparent px-3.5 text-sm font-medium text-stone-800 placeholder:text-stone-400 focus:outline-none read-only:text-stone-500"
                                         required
                                     />
                                 </div>
+                                {(hasNamedTypes || form.data.offers.length > 0) && (
+                                    <p className="mt-1 text-xs text-stone-500">
+                                        Harga kartu mengikuti opsi termurah.
+                                    </p>
+                                )}
                                 {form.errors.price && (
                                     <p className="mt-1 text-xs text-red-500">{form.errors.price}</p>
                                 )}
@@ -511,19 +592,114 @@ export default function ProductsForm({
                         </div>
                     </div>
 
-                    {/* SECTION: VARIANTS & INVENTORY (STOK VARIAN Matrix) */}
-                    <VariantStockMatrix
-                        variants={form.data.variants}
-                        colorHexes={form.data.color_hexes}
-                        availableColors={variantOptions.colors}
-                        availableSizes={variantOptions.sizes}
-                        onChangeVariants={(updatedVariants) => form.setData('variants', updatedVariants)}
-                        onChangeColorHexes={(updatedHexes) => form.setData('color_hexes', updatedHexes)}
-                        error={
-                            form.errors.variants ||
-                            Object.entries(form.errors).find(([k]) => k.startsWith('variants.'))?.[1]
-                        }
-                    />
+                    {form.data.components.length === 0 && !pieceEditor ? (
+                        <>
+                            <VariantStockMatrix
+                                variants={form.data.variants}
+                                colorHexes={form.data.color_hexes}
+                                availableColors={variantOptions.colors}
+                                availableSizes={variantOptions.sizes}
+                                onChangeVariants={(updatedVariants) => form.setData('variants', updatedVariants)}
+                                onChangeColorHexes={(updatedHexes) => form.setData('color_hexes', updatedHexes)}
+                                error={
+                                    form.errors.variants ||
+                                    Object.entries(form.errors).find(([k]) => k.startsWith('variants.'))?.[1]
+                                }
+                            />
+                            <div className="rounded-2xl border border-[#e5e1dc] bg-white p-6 shadow-sm sm:p-8">
+                                <div className="flex flex-wrap items-center justify-between gap-4">
+                                    <div>
+                                        <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-stone-800">
+                                            Jual per tipe
+                                        </h2>
+                                        <p className="mt-1 font-sans text-xs text-stone-500">
+                                            Untuk artikel seperti setelan tunik dan rok. Contoh: warna Dark Denim, ukuran S/M, tipe Tunik dan Rok. Setiap tipe punya stok dan harga sendiri.
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setPieceEditor(true)}
+                                        className="inline-flex items-center gap-1.5 rounded-md border border-[#e5e1dc] px-3 py-2 text-xs font-semibold text-stone-700 hover:border-warm-brown hover:text-warm-brown"
+                                    >
+                                        <Plus className="h-3.5 w-3.5" />
+                                        Tambah tipe
+                                    </button>
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <VariantCombinationTable
+                            components={form.data.components}
+                            offers={form.data.offers}
+                            variants={form.data.variants}
+                            colorHexes={form.data.color_hexes}
+                            fallbackPrice={Number(form.data.price) || 0}
+                            onChange={(next) => {
+                                if (next.components.length === 0 && form.data.components.length > 0) {
+                                    setPieceEditor(false);
+                                }
+                                form.setData({ ...form.data, ...next });
+                            }}
+                            error={
+                                form.errors.components ||
+                                form.errors.offers ||
+                                form.errors.variants ||
+                                Object.entries(form.errors).find(([key]) => key.startsWith('offers.') || key.startsWith('components.') || key.startsWith('variants.'))?.[1]
+                            }
+                        />
+                    )}
+
+                    <div className="space-y-6 rounded-2xl border border-[#e5e1dc] bg-white p-6 shadow-sm sm:p-8">
+                        <div>
+                            <h2 className="font-sans text-xs font-bold uppercase tracking-wider text-stone-800">
+                                Panduan ukuran
+                            </h2>
+                            <p className="mt-1 font-sans text-xs text-stone-500">
+                                Unggah gambar saja. Bisa lebih dari satu. Pembeli melihatnya di popup, dengan panah kiri dan kanan.
+                            </p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                            {sizeGuides.map((item, index) => (
+                                <div key={item.key} className="overflow-hidden rounded-2xl border border-[#e5e1dc] bg-white">
+                                    <div className="relative aspect-[3/4] overflow-hidden bg-stone-100">
+                                        <img src={item.preview} alt="" className="h-full w-full object-cover" />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeSizeGuide(index)}
+                                            className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white text-stone-900 shadow-sm"
+                                            aria-label={`Hapus panduan ukuran ${index + 1}`}
+                                        >
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                        </button>
+                                        <span className="absolute left-2 top-2 rounded-full bg-stone-950/90 px-2 py-0.5 text-[10px] text-white">
+                                            {index + 1}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                            {sizeGuides.length < 8 && (
+                                <label className="flex aspect-[3/4] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-300 text-stone-500 hover:border-stone-500">
+                                    <Plus className="h-6 w-6" />
+                                    <span className="mt-1 px-3 text-center text-sm">Tambah gambar panduan</span>
+                                    <input
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        multiple
+                                        className="hidden"
+                                        onChange={(event) => {
+                                            addSizeGuides(Array.from(event.target.files ?? []));
+                                            event.target.value = '';
+                                        }}
+                                    />
+                                </label>
+                            )}
+                        </div>
+                        {(form.errors.new_size_guides || form.errors.size_guide_order) && (
+                            <p className="font-sans text-xs text-red-600">
+                                {form.errors.new_size_guides || form.errors.size_guide_order}
+                            </p>
+                        )}
+                    </div>
 
                     {/* SECTION: PRODUCT IMAGES */}
                     <div

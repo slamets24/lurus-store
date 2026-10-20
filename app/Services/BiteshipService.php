@@ -538,8 +538,8 @@ class BiteshipService
     private function items(iterable $cartItems): array
     {
         return collect($cartItems)->map(fn ($cartItem) => [
-            'name' => mb_substr($cartItem->product->name, 0, 50),
-            'value' => (int) round((float) $cartItem->product->price),
+            'name' => mb_substr($cartItem->offer?->name ? $cartItem->product->name.' — '.$cartItem->offer->name : $cartItem->product->name, 0, 50),
+            'value' => (int) round((float) ($cartItem->offer?->price ?? $cartItem->product->price)),
             'quantity' => (int) $cartItem->quantity,
             'weight' => max(1, (int) config('services.biteship.item_weight_grams')),
             'length' => max(1, (int) config('services.biteship.item_length_cm')),
@@ -550,7 +550,11 @@ class BiteshipService
 
     private function subtotal(iterable $cartItems): float
     {
-        return collect($cartItems)->sum(fn ($cartItem) => $cartItem->product->effectiveUnitPrice() * $cartItem->quantity);
+        return collect($cartItems)->sum(function ($cartItem) {
+            $list = $cartItem->offer?->price !== null ? (float) $cartItem->offer->price : null;
+
+            return app(CartPricingService::class)->priceFor($cartItem->product, $list) * $cartItem->quantity;
+        });
     }
 
     private function normalize(array $rate): ?array

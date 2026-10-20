@@ -17,8 +17,23 @@ export interface ProductVariant {
     color: string;
     size: string;
     stock: number;
+    price?: number | null;
     sku?: string;
     status?: string;
+    component_key?: string;
+}
+
+export interface ProductComponentInput {
+    id?: number;
+    key: string;
+    name: string;
+}
+
+export interface ProductOfferInput {
+    id?: number;
+    name: string;
+    price: number;
+    component_keys: string[];
 }
 
 export interface ProductImage {
@@ -53,7 +68,10 @@ export interface AdminProduct {
     category_id?: number | null;
     category_name?: string;
     images?: ProductImage[];
+    size_guide_images?: string[] | null;
     variants?: ProductVariant[];
+    components?: ProductComponentInput[];
+    offers?: ProductOfferInput[];
     shopee_url?: string | null;
     tokopedia_url?: string | null;
     tiktok_url?: string | null;

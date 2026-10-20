@@ -33,6 +33,7 @@ class Product extends Model implements Sitemapable
         'colors',
         'color_hexes',
         'material',
+        'size_guide_images',
         'related_fit_product_id',
         'care_instructions',
         'shopee_url',
@@ -64,6 +65,7 @@ class Product extends Model implements Sitemapable
         'stock' => 'integer',
         'sizes' => 'array',
         'colors' => 'array',
+        'size_guide_images' => 'array',
         'color_hexes' => 'array',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
@@ -224,6 +226,16 @@ class Product extends Model implements Sitemapable
     public function primaryImage(): HasMany
     {
         return $this->hasMany(ProductImage::class)->where('is_primary', true);
+    }
+
+    public function components(): HasMany
+    {
+        return $this->hasMany(ProductComponent::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function offers(): HasMany
+    {
+        return $this->hasMany(ProductOffer::class)->orderBy('sort_order')->orderBy('id');
     }
 
     public function variants(): HasMany

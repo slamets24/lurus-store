@@ -317,6 +317,11 @@ export default function Checkout({
                                                 </span>
                                             )}
                                         </div>
+                                        {(item.offer?.name || item.color || item.size) && (
+                                            <p className="text-secondary text-xs">
+                                                {[item.offer?.name, item.color, item.size].filter(Boolean).join(' · ')}
+                                            </p>
+                                        )}
                                         <p className="text-secondary text-xs">Qty: {item.quantity}</p>
                                         {item.product.is_preorder && (
                                             <p className="text-[11px] text-warm-brown font-medium">
