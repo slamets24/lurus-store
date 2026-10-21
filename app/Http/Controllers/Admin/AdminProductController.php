@@ -640,54 +640,11 @@ class AdminProductController extends Controller
         string $errorKey = 'images',
         bool $withThumb = true,
     ): string {
-        if (! function_exists('imagewebp')) {
-            throw ValidationException::withMessages([
-                $errorKey => 'Server does not support WebP conversion.',
-            ]);
-        }
-
-        $source = match ($image->getMimeType()) {
-            'image/jpeg' => function_exists('imagecreatefromjpeg')
-                ? imagecreatefromjpeg($image->getRealPath())
-                : false,
-            'image/png' => function_exists('imagecreatefrompng')
-                ? imagecreatefrompng($image->getRealPath())
-                : false,
-            'image/webp' => function_exists('imagecreatefromwebp')
-                ? imagecreatefromwebp($image->getRealPath())
-                : false,
-            default => false,
-        };
-
-        if (! $source) {
-            throw ValidationException::withMessages([
-                $errorKey => 'Unsupported image format.',
-            ]);
-        }
-
-        imagepalettetotruecolor($source);
-        imagealphablending($source, false);
-        imagesavealpha($source, true);
-        $source = WebpImage::constrain($source);
-
-        Storage::disk('public')->makeDirectory($directory);
-
-        $uuid = (string) Str::uuid();
-        $path = trim($directory, '/').'/'.$uuid.'.webp';
-        $absolute = Storage::disk('public')->path($path);
-        $stored = imagewebp($source, $absolute, 82);
-
-        imagedestroy($source);
-
-        if (! $stored) {
-            throw ValidationException::withMessages([
-                $errorKey => 'Failed to convert image to WebP.',
-            ]);
-        }
+        $path = WebpImage::store($image, $directory, $errorKey);
 
         if ($withThumb) {
-            $thumbRel = 'products/thumbs/'.$uuid.'_e'.WebpImage::THUMB_EDGE.'.webp';
-            WebpImage::writeThumb($absolute, Storage::disk('public')->path($thumbRel));
+            $thumbRel = 'products/thumbs/'.pathinfo($path, PATHINFO_FILENAME).'_e'.WebpImage::THUMB_EDGE.'.webp';
+            WebpImage::writeThumb(Storage::disk('public')->path($path), Storage::disk('public')->path($thumbRel));
         }
 
         return $path;

@@ -235,7 +235,7 @@ class AdminHomepageSettingsTest extends TestCase
             'sort_order' => 10,
             'is_active' => true,
         ]);
-        $desktop = UploadedFile::fake()->image('desktop.png', 800, 400);
+        $desktop = UploadedFile::fake()->image('desktop.png', 3000, 1500);
         $mobile = UploadedFile::fake()->image('mobile.png', 400, 800);
 
         $this->actingAs($admin)->withSession(['_token' => 'test-token'])->post("/admin/homepage/sections/{$hero->id}/items", [
@@ -254,8 +254,15 @@ class AdminHomepageSettingsTest extends TestCase
         $item = HomeSectionItem::query()->where('home_section_id', $hero->id)->first();
         $this->assertNotNull($item?->image_path);
         $this->assertNotNull($item->config_json['mobile_image'] ?? null);
+        $this->assertStringEndsWith('.webp', $item->image_path);
+        $this->assertStringEndsWith('.webp', $item->config_json['mobile_image']);
         Storage::disk('public')->assertExists($item->image_path);
         Storage::disk('public')->assertExists($item->config_json['mobile_image']);
+        $stored = imagecreatefromwebp(Storage::disk('public')->path($item->image_path));
+        $this->assertNotFalse($stored);
+        $this->assertSame(2000, imagesx($stored));
+        $this->assertSame(1000, imagesy($stored));
+        imagedestroy($stored);
 
         $previous = $item->image_path;
         $mobilePath = $item->config_json['mobile_image'];

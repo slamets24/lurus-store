@@ -12,6 +12,7 @@ use App\Models\Product;
 use App\Models\StoreContentSetting;
 use App\Services\HomePageService;
 use App\Support\HomeSections;
+use App\Support\WebpImage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -195,7 +196,14 @@ class AdminHomepageController extends Controller
     private function imagePath(HomeSectionRequest|HomeSectionItemRequest $request, string $fileKey = 'image', string $pathKey = 'image_path'): ?string
     {
         if ($request->hasFile($fileKey)) {
-            return $request->file($fileKey)->store('home', 'public');
+            $path = WebpImage::store($request->file($fileKey), 'home', $fileKey);
+            $previous = $request->input($pathKey);
+
+            if (is_string($previous) && $previous !== '' && $previous !== $path && ! str_contains($previous, '..') && ! str_contains($previous, '://')) {
+                Storage::disk('public')->delete($previous);
+            }
+
+            return $path;
         }
 
         $path = $request->input($pathKey);
@@ -246,14 +254,14 @@ class AdminHomepageController extends Controller
             if (! empty($banner['desktop_image'])) {
                 Storage::disk('public')->delete($banner['desktop_image']);
             }
-            $banner['desktop_image'] = $request->file('hero_desktop_image')->store('store-content', 'public');
+            $banner['desktop_image'] = WebpImage::store($request->file('hero_desktop_image'), 'store-content', 'hero_desktop_image');
         }
 
         if ($request->hasFile('hero_mobile_image')) {
             if (! empty($banner['mobile_image'])) {
                 Storage::disk('public')->delete($banner['mobile_image']);
             }
-            $banner['mobile_image'] = $request->file('hero_mobile_image')->store('store-content', 'public');
+            $banner['mobile_image'] = WebpImage::store($request->file('hero_mobile_image'), 'store-content', 'hero_mobile_image');
         }
 
         if ($existing) {
@@ -415,7 +423,7 @@ class AdminHomepageController extends Controller
             if ($image) {
                 Storage::disk('public')->delete($image);
             }
-            $image = $request->file('image')->store('store-content', 'public');
+            $image = WebpImage::store($request->file('image'), 'store-content', 'image');
         }
 
         StoreContentSetting::putValue('promo_popup', [

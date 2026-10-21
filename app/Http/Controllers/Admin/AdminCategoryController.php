@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Support\WebpImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -63,11 +64,11 @@ class AdminCategoryController extends Controller
         $validated['slug'] = Str::slug(($validated['slug'] ?? '') ?: $validated['name']);
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('categories', 'public');
+            $validated['image'] = WebpImage::store($request->file('image'), 'categories', 'image');
         }
 
         if ($request->hasFile('size_chart')) {
-            $validated['size_chart_path'] = $request->file('size_chart')->store('categories', 'public');
+            $validated['size_chart_path'] = WebpImage::store($request->file('size_chart'), 'categories', 'size_chart');
         }
 
         Category::create($validated);
@@ -120,7 +121,7 @@ class AdminCategoryController extends Controller
             if ($category->image) {
                 Storage::disk('public')->delete($category->image);
             }
-            $validated['image'] = $request->file('image')->store('categories', 'public');
+            $validated['image'] = WebpImage::store($request->file('image'), 'categories', 'image');
         } else {
             unset($validated['image']);
         }
@@ -129,7 +130,7 @@ class AdminCategoryController extends Controller
             if ($category->size_chart_path) {
                 Storage::disk('public')->delete($category->size_chart_path);
             }
-            $validated['size_chart_path'] = $request->file('size_chart')->store('categories', 'public');
+            $validated['size_chart_path'] = WebpImage::store($request->file('size_chart'), 'categories', 'size_chart');
         } elseif ($request->boolean('remove_size_chart')) {
             if ($category->size_chart_path) {
                 Storage::disk('public')->delete($category->size_chart_path);

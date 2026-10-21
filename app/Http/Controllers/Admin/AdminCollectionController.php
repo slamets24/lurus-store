@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Collection;
 use App\Models\Product;
+use App\Support\WebpImage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -62,7 +64,7 @@ class AdminCollectionController extends Controller
         $validated['slug'] = $validated['slug'] ?? Str::slug($validated['name']);
 
         if ($request->hasFile('banner_image')) {
-            $validated['banner_image'] = $request->file('banner_image')->store('collections', 'public');
+            $validated['banner_image'] = WebpImage::store($request->file('banner_image'), 'collections', 'banner_image');
         }
 
         $collection = Collection::create($validated);
@@ -122,7 +124,10 @@ class AdminCollectionController extends Controller
         $validated['slug'] = $validated['slug'] ?? Str::slug($validated['name']);
 
         if ($request->hasFile('banner_image')) {
-            $validated['banner_image'] = $request->file('banner_image')->store('collections', 'public');
+            if ($collection->banner_image) {
+                Storage::disk('public')->delete($collection->banner_image);
+            }
+            $validated['banner_image'] = WebpImage::store($request->file('banner_image'), 'collections', 'banner_image');
         } else {
             unset($validated['banner_image']);
         }

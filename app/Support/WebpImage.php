@@ -3,6 +3,10 @@
 namespace App\Support;
 
 use GdImage;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 final class WebpImage
 {
@@ -31,6 +35,64 @@ final class WebpImage
         imagedestroy($source);
 
         return $resized;
+    }
+
+    /**
+     * Shrink the long edge to {@see MAX_EDGE}, then store a WebP on the public disk.
+     */
+    public static function store(UploadedFile $image, string $directory, string $errorKey = 'image'): string
+    {
+        if (! function_exists('imagewebp')) {
+            throw ValidationException::withMessages([
+                $errorKey => 'Server does not support WebP conversion.',
+            ]);
+        }
+
+        $source = self::load($image);
+
+        if (! $source) {
+            throw ValidationException::withMessages([
+                $errorKey => 'Unsupported image format.',
+            ]);
+        }
+
+        imagepalettetotruecolor($source);
+        imagealphablending($source, false);
+        imagesavealpha($source, true);
+        $source = self::constrain($source);
+
+        $directory = trim($directory, '/');
+        Storage::disk('public')->makeDirectory($directory);
+
+        $path = $directory.'/'.Str::uuid().'.webp';
+        $stored = imagewebp($source, Storage::disk('public')->path($path), 82);
+        imagedestroy($source);
+
+        if (! $stored) {
+            throw ValidationException::withMessages([
+                $errorKey => 'Failed to convert image to WebP.',
+            ]);
+        }
+
+        return $path;
+    }
+
+    private static function load(UploadedFile $image): GdImage|false
+    {
+        $path = $image->getRealPath();
+
+        if ($path === false) {
+            return false;
+        }
+
+        $loaded = match ($image->getMimeType()) {
+            'image/jpeg', 'image/jpg', 'image/pjpeg' => function_exists('imagecreatefromjpeg') ? imagecreatefromjpeg($path) : false,
+            'image/png' => function_exists('imagecreatefrompng') ? imagecreatefrompng($path) : false,
+            'image/webp' => function_exists('imagecreatefromwebp') ? imagecreatefromwebp($path) : false,
+            default => false,
+        };
+
+        return $loaded instanceof GdImage ? $loaded : false;
     }
 
     /** Write a WebP thumb next to the source; returns false if GD/source unavailable. */
