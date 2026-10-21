@@ -139,8 +139,6 @@ export default function HomepageIndex({ types, sections, products, categories, h
         faqs: [{ question: '', answer: '' }] as Faq[],
     });
 
-    form.transform((data) => (data.image instanceof File ? data : { ...data, image: undefined }));
-
     const itemForm = useForm({
         item_type: 'slide',
         product_id: '' as number | '',
@@ -160,12 +158,6 @@ export default function HomepageIndex({ types, sections, products, categories, h
         x: 50,
         y: 50,
     });
-
-    itemForm.transform((data) => ({
-        ...data,
-        image: data.image instanceof File ? data.image : undefined,
-        mobile_image: data.mobile_image instanceof File ? data.mobile_image : undefined,
-    }));
 
     const seoForm = useForm({
         title: homeSeo.title,
@@ -285,12 +277,15 @@ export default function HomepageIndex({ types, sections, products, categories, h
 
     const submit = (event: FormEvent) => {
         event.preventDefault();
-        const options = { forceFormData: true, preserveScroll: true, onSuccess: () => resetSection() };
-        if (editing) {
-            form.put(`/admin/homepage/sections/${editing}`, options);
-        } else {
-            form.post('/admin/homepage/sections', options);
-        }
+        form.transform((data) => ({
+            ...(data.image instanceof File ? data : { ...data, image: undefined }),
+            ...(editing ? { _method: 'put' } : {}),
+        }));
+        form.post(editing ? `/admin/homepage/sections/${editing}` : '/admin/homepage/sections', {
+            forceFormData: true,
+            preserveScroll: true,
+            onSuccess: () => resetSection(),
+        });
     };
 
     const readLink = (url: string) => {
@@ -378,8 +373,9 @@ export default function HomepageIndex({ types, sections, products, categories, h
             item_type: type,
             image: data.image instanceof File ? data.image : undefined,
             mobile_image: data.mobile_image instanceof File ? data.mobile_image : undefined,
+            ...(editingItem ? { _method: 'put' } : {}),
         }));
-        const options = {
+        itemForm.post(editingItem ? `/admin/homepage/items/${editingItem}` : `/admin/homepage/sections/${section.id}/items`, {
             forceFormData: true,
             preserveScroll: true,
             onSuccess: () => {
@@ -391,12 +387,7 @@ export default function HomepageIndex({ types, sections, products, categories, h
                 setPositionView('desktop');
                 setItemSectionId(null);
             },
-        };
-        if (editingItem) {
-            itemForm.put(`/admin/homepage/items/${editingItem}`, options);
-        } else {
-            itemForm.post(`/admin/homepage/sections/${section.id}/items`, options);
-        }
+        });
     };
 
     const positionImage = positionView === 'mobile'
@@ -435,7 +426,7 @@ export default function HomepageIndex({ types, sections, products, categories, h
                     {(sectionPreview || form.data.image_path) && (
                         <img src={sectionPreview || storageUrl(form.data.image_path)} alt="" className="h-28 w-full rounded-2xl object-cover" />
                     )}
-                    <Input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => onFile('section', event.target.files?.[0] ?? null)} />
+                    <Input className="h-auto py-1.5" type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => onFile('section', event.target.files?.[0] ?? null)} />
                     {sectionFileError && <p className="text-sm text-red-600">{sectionFileError}</p>}
                     {form.errors.image && <p className="text-sm text-red-600">{form.errors.image}</p>}
                 </label>
@@ -507,6 +498,13 @@ export default function HomepageIndex({ types, sections, products, categories, h
                 <input type="checkbox" checked={form.data.is_active} onChange={(event) => form.setData('is_active', event.target.checked)} />
                 Tampil di toko
             </label>
+            {form.hasErrors && (
+                <div className="md:col-span-2 space-y-1">
+                    {Object.entries(form.errors).map(([key, error]) => (
+                        <p key={key} className="text-sm text-red-600">{error}</p>
+                    ))}
+                </div>
+            )}
             <div className="flex gap-2 md:col-span-2">
                 <Button type="submit" variant="accent" disabled={form.processing}>{mode === 'create' ? 'Simpan' : 'Simpan bagian'}</Button>
                 <Button type="button" variant="ghost" onClick={resetSection}>Batal</Button>
@@ -652,14 +650,16 @@ export default function HomepageIndex({ types, sections, products, categories, h
                                                     <label className="flex flex-col gap-2 text-sm">
                                                         Foto desktop
                                                         {(itemPreview || itemForm.data.image_path) && <img src={itemPreview || storageUrl(itemForm.data.image_path)} alt="" className="aspect-[1920/800] w-full rounded-2xl object-cover" />}
-                                                        <Input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => onFile('item', event.target.files?.[0] ?? null)} />
+                                                        <Input className="h-auto py-1.5" type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => onFile('item', event.target.files?.[0] ?? null)} />
                                                         {itemFileError && <p className="text-sm text-red-600">{itemFileError}</p>}
+                                                        {itemForm.errors.image && <p className="text-sm text-red-600">{itemForm.errors.image}</p>}
                                                     </label>
                                                     <label className="flex flex-col gap-2 text-sm">
                                                         Foto mobile
                                                         {(mobilePreview || itemForm.data.mobile_image_path) && <img src={mobilePreview || storageUrl(itemForm.data.mobile_image_path)} alt="" className="aspect-[1619/971] w-full rounded-2xl object-cover" />}
-                                                        <Input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => onFile('mobile', event.target.files?.[0] ?? null)} />
+                                                        <Input className="h-auto py-1.5" type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => onFile('mobile', event.target.files?.[0] ?? null)} />
                                                         {mobileFileError && <p className="text-sm text-red-600">{mobileFileError}</p>}
+                                                        {itemForm.errors.mobile_image && <p className="text-sm text-red-600">{itemForm.errors.mobile_image}</p>}
                                                     </label>
                                                     <div className="flex flex-col gap-2 md:col-span-2">
                                                         <div className="flex items-center justify-between gap-3">
@@ -700,7 +700,9 @@ export default function HomepageIndex({ types, sections, products, categories, h
                                                 <label className="flex flex-col gap-2 text-sm">
                                                     Foto
                                                     {(itemPreview || itemForm.data.image_path) && <img src={itemPreview || storageUrl(itemForm.data.image_path)} alt="" className="h-28 w-full rounded-2xl object-cover" />}
-                                                    <Input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => onFile('item', event.target.files?.[0] ?? null)} />
+                                                    <Input className="h-auto py-1.5" type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => onFile('item', event.target.files?.[0] ?? null)} />
+                                                    {itemFileError && <p className="text-sm text-red-600">{itemFileError}</p>}
+                                                    {itemForm.errors.image && <p className="text-sm text-red-600">{itemForm.errors.image}</p>}
                                                 </label>
                                             )}
                                             <label className="flex flex-col gap-2 text-sm">
@@ -794,6 +796,13 @@ export default function HomepageIndex({ types, sections, products, categories, h
                                                         </div>
                                                     )}
                                                 </>
+                                            )}
+                                            {itemForm.hasErrors && (
+                                                <div className="space-y-1 md:col-span-2">
+                                                    {Object.entries(itemForm.errors).map(([key, error]) => (
+                                                        <p key={key} className="text-sm text-red-600">{error}</p>
+                                                    ))}
+                                                </div>
                                             )}
                                             <div className="flex gap-2 md:col-span-2">
                                                 <Button type="submit" size="sm" variant="accent" disabled={itemForm.processing}>{editingItem ? 'Simpan perubahan' : 'Tambah'}</Button>

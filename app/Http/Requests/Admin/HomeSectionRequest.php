@@ -64,6 +64,19 @@ class HomeSectionRequest extends FormRequest
     }
 
     /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'image.uploaded' => 'Foto gagal diunggah. Perkecil ukuran file lalu coba lagi.',
+            'image.image' => 'File harus berupa foto JPG, PNG, atau WebP.',
+            'image.mimes' => 'File harus berupa foto JPG, PNG, atau WebP.',
+            'image.max' => 'Foto maksimal 8 MB.',
+        ];
+    }
+
+    /**
      * @return array<string, mixed>|null
      */
     public function sectionConfig(): ?array

@@ -60,6 +60,23 @@ class HomeSectionItemRequest extends FormRequest
     }
 
     /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'image.uploaded' => 'Foto gagal diunggah. Perkecil ukuran file lalu coba lagi.',
+            'image.image' => 'File harus berupa foto JPG, PNG, atau WebP.',
+            'image.mimes' => 'File harus berupa foto JPG, PNG, atau WebP.',
+            'image.max' => 'Foto maksimal 8 MB.',
+            'mobile_image.uploaded' => 'Foto mobile gagal diunggah. Perkecil ukuran file lalu coba lagi.',
+            'mobile_image.image' => 'Foto mobile harus berupa JPG, PNG, atau WebP.',
+            'mobile_image.mimes' => 'Foto mobile harus berupa JPG, PNG, atau WebP.',
+            'mobile_image.max' => 'Foto mobile maksimal 8 MB.',
+        ];
+    }
+
+    /**
      * @return array<string, mixed>|null
      */
     public function itemConfig(): ?array

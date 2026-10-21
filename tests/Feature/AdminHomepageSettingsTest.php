@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\HomeSection;
+use App\Models\HomeSectionItem;
 use App\Models\StoreContentSetting;
 use App\Models\User;
 use App\Services\HomePageService;
@@ -226,6 +227,58 @@ class AdminHomepageSettingsTest extends TestCase
         ])->assertRedirect();
 
         $this->assertSame('Lurus Modest Wear', StoreContentSetting::value('home_seo')['title']);
+
+        Storage::fake('public');
+        $hero = HomeSection::query()->create([
+            'type' => 'hero',
+            'title' => 'Hero',
+            'sort_order' => 10,
+            'is_active' => true,
+        ]);
+        $desktop = UploadedFile::fake()->image('desktop.png', 800, 400);
+        $mobile = UploadedFile::fake()->image('mobile.png', 400, 800);
+
+        $this->actingAs($admin)->withSession(['_token' => 'test-token'])->post("/admin/homepage/sections/{$hero->id}/items", [
+            '_token' => 'test-token',
+            'item_type' => 'slide',
+            'title' => 'Banner',
+            'image' => $desktop,
+            'mobile_image' => $mobile,
+            'link_url' => '/products',
+            'sort_order' => 0,
+            'is_active' => '1',
+            'x' => 50,
+            'y' => 40,
+        ])->assertRedirect()->assertSessionHasNoErrors();
+
+        $item = HomeSectionItem::query()->where('home_section_id', $hero->id)->first();
+        $this->assertNotNull($item?->image_path);
+        $this->assertNotNull($item->config_json['mobile_image'] ?? null);
+        Storage::disk('public')->assertExists($item->image_path);
+        Storage::disk('public')->assertExists($item->config_json['mobile_image']);
+
+        $previous = $item->image_path;
+        $mobilePath = $item->config_json['mobile_image'];
+        $replacement = UploadedFile::fake()->image('next.png', 900, 500);
+
+        $this->actingAs($admin)->withSession(['_token' => 'test-token'])->post("/admin/homepage/items/{$item->id}", [
+            '_token' => 'test-token',
+            '_method' => 'put',
+            'item_type' => 'slide',
+            'title' => 'Banner',
+            'image' => $replacement,
+            'mobile_image_path' => $item->config_json['mobile_image'],
+            'link_url' => '/products',
+            'sort_order' => 0,
+            'is_active' => '1',
+            'x' => 50,
+            'y' => 40,
+        ])->assertRedirect()->assertSessionHasNoErrors();
+
+        $item->refresh();
+        $this->assertNotSame($previous, $item->image_path);
+        Storage::disk('public')->assertExists($item->image_path);
+        $this->assertSame($mobilePath, $item->config_json['mobile_image']);
 
         $sections = app(HomePageService::class)->sections();
         $this->assertCount(1, $sections);
